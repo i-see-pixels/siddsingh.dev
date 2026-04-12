@@ -9,8 +9,8 @@ interface Post {
 	metadata: {
 		title: string
 		publishedAt: string
-		tag: string
-		image: string
+		tag?: string
+		image?: string
 	}
 }
 

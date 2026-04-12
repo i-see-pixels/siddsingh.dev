@@ -1,0 +1,39 @@
+---
+title: "MCP client for multiple servers"
+publishedAt: "2025-06-04"
+summary: "A Python MCP client that communicates with multiple stdio-based servers concurrently through one unified interface."
+images:
+  - "/images/projects/project-01/cover-02.jpg"
+  - "/images/projects/project-01/image-03.jpg"
+team:
+  - name: "Siddhant Singh"
+    role: "Software Engineer"
+    avatar: "/images/avatar_headshot.png"
+    linkedIn: "https://www.linkedin.com/in/sidd-singh/"
+link: "https://github.com/i-see-pixels/mcp-client-multiserver"
+---
+
+## Overview
+
+This project explores a practical client for working with multiple MCP-compatible servers over stdio. The goal was to create one place to manage several backend processes instead of treating each integration as a separate one-off connection.
+
+## What I built
+
+- A Python client that can communicate with multiple server processes concurrently.
+- A stdio-based integration model that stays close to the MCP communication pattern.
+- A setup that makes it easier to experiment with multiple tools and services through a shared client surface.
+- A lightweight developer workflow built around `uv` for installation and execution.
+
+## Why it matters
+
+I am especially interested in infrastructure that makes AI and tool ecosystems easier to compose. This project is part of that exploration: fewer disconnected scripts, more reusable interfaces, and clearer patterns for managing tool-enabled applications.
+
+## Stack
+
+- Python 3.12+
+- `uv` for environment and dependency management
+- stdio-based server communication
+
+## Outcome
+
+The project sharpened my thinking around tool orchestration, process management, and the ergonomics of working with emerging agent and MCP-style workflows in a way that still feels straightforward to run locally.

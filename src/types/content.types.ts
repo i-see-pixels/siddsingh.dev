@@ -23,8 +23,10 @@ export type Person = {
 	avatar: string
 	/** Email address */
 	email: string
-	/** IANA time zone location */
-	location: IANATimeZone
+	/** Human-readable location */
+	location: string
+	/** IANA time zone for live clock rendering */
+	timeZone: IANATimeZone
 	/** Languages spoken */
 	languages?: Array<{
 		key: string

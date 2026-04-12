@@ -1,4 +1,13 @@
-import type { About, Blog, Gallery, Home, Newsletter, Person, Social, Work } from "@/types"
+import type {
+	About,
+	Blog,
+	Gallery,
+	Home,
+	Newsletter,
+	Person,
+	Social,
+	Work,
+} from "@/types"
 import { Line, Row, Text } from "@once-ui-system/core"
 
 const person: Person = {
@@ -6,25 +15,27 @@ const person: Person = {
 	lastName: "Singh",
 	name: "Siddhant Singh",
 	role: "Software Engineer",
-	avatar: "/images/avatar.png",
+	avatar: "/images/avatar_headshot.png",
 	email: "siddhant06137@gmail.com",
-	location: "Asia/Calcutta", // Expecting the IANA time zone identifier, e.g., 'Europe/Vienna'
+	location: "Gurugram, India",
+	timeZone: "Asia/Calcutta",
 	languages: [
 		{ key: "en", value: "English" },
 		{ key: "hi", value: "Hindi" },
-	], // optional: Leave the array empty if you don't want to display languages
+	],
 }
 
 const newsletter: Newsletter = {
-	display: true,
+	display: false,
 	title: <>Subscribe to {person.firstName}'s Newsletter</>,
-	description: <>My weekly newsletter about creativity and engineering</>,
+	description: (
+		<>
+			Occasional notes on product building, AI workflows, and developer tools.
+		</>
+	),
 }
 
 const social: Social = [
-	// Links are automatically displayed.
-	// Import new icons in /once-ui/icons.ts
-	// Set essentials: true for links you want to show on the about page
 	{
 		name: "GitHub",
 		icon: "github",
@@ -38,15 +49,9 @@ const social: Social = [
 		essential: true,
 	},
 	{
-		name: "Instagram",
-		icon: "instagram",
-		link: "https://www.instagram.com/http.sidd.sin/",
-		essential: false,
-	},
-	{
-		name: "x.com",
+		name: "X",
 		icon: "x",
-		link: "https://www.x.com/creatorsidd",
+		link: "https://x.com/creatorsidd",
 		essential: true,
 	},
 	{
@@ -61,28 +66,32 @@ const home: Home = {
 	path: "/",
 	image: "/images/og/home.jpg",
 	label: "Home",
-	title: `${person.name}'s Portfolio`,
-	description: `Portfolio website showcasing my work as a ${person.role}`,
-	headline: <>Building bridges between design and code</>,
+	title: `${person.name} | ${person.role}`,
+	description:
+		"Portfolio of Siddhant Singh, a software engineer building solo products, developer tools, and practical AI workflows.",
+	headline: (
+		<>Shipping solo products, developer tools, and practical AI workflows</>
+	),
 	featured: {
 		display: true,
 		title: (
 			<Row gap="12" vertical="center">
 				<Text marginRight="4" onBackground="brand-medium">
-					Featured work
+					Featured project
 				</Text>
 			</Row>
 		),
-		href: "/work/building-once-ui-a-customizable-design-system",
+		href: "/work/plenz",
 	},
 	subline: (
 		<>
 			I'm Siddhant, a software engineer at{" "}
 			<Text as="span" size="xl" weight="strong">
 				Optum
-			</Text>
-			, where I craft intuitive <br /> software solutions. After hours, I build my own
-			projects.
+			</Text>{" "}
+			based in Gurugram. Outside work, I build solo ideas, developer tooling,
+			and AI-enabled experiments with Next.js, TypeScript, and product-first
+			thinking.
 		</>
 	),
 }
@@ -90,8 +99,8 @@ const home: Home = {
 const about: About = {
 	path: "/about",
 	label: "About",
-	title: `About - ${person.name}`,
-	description: `Meet ${person.name}, ${person.role} from ${person.location}`,
+	title: `About ${person.name}`,
+	description: `Meet ${person.name}, a ${person.role.toLowerCase()} based in ${person.location}.`,
 	tableOfContent: {
 		display: true,
 		subItems: false,
@@ -108,27 +117,38 @@ const about: About = {
 		title: "Introduction",
 		description: (
 			<>
-				Siddhant is a software engineer at Optum with a passion for transforming complex
-				challenges into simple, elegant design solutions. His work spans digital interfaces,
-				interactive experiences, and the convergence of design and technology.
+				<Text as="p">
+					I work as a software engineer at Optum and spend my off-hours building
+					independent products and developer tools. I enjoy turning rough ideas
+					into reliable software, especially when the problem sits at the
+					intersection of product thinking, automation, and developer
+					experience.
+				</Text>
+				<Text as="p">
+					Recent work has centered on AI-assisted workflows, browser extensions,
+					Next.js applications, and tools that help people move from idea to
+					implementation faster. I care about simple interfaces, fast feedback
+					loops, and building things that are genuinely useful.
+				</Text>
 			</>
 		),
 	},
 	work: {
-		display: true, // set to false to hide this section
-		title: "Work Experience",
+		display: true,
+		title: "Work",
 		experiences: [
 			{
-				company: "FLY",
-				timeframe: "2022 - Present",
-				role: "Senior Design Engineer",
+				company: "Optum",
+				timeframe: "Current",
+				role: "Software Engineer",
 				achievements: [
 					{
 						key: "01",
 						value: (
 							<>
-								Redesigned the UI/UX for the FLY platform, resulting in a 20%
-								increase in user engagement and 30% faster load times.
+								Contribute to product engineering work with a focus on practical
+								implementation, maintainable code, and dependable user-facing
+								experiences.
 							</>
 						),
 					},
@@ -136,33 +156,26 @@ const about: About = {
 						key: "02",
 						value: (
 							<>
-								Spearheaded the integration of AI tools into design workflows,
-								enabling designers to iterate 50% faster.
+								Bring a maker mindset into day-to-day engineering by exploring
+								better workflows, automation opportunities, and sharper
+								developer experience.
 							</>
 						),
 					},
 				],
-				images: [
-					// optional: leave the array empty if you don't want to display images
-					{
-						src: "/images/projects/project-01/cover-01.jpg",
-						alt: "Once UI Project",
-						width: 16,
-						height: 9,
-					},
-				],
+				images: [],
 			},
 			{
-				company: "Creativ3",
-				timeframe: "2018 - 2022",
-				role: "Lead Designer",
+				company: "Independent",
+				timeframe: "Ongoing",
+				role: "Solo products and developer tools",
 				achievements: [
 					{
 						key: "01",
 						value: (
 							<>
-								Developed a design system that unified the brand across multiple
-								platforms, improving design consistency by 40%.
+								Build and iterate on projects like plenz, admin-boil, and
+								multi-server MCP tooling to explore new product ideas in public.
 							</>
 						),
 					},
@@ -170,8 +183,9 @@ const about: About = {
 						key: "02",
 						value: (
 							<>
-								Led a cross-functional team to launch a new product line,
-								contributing to a 15% increase in overall company revenue.
+								Use side projects to deepen hands-on experience with browser
+								extensions, AI integrations, Next.js applications, TypeScript,
+								and distribution-first product development.
 							</>
 						),
 					},
@@ -181,47 +195,29 @@ const about: About = {
 		],
 	},
 	studies: {
-		display: true, // set to false to hide this section
+		display: true,
 		title: "Studies",
 		institutions: [
 			{
 				name: "Delhi Technological University",
-				description: <>Bachelor of Technology in Computer Science and Engineering</>,
+				description: (
+					<>Bachelor of Technology in Computer Science and Engineering</>
+				),
 			},
 		],
 	},
 	technical: {
-		display: true, // set to false to hide this section
-		title: "Technical skills",
+		display: true,
+		title: "Focus Areas",
 		skills: [
 			{
-				title: "Figma",
-				description: <>Able to prototype in Figma with Once UI with unnatural speed.</>,
-				tags: [
-					{
-						name: "Figma",
-						icon: "figma",
-					},
-				],
-				// optional: leave the array empty if you don't want to display images
-				images: [
-					{
-						src: "/images/projects/project-01/cover-02.jpg",
-						alt: "Project image",
-						width: 16,
-						height: 9,
-					},
-					{
-						src: "/images/projects/project-01/cover-03.jpg",
-						alt: "Project image",
-						width: 16,
-						height: 9,
-					},
-				],
-			},
-			{
-				title: "Next.js",
-				description: <>Building next gen apps with Next.js + Once UI + Supabase.</>,
+				title: "Product engineering",
+				description: (
+					<>
+						Building full-stack product experiences with TypeScript, Next.js,
+						and modern frontend tooling.
+					</>
+				),
 				tags: [
 					{
 						name: "JavaScript",
@@ -231,20 +227,28 @@ const about: About = {
 						name: "Next.js",
 						icon: "nextjs",
 					},
+				],
+				images: [],
+			},
+			{
+				title: "AI and developer tooling",
+				description: (
+					<>
+						Prototyping AI-assisted workflows, browser extensions, and internal
+						tools that help ideas ship faster.
+					</>
+				),
+				tags: [
 					{
-						name: "Supabase",
-						icon: "supabase",
+						name: "JavaScript",
+						icon: "javascript",
+					},
+					{
+						name: "Next.js",
+						icon: "nextjs",
 					},
 				],
-				// optional: leave the array empty if you don't want to display images
-				images: [
-					{
-						src: "/images/projects/project-01/cover-04.jpg",
-						alt: "Project image",
-						width: 16,
-						height: 9,
-					},
-				],
+				images: [],
 			},
 		],
 	},
@@ -253,19 +257,15 @@ const about: About = {
 const blog: Blog = {
 	path: "/blog",
 	label: "Blog",
-	title: "Writing about design and tech...",
-	description: `Read what ${person.name} has been up to recently`,
-	// Create new blog posts by adding a new .mdx file to app/blog/posts
-	// All posts will be listed on the /blog route
+	title: "Writing",
+	description: `Notes and writing from ${person.name}.`,
 }
 
 const work: Work = {
 	path: "/work",
 	label: "Work",
-	title: `Projects – ${person.name}`,
-	description: `Design and dev projects by ${person.name}`,
-	// Create new project pages by adding a new .mdx file to app/blog/posts
-	// All projects will be listed on the /home and /work routes
+	title: "Selected projects",
+	description: `Solo products, experiments, and developer tools by ${person.name}.`,
 }
 
 const gallery: Gallery = {
@@ -273,8 +273,6 @@ const gallery: Gallery = {
 	label: "Gallery",
 	title: `Photo gallery – ${person.name}`,
 	description: `A photo collection by ${person.name}`,
-	// Images by https://lorant.one
-	// These are placeholder images, replace with your own
 	images: [
 		{
 			src: "/images/gallery/horizontal-1.jpg",
