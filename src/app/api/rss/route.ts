@@ -8,7 +8,8 @@ export async function GET() {
 	// Sort posts by date (newest first)
 	const sortedPosts = posts.sort((a, b) => {
 		return (
-			new Date(b.metadata.publishedAt).getTime() - new Date(a.metadata.publishedAt).getTime()
+			new Date(b.metadata.publishedAt).getTime() -
+			new Date(a.metadata.publishedAt).getTime()
 		)
 	})
 
@@ -25,13 +26,13 @@ export async function GET() {
     <managingEditor>${person.email || "noreply@example.com"} (${person.name})</managingEditor>
     <webMaster>${person.email || "noreply@example.com"} (${person.name})</webMaster>
     <image>
-      <url>${baseURL}${person.avatar || "/images/avatar.jpg"}</url>
+      <url>${baseURL}${person.avatar || "/images/avatar.png"}</url>
       <title>${blog.title}</title>
       <link>${baseURL}/blog</link>
     </image>
     ${sortedPosts
-		.map(
-			(post) => `
+			.map(
+				(post) => `
     <item>
       <title>${post.metadata.title}</title>
       <link>${baseURL}/blog/${post.slug}</link>
@@ -42,8 +43,8 @@ export async function GET() {
       ${post.metadata.tag ? `<category>${post.metadata.tag}</category>` : ""}
       <author>${person.email || "noreply@example.com"} (${person.name})</author>
     </item>`,
-		)
-		.join("")}
+			)
+			.join("")}
   </channel>
 </rss>`
 
@@ -51,7 +52,8 @@ export async function GET() {
 	return new NextResponse(rssXml, {
 		headers: {
 			"Content-Type": "application/xml",
-			"Cache-Control": "public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400",
+			"Cache-Control":
+				"public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400",
 		},
 	})
 }

@@ -1,4 +1,13 @@
-import type { About, Blog, Gallery, Home, Newsletter, Person, Social, Work } from "@/types"
+import type {
+	About,
+	Blog,
+	Gallery,
+	Home,
+	Newsletter,
+	Person,
+	Social,
+	Work,
+} from "@/types"
 import { Line, Row, Text } from "@once-ui-system/core"
 
 const person: Person = {
@@ -6,9 +15,9 @@ const person: Person = {
 	lastName: "Singh",
 	name: "Siddhant Singh",
 	role: "Software Engineer",
-	avatar: "/images/avatar.jpg",
+	avatar: "/images/avatar.png",
 	email: "siddhant06137@gmail.com",
-	location: "Asia/Jakarta", // Expecting the IANA time zone identifier, e.g., 'Europe/Vienna'
+	location: "Asia/Calcutta", // Expecting the IANA time zone identifier, e.g., 'Europe/Vienna'
 	languages: [
 		{ key: "en", value: "English" },
 		{ key: "hi", value: "Hindi" },
@@ -28,25 +37,25 @@ const social: Social = [
 	{
 		name: "GitHub",
 		icon: "github",
-		link: "https://github.com/once-ui-system",
+		link: "https://github.com/i-see-pixels",
 		essential: true,
 	},
 	{
 		name: "LinkedIn",
 		icon: "linkedin",
-		link: "https://www.linkedin.com/company/once-ui/",
+		link: "https://www.linkedin.com/in/sidd-singh/",
 		essential: true,
 	},
 	{
 		name: "Instagram",
 		icon: "instagram",
-		link: "https://www.instagram.com/once_ui/",
+		link: "https://www.instagram.com/http.sidd.sin/",
 		essential: false,
 	},
 	{
-		name: "Threads",
-		icon: "threads",
-		link: "https://www.threads.com/@once_ui",
+		name: "x.com",
+		icon: "x",
+		link: "https://www.x.com/creatorsidd",
 		essential: true,
 	},
 	{
@@ -68,8 +77,6 @@ const home: Home = {
 		display: true,
 		title: (
 			<Row gap="12" vertical="center">
-				<strong className="ml-4">Once UI</strong>{" "}
-				<Line background="brand-alpha-strong" vert height="20" />
 				<Text marginRight="4" onBackground="brand-medium">
 					Featured work
 				</Text>
@@ -79,11 +86,12 @@ const home: Home = {
 	},
 	subline: (
 		<>
-			I'm Selene, a design engineer at{" "}
+			I'm Siddhant, a software engineer at{" "}
 			<Text as="span" size="xl" weight="strong">
-				ONCE UI
+				Optum
 			</Text>
-			, where I craft intuitive <br /> user experiences. After hours, I build my own projects.
+			, where I craft intuitive <br /> software solutions. After hours, I build
+			my own projects.
 		</>
 	),
 }
@@ -102,16 +110,17 @@ const about: About = {
 	},
 	calendar: {
 		display: true,
-		link: "https://cal.com",
+		link: "https://cal.com/sidd-singh/15min",
 	},
 	intro: {
 		display: true,
 		title: "Introduction",
 		description: (
 			<>
-				Selene is a Jakarta-based design engineer with a passion for transforming complex
-				challenges into simple, elegant design solutions. Her work spans digital interfaces,
-				interactive experiences, and the convergence of design and technology.
+				Siddhant is a software engineer at Optum with a passion for transforming
+				complex challenges into simple, elegant design solutions. His work spans
+				digital interfaces, interactive experiences, and the convergence of
+				design and technology.
 			</>
 		),
 	},
@@ -186,12 +195,10 @@ const about: About = {
 		title: "Studies",
 		institutions: [
 			{
-				name: "University of Jakarta",
-				description: <>Studied software engineering.</>,
-			},
-			{
-				name: "Build the Future",
-				description: <>Studied online marketing and personal branding.</>,
+				name: "Delhi Technological University",
+				description: (
+					<>Bachelor of Technology in Computer Science and Engineering</>
+				),
 			},
 		],
 	},
@@ -201,7 +208,9 @@ const about: About = {
 		skills: [
 			{
 				title: "Figma",
-				description: <>Able to prototype in Figma with Once UI with unnatural speed.</>,
+				description: (
+					<>Able to prototype in Figma with Once UI with unnatural speed.</>
+				),
 				tags: [
 					{
 						name: "Figma",
@@ -226,7 +235,9 @@ const about: About = {
 			},
 			{
 				title: "Next.js",
-				description: <>Building next gen apps with Next.js + Once UI + Supabase.</>,
+				description: (
+					<>Building next gen apps with Next.js + Once UI + Supabase.</>
+				),
 				tags: [
 					{
 						name: "JavaScript",

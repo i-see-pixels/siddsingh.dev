@@ -5,7 +5,15 @@ import { useEffect, useState } from "react"
 
 import { Fade, Flex, Line, Row, ToggleButton } from "@once-ui-system/core"
 
-import { about, blog, display, gallery, person, routes, work } from "@/resources"
+import {
+	about,
+	blog,
+	display,
+	gallery,
+	person,
+	routes,
+	work,
+} from "@/resources"
 import styles from "./Header.module.scss"
 import { ThemeToggle } from "./ThemeToggle"
 
@@ -14,7 +22,10 @@ type TimeDisplayProps = {
 	locale?: string // Optionally allow locale, defaulting to 'en-GB'
 }
 
-const TimeDisplay: React.FC<TimeDisplayProps> = ({ timeZone, locale = "en-GB" }) => {
+const TimeDisplay: React.FC<TimeDisplayProps> = ({
+	timeZone,
+	locale = "en-IN",
+}) => {
 	const [currentTime, setCurrentTime] = useState("")
 
 	useEffect(() => {
@@ -47,7 +58,13 @@ export const Header = () => {
 
 	return (
 		<>
-			<Fade s={{ hide: true }} fillWidth position="fixed" height="80" zIndex={9} />
+			<Fade
+				s={{ hide: true }}
+				fillWidth
+				position="fixed"
+				height="80"
+				zIndex={9}
+			/>
 			<Fade
 				hide
 				s={{ hide: false }}
@@ -72,7 +89,12 @@ export const Header = () => {
 					position: "fixed",
 				}}
 			>
-				<Row paddingLeft="12" fillWidth vertical="center" textVariant="body-default-s">
+				<Row
+					paddingLeft="12"
+					fillWidth
+					vertical="center"
+					textVariant="body-default-s"
+				>
 					{display.location && <Row s={{ hide: true }}>{person.location}</Row>}
 				</Row>
 				<Row fillWidth horizontal="center">
