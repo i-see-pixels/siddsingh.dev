@@ -1,13 +1,4 @@
-import type {
-	About,
-	Blog,
-	Gallery,
-	Home,
-	Newsletter,
-	Person,
-	Social,
-	Work,
-} from "@/types"
+import type { About, Blog, Gallery, Home, Newsletter, Person, Social, Work } from "@/types"
 import { Line, Row, Text } from "@once-ui-system/core"
 
 const person: Person = {
@@ -28,11 +19,7 @@ const person: Person = {
 const newsletter: Newsletter = {
 	display: false,
 	title: <>Subscribe to {person.firstName}'s Newsletter</>,
-	description: (
-		<>
-			Occasional notes on product building, AI workflows, and developer tools.
-		</>
-	),
+	description: <>Occasional notes on product building, AI workflows, and developer tools.</>,
 }
 
 const social: Social = [
@@ -69,9 +56,7 @@ const home: Home = {
 	title: `${person.name} | ${person.role}`,
 	description:
 		"Portfolio of Siddhant Singh, a software engineer building solo products, developer tools, and practical AI workflows.",
-	headline: (
-		<>Shipping solo products, developer tools, and practical AI workflows</>
-	),
+	headline: <>Shipping solo products, developer tools, and practical AI workflows</>,
 	featured: {
 		display: true,
 		title: (
@@ -89,9 +74,8 @@ const home: Home = {
 			<Text as="span" size="xl" weight="strong">
 				Optum
 			</Text>{" "}
-			based in Gurugram. Outside work, I build solo ideas, developer tooling,
-			and AI-enabled experiments with Next.js, TypeScript, and product-first
-			thinking.
+			based in Gurugram. Outside work, I build solo ideas, developer tooling, and AI-enabled
+			experiments with Next.js, TypeScript, and product-first thinking.
 		</>
 	),
 }
@@ -119,16 +103,15 @@ const about: About = {
 			<>
 				<Text as="p">
 					I work as a software engineer at Optum and spend my off-hours building
-					independent products and developer tools. I enjoy turning rough ideas
-					into reliable software, especially when the problem sits at the
-					intersection of product thinking, automation, and developer
-					experience.
+					independent products and developer tools. I enjoy turning rough ideas into
+					reliable software, especially when the problem sits at the intersection of
+					product thinking, automation, and developer experience.
 				</Text>
 				<Text as="p">
-					Recent work has centered on AI-assisted workflows, browser extensions,
-					Next.js applications, and tools that help people move from idea to
-					implementation faster. I care about simple interfaces, fast feedback
-					loops, and building things that are genuinely useful.
+					Recent work has centered on AI-assisted workflows, browser extensions, Next.js
+					applications, and tools that help people move from idea to implementation
+					faster. I care about simple interfaces, fast feedback loops, and building things
+					that are genuinely useful.
 				</Text>
 			</>
 		),
@@ -157,8 +140,8 @@ const about: About = {
 						value: (
 							<>
 								Bring a maker mindset into day-to-day engineering by exploring
-								better workflows, automation opportunities, and sharper
-								developer experience.
+								better workflows, automation opportunities, and sharper developer
+								experience.
 							</>
 						),
 					},
@@ -184,8 +167,8 @@ const about: About = {
 						value: (
 							<>
 								Use side projects to deepen hands-on experience with browser
-								extensions, AI integrations, Next.js applications, TypeScript,
-								and distribution-first product development.
+								extensions, AI integrations, Next.js applications, TypeScript, and
+								distribution-first product development.
 							</>
 						),
 					},
@@ -200,9 +183,7 @@ const about: About = {
 		institutions: [
 			{
 				name: "Delhi Technological University",
-				description: (
-					<>Bachelor of Technology in Computer Science and Engineering</>
-				),
+				description: <>Bachelor of Technology in Computer Science and Engineering</>,
 			},
 		],
 	},
@@ -214,8 +195,8 @@ const about: About = {
 				title: "Product engineering",
 				description: (
 					<>
-						Building full-stack product experiences with TypeScript, Next.js,
-						and modern frontend tooling.
+						Building full-stack product experiences with TypeScript, Next.js, and modern
+						frontend tooling.
 					</>
 				),
 				tags: [
@@ -234,8 +215,8 @@ const about: About = {
 				title: "AI and developer tooling",
 				description: (
 					<>
-						Prototyping AI-assisted workflows, browser extensions, and internal
-						tools that help ideas ship faster.
+						Prototyping AI-assisted workflows, browser extensions, and internal tools
+						that help ideas ship faster.
 					</>
 				),
 				tags: [
