@@ -1,13 +1,4 @@
-import type {
-	About,
-	Blog,
-	Gallery,
-	Home,
-	Newsletter,
-	Person,
-	Social,
-	Work,
-} from "@/types"
+import type { About, Blog, Gallery, Home, Newsletter, Person, Social, Work } from "@/types"
 import { Line, Row, Text } from "@once-ui-system/core"
 
 const person: Person = {
@@ -90,8 +81,8 @@ const home: Home = {
 			<Text as="span" size="xl" weight="strong">
 				Optum
 			</Text>
-			, where I craft intuitive <br /> software solutions. After hours, I build
-			my own projects.
+			, where I craft intuitive <br /> software solutions. After hours, I build my own
+			projects.
 		</>
 	),
 }
@@ -117,10 +108,9 @@ const about: About = {
 		title: "Introduction",
 		description: (
 			<>
-				Siddhant is a software engineer at Optum with a passion for transforming
-				complex challenges into simple, elegant design solutions. His work spans
-				digital interfaces, interactive experiences, and the convergence of
-				design and technology.
+				Siddhant is a software engineer at Optum with a passion for transforming complex
+				challenges into simple, elegant design solutions. His work spans digital interfaces,
+				interactive experiences, and the convergence of design and technology.
 			</>
 		),
 	},
@@ -196,9 +186,7 @@ const about: About = {
 		institutions: [
 			{
 				name: "Delhi Technological University",
-				description: (
-					<>Bachelor of Technology in Computer Science and Engineering</>
-				),
+				description: <>Bachelor of Technology in Computer Science and Engineering</>,
 			},
 		],
 	},
@@ -208,9 +196,7 @@ const about: About = {
 		skills: [
 			{
 				title: "Figma",
-				description: (
-					<>Able to prototype in Figma with Once UI with unnatural speed.</>
-				),
+				description: <>Able to prototype in Figma with Once UI with unnatural speed.</>,
 				tags: [
 					{
 						name: "Figma",
@@ -235,9 +221,7 @@ const about: About = {
 			},
 			{
 				title: "Next.js",
-				description: (
-					<>Building next gen apps with Next.js + Once UI + Supabase.</>
-				),
+				description: <>Building next gen apps with Next.js + Once UI + Supabase.</>,
 				tags: [
 					{
 						name: "JavaScript",
