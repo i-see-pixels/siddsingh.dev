@@ -1,0 +1,90 @@
+---
+title: "How I built plenz, a prompt copilot that works across AI tools"
+subtitle: "Designing for better prompts without interrupting the moment"
+summary: "The thinking behind plenz: real-time prompt improvement, cross-platform UX, provider-agnostic architecture, and a privacy-first product model."
+image: "/images/projects/project-01/cover-04.jpg"
+publishedAt: "2026-04-15"
+tags: ["plenz", "AI tools", "Browser extension"]
+---
+
+**plenz is an open-source prompt copilot that improves prompts in real time across tools like ChatGPT, Claude, Gemini, and Perplexity.** I built plenz because most prompt tools ask people to leave the exact moment where they need help. They turn a live writing problem into a separate cleanup workflow, and that extra step is usually enough for people to skip it.
+
+You write something in an AI tool, realize it could be better, and then have to move into a second interface to fix it. That break matters. It adds friction at the exact point where clarity should increase, not decrease. plenz started from that observation.
+
+## What problem does plenz solve?
+
+plenz solves a simple but recurring problem: **people need help while they are writing prompts, not after they have already sent a weak one**.
+
+The product direction became clear fairly quickly:
+
+- work inside existing AI workflows
+- improve prompts while the user is typing
+- keep the interaction lightweight
+- support multiple model ecosystems instead of only one
+
+That last point mattered to me a lot. People do not use just one AI tool anymore. Good workflows increasingly span multiple products, so I wanted plenz to be useful across that reality instead of pretending the ecosystem revolves around a single chat app.
+
+## Why does prompt improvement need to happen in place?
+
+The core goal behind plenz is simple: make prompt quality visible in real time. That meant the experience could not feel like a detached assistant panel or a separate writing app. It had to fit naturally into the surfaces people already use.
+
+If the tool needs too much setup or too much context switching, it misses the exact moment where it is supposed to help. The UX standard I kept coming back to was straightforward: the product should improve the prompt without making the writing experience heavier.
+
+## How is plenz architected?
+
+plenz grew into more than a single extension. It became a small product system with multiple surfaces:
+
+- a browser extension
+- a web app
+- a VS Code extension
+- shared core logic and provider adapters
+
+The monorepo structure helped because the core product idea stayed the same even as the surface changed. Prompt analysis, provider abstractions, and product logic needed to be reusable. UI details could vary, but the intelligence layer had to stay coherent.
+
+I also wanted to avoid locking the product to one backend provider. A provider-agnostic architecture created two clear advantages:
+
+1. It kept the product flexible as the model ecosystem evolved.
+2. It made the user experience feel more future-proof.
+
+That flexibility matters in AI tooling because the infrastructure shifts quickly. If the product model is too tightly coupled to one provider or one interface, you inherit more fragility than you need.
+
+## Why is privacy part of the product instead of a marketing extra?
+
+I did not want plenz to depend on a central backend that stores or processes every prompt by default. Prompt data is often sensitive because people use AI tools for work, planning, research, and internal writing. Asking users to trust a new product with all of that context is a big ask.
+
+So the privacy model became a core product decision:
+
+- bring your own key
+- local-first storage
+- no mandatory central prompt-processing backend
+
+That choice adds constraints and removes some shortcuts I could have taken. It also makes the product easier to trust, and for this category I think trust is part of the UX.
+
+## What was the hardest product design challenge?
+
+The hardest part was not the raw feature list. It was restraint. It is easy to imagine a prompt tool that offers endless controls, scores, rewrites, and frameworks. It is harder to build something that helps quickly without taking over the whole screen.
+
+I kept coming back to one question: **How do we make the prompt better without making the writing experience heavier?**
+
+That question pushed the product toward faster feedback, clearer suggestions, and less ceremony. If the product becomes more mentally expensive than the original prompt, it is solving the wrong problem.
+
+## What did building plenz teach me?
+
+plenz has been one of the most useful projects I have worked on because it sits at the intersection I care about most:
+
+- product engineering
+- AI workflows
+- extension constraints
+- cross-surface architecture
+- practical user value
+
+It forced me to think about how an idea stays coherent across browser, web, and editor environments. It sharpened how I think about abstraction boundaries. It also reminded me that the best AI products do not always need to feel magical. They need to feel timely, trustworthy, and easy to adopt.
+
+That is still the standard I want plenz to meet: not a prompt tool that asks people to change how they work, but one that quietly improves the work they were already trying to do.
+
+## Related reading
+
+- [See the plenz project page](/work/plenz)
+- [What I build after work](/blog/what-i-build-after-work)
+- [Building admin-boil CLI and designing the first five minutes](/blog/building-admin-boil-cli-and-designing-the-first-five-minutes)
+- [Building a Python MCP client for multiple servers](/blog/building-a-python-mcp-client-for-multiple-servers)

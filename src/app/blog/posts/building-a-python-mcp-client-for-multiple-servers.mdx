@@ -1,0 +1,60 @@
+---
+title: "Building a Python MCP client for multiple servers"
+subtitle: "A cleaner way to experiment with tool-enabled workflows"
+summary: "Why I built a multi-server MCP client, what problem it solves, and what it taught me about process orchestration, composability, and local AI tooling."
+image: "/images/projects/project-01/cover-02.jpg"
+publishedAt: "2026-04-13"
+tags: ["MCP", "Python", "AI tooling"]
+---
+
+**A multi-server MCP client is a client that can connect to more than one Model Context Protocol server from one interface.** I built this Python project because AI tooling becomes messy quickly when every useful tool lives as a separate process, a separate script, or a separate one-off integration.
+
+According to the official [Model Context Protocol documentation](https://modelcontextprotocol.io/), MCP is an open-source standard for connecting AI applications to external systems. That standard is useful, but real experimentation still gets noisy if each connection has to be treated as a standalone setup. I wanted a cleaner way to work with that reality.
+
+## What problem was I trying to solve?
+
+If every tool integration is treated like a separate connection, experimentation gets noisy fast. You end up managing multiple processes, different startup behaviors, and ad hoc scripts for each service. That might be acceptable for a quick prototype, but it becomes harder to reason about as soon as the workflow grows beyond one tool.
+
+I wanted a single client surface that could coordinate multiple stdio-based MCP servers concurrently. Not because "multi-server" sounds impressive, but because it reflects how real workflows are starting to look. Useful agentic systems are increasingly compositional. They are made of capabilities, not just one model call and one tool.
+
+## Why did I stay close to stdio?
+
+The project uses a stdio-based model because I wanted to stay close to the mechanics of local tool communication instead of abstracting everything away too early.
+
+There is something valuable about keeping the system understandable:
+
+- each server is still a real process
+- communication stays explicit
+- local experimentation remains straightforward
+
+That kind of clarity matters when you are still learning what shape the workflow should take.
+
+## What did the client need to do?
+
+At a minimum, I wanted the project to make a few things easier:
+
+- launch and communicate with multiple MCP-compatible servers
+- keep those connections manageable from one place
+- reduce the amount of custom glue required for experimentation
+- make the local workflow simple enough to run repeatedly
+
+I used Python and `uv` because the ergonomics felt right for a lightweight, practical tool. The goal was not to build a huge framework. It was to make orchestration feel less fragmented.
+
+## What did building it teach me?
+
+The main lesson was that composability is not just a protocol question. It is a product question too. You can have interoperable pieces on paper and still end up with a workflow that feels awkward in practice. A lot of the useful work happens in the layer that manages process lifecycle, error handling, connection shape, and developer understanding.
+
+That layer often gets dismissed as glue code, but I think it deserves more respect than that. Good orchestration work creates leverage because it lets you spend less time re-establishing context and more time testing ideas.
+
+## Why does this project matter to me?
+
+I am interested in tools that make AI systems easier to compose, inspect, and evolve. This project sits right in that zone. It is not just about MCP as a protocol. It is about building calmer interfaces around emerging tool ecosystems so experimentation does not collapse into a pile of disconnected scripts.
+
+That is a space I want to keep exploring. As more developer workflows become tool-enabled and agent-assisted, I think there will be a lot of value in products that make orchestration feel simple, local, and understandable. This project was one step in that direction.
+
+## Related reading
+
+- [See the MCP client project page](/work/mcp-client-multiserver)
+- [What I build after work](/blog/what-i-build-after-work)
+- [How I built plenz, a prompt copilot that works across AI tools](/blog/how-i-built-plenz-a-prompt-copilot-that-works-across-ai-tools)
+- [How I decide which side projects are worth finishing](/blog/how-i-decide-which-side-projects-are-worth-finishing)

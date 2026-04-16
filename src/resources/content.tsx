@@ -257,8 +257,8 @@ const about: About = {
 const blog: Blog = {
 	path: "/blog",
 	label: "Blog",
-	title: "Writing",
-	description: `Notes and writing from ${person.name}.`,
+	title: "Notes on building",
+	description: `Personal notes from ${person.name} on solo products, developer tools, and practical AI workflows.`,
 }
 
 const work: Work = {

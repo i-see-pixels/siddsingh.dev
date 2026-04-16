@@ -1,0 +1,63 @@
+---
+title: "Building admin-boil CLI and designing the first five minutes"
+subtitle: "Developer experience starts before the dashboard even loads"
+summary: "Why I built admin-boil CLI, what makes onboarding feel smooth, and how I think about turning repetitive setup into a better first-run experience."
+image: "/images/projects/project-01/cover-01.jpg"
+publishedAt: "2026-04-14"
+tags: ["admin-boil", "CLI", "Developer experience"]
+---
+
+**admin-boil CLI is a command-line tool for installing and configuring the admin-boil dashboard with less manual setup.** I built it because many developer tools technically work but still lose people in the first few minutes, and I think onboarding quality is part of the product, not an afterthought.
+
+I am especially interested in that gap when building developer tools. Documentation can be correct, the codebase can be solid, and the component quality can be high, but if setup feels messy the product starts with friction instead of confidence. admin-boil CLI came from that exact frustration.
+
+## What problem does admin-boil CLI solve?
+
+Admin dashboards are useful, but integrating them into a real project is often more tedious than people expect. There are dependencies to install, files to wire up, project structure decisions to make, and framework-specific details that repeat across every setup.
+
+None of that work is usually the point. It is necessary work, but it is also the kind of work that creates hesitation before the product has delivered value. The goal behind admin-boil CLI was not just code generation. It was faster time-to-value.
+
+## What did I want the CLI to do well?
+
+The product needed to do a few things from the beginning:
+
+- work across modern frontend setups like Next.js, Vite, and Astro
+- initialize a fresh project or configure an existing one
+- reduce manual wiring
+- leave developers with a usable admin starting point, not just copied files
+
+That sounds straightforward, but good DX tools are less about the happy path alone and more about reducing ambiguity. People should know what is happening, what they are getting, and what they can do next.
+
+## Why do the first five minutes matter so much?
+
+One of the clearest lessons from this project is that onboarding is product design. The first run of a CLI teaches users how to feel about the tool. If the prompts are confusing, the setup logic seems fragile, or the output feels incomplete, trust drops quickly.
+
+The first-run experience I wanted was:
+
+- obvious
+- reliable
+- quick
+- easy to recover from
+
+That meant thinking beyond raw functionality. Messages matter, defaults matter, the order of setup steps matters, and even the difference between "configured" and "almost configured" matters.
+
+## Why is framework-aware setup worth the extra effort?
+
+A generic installer is easier to ship, but the result is often weaker. Different frontend environments have different expectations around file structure, dependencies, and integration patterns. If the CLI ignores that, users end up doing the final integration work themselves, which defeats a lot of the value.
+
+Building framework-aware logic made the tool more useful because it respected the environment it was entering. That kind of adaptation is where developer tooling starts feeling thoughtful instead of merely functional.
+
+## What did this project teach me about developer experience?
+
+admin-boil CLI reinforced something I keep seeing in side projects: **developer experience is a product surface of its own**. People often talk about DX as if it is a secondary quality, but I think it is closer to the main event for tools like this. If the install experience feels awkward, the product has already created doubt before the user sees the part you are proud of.
+
+This project also pushed me to think more clearly about productizing engineering work. A dashboard is one artifact. A CLI that helps people adopt that dashboard is another layer entirely. That second layer is where packaging, defaults, education, and trust all come together.
+
+That is the part I enjoy a lot. I like taking repetitive engineering work and turning it into a calmer experience. Good tooling does not just automate steps. It makes the next decision easier.
+
+## Related reading
+
+- [See the admin-boil CLI project page](/work/admin-boil-cli)
+- [What I build after work](/blog/what-i-build-after-work)
+- [How I decide which side projects are worth finishing](/blog/how-i-decide-which-side-projects-are-worth-finishing)
+- [How I built plenz, a prompt copilot that works across AI tools](/blog/how-i-built-plenz-a-prompt-copilot-that-works-across-ai-tools)
