@@ -1,0 +1,75 @@
+import type { Metadata } from "next"
+import { notFound } from "next/navigation"
+
+import { ToolDetailView } from "@/features/tools/ToolDetailView"
+import { getLiveToolEntries, getToolBySlug } from "@/features/tools/registry"
+import type { LiveToolEntry } from "@/features/tools/types"
+import { baseURL, person } from "@/resources"
+import { Column, Meta, Schema } from "@once-ui-system/core"
+
+export async function generateStaticParams(): Promise<{ slug: string }[]> {
+	return getLiveToolEntries().map((tool) => ({
+		slug: tool.slug,
+	}))
+}
+
+export async function generateMetadata({
+	params,
+}: {
+	params: Promise<{ slug: string | string[] }>
+}): Promise<Metadata> {
+	const routeParams = await params
+	const slugPath = Array.isArray(routeParams.slug)
+		? routeParams.slug.join("/")
+		: routeParams.slug || ""
+	const tool = getToolBySlug(slugPath)
+
+	if (!tool || tool.status !== "live") {
+		return {}
+	}
+
+	return Meta.generate({
+		title: `${tool.name} | Free tools`,
+		description: tool.description,
+		baseURL,
+		image: `/api/og/generate?title=${encodeURIComponent(tool.name)}`,
+		path: tool.path,
+	})
+}
+
+export default async function ToolPage({
+	params,
+}: {
+	params: Promise<{ slug: string | string[] }>
+}) {
+	const routeParams = await params
+	const slugPath = Array.isArray(routeParams.slug)
+		? routeParams.slug.join("/")
+		: routeParams.slug || ""
+	const tool = getToolBySlug(slugPath)
+
+	if (!tool || tool.status !== "live") {
+		notFound()
+	}
+
+	const liveTool = tool as LiveToolEntry
+
+	return (
+		<Column fillWidth>
+			<Schema
+				as="webPage"
+				baseURL={baseURL}
+				title={liveTool.name}
+				description={liveTool.description}
+				path={liveTool.path}
+				image={`/api/og/generate?title=${encodeURIComponent(liveTool.name)}`}
+				author={{
+					name: person.name,
+					url: `${baseURL}${liveTool.path}`,
+					image: `${baseURL}${person.avatar}`,
+				}}
+			/>
+			<ToolDetailView tool={liveTool} />
+		</Column>
+	)
+}

@@ -1,11 +1,11 @@
 import type {
 	About,
 	Blog,
-	Gallery,
 	Home,
 	Newsletter,
 	Person,
 	Social,
+	ToolsHub,
 	Work,
 } from "@/types"
 import { Line, Row, Text } from "@once-ui-system/core"
@@ -268,53 +268,11 @@ const work: Work = {
 	description: `Solo products, experiments, and developer tools by ${person.name}.`,
 }
 
-const gallery: Gallery = {
-	path: "/gallery",
-	label: "Gallery",
-	title: `Photo gallery – ${person.name}`,
-	description: `A photo collection by ${person.name}`,
-	images: [
-		{
-			src: "/images/gallery/horizontal-1.jpg",
-			alt: "image",
-			orientation: "horizontal",
-		},
-		{
-			src: "/images/gallery/vertical-4.jpg",
-			alt: "image",
-			orientation: "vertical",
-		},
-		{
-			src: "/images/gallery/horizontal-3.jpg",
-			alt: "image",
-			orientation: "horizontal",
-		},
-		{
-			src: "/images/gallery/vertical-1.jpg",
-			alt: "image",
-			orientation: "vertical",
-		},
-		{
-			src: "/images/gallery/vertical-2.jpg",
-			alt: "image",
-			orientation: "vertical",
-		},
-		{
-			src: "/images/gallery/horizontal-2.jpg",
-			alt: "image",
-			orientation: "horizontal",
-		},
-		{
-			src: "/images/gallery/horizontal-4.jpg",
-			alt: "image",
-			orientation: "horizontal",
-		},
-		{
-			src: "/images/gallery/vertical-3.jpg",
-			alt: "image",
-			orientation: "vertical",
-		},
-	],
+const toolsHub: ToolsHub = {
+	path: "/tools",
+	label: "Tools",
+	title: `Free tools – ${person.name}`,
+	description: `Free browser-based tools by ${person.name} for screenshots, visuals, and product assets.`,
 }
 
-export { person, social, newsletter, home, about, blog, work, gallery }
+export { person, social, newsletter, home, about, blog, work, toolsHub }

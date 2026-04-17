@@ -7,7 +7,7 @@ export {
 	about,
 	blog,
 	work,
-	gallery,
+	toolsHub,
 } from "./content"
 
 export {

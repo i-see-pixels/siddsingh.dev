@@ -1,0 +1,192 @@
+@use "../../../components/breakpoints.scss" as breakpoints;
+
+.toolLayout {
+	display: grid;
+	grid-template-columns: minmax(0, 1.25fr) minmax(19rem, 0.85fr);
+	gap: 1.5rem;
+	width: 100%;
+	align-items: start;
+}
+
+.previewPanel,
+.controlsPanel,
+.emptyState {
+	border: 1px solid var(--neutral-alpha-medium);
+	background:
+		radial-gradient(circle at top left, var(--brand-alpha-weak), transparent 38%),
+		linear-gradient(180deg, var(--page-background), rgba(255, 255, 255, 0.02));
+	border-radius: 1.75rem;
+	backdrop-filter: blur(14px);
+	box-shadow: 0 20px 48px rgba(15, 23, 42, 0.12);
+}
+
+.previewPanel,
+.controlsPanel {
+	padding: 1.25rem;
+}
+
+.previewPanel {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+	position: sticky;
+	top: 6rem;
+	height: calc(100vh - 8rem);
+	overflow-y: auto;
+}
+
+.previewStage {
+	position: relative;
+	display: grid;
+	place-items: center;
+	min-height: 34rem;
+	padding: 1rem;
+	border-radius: 1.4rem;
+	border: 1px solid rgba(255, 255, 255, 0.08);
+	background:
+		linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01)),
+		radial-gradient(circle at top right, rgba(34, 211, 238, 0.1), transparent 36%),
+		repeating-linear-gradient(
+			45deg,
+			rgba(255, 255, 255, 0.03),
+			rgba(255, 255, 255, 0.03) 12px,
+			transparent 12px,
+			transparent 24px
+		);
+	overflow: hidden;
+}
+
+.previewCanvas {
+	width: 100%;
+	max-width: 100%;
+	height: auto;
+	border-radius: 1rem;
+}
+
+.emptyState {
+	width: 100%;
+	padding: 2rem;
+	text-align: center;
+}
+
+.previewMeta,
+.statusRow,
+.buttonRow {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.75rem;
+}
+
+.previewMeta {
+	justify-content: space-between;
+	align-items: center;
+}
+
+.metaPill,
+.statusPill,
+.hintPill {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	padding: 0.55rem 0.85rem;
+	border-radius: 999px;
+	border: 1px solid var(--neutral-alpha-medium);
+	background: rgba(255, 255, 255, 0.02);
+	font-size: 0.85rem;
+	color: var(--neutral-on-background-weak);
+}
+
+.statusPill {
+	border-color: var(--brand-alpha-medium);
+	background: var(--brand-alpha-weak);
+	color: var(--brand-on-background-strong);
+}
+
+.controlsPanel {
+	display: grid;
+	gap: 1.5rem;
+	align-content: start;
+}
+
+.section {
+	display: grid;
+	gap: 0.75rem;
+}
+
+.sectionHeader {
+	display: grid;
+	gap: 0.15rem;
+}
+
+.dropzone {
+	display: grid;
+	gap: 0.9rem;
+	padding: 1rem;
+	border-radius: 1.25rem;
+	border: 1px dashed var(--neutral-alpha-strong);
+	background: rgba(255, 255, 255, 0.02);
+	transition:
+		border-color 160ms ease,
+		background 160ms ease,
+		transform 160ms ease;
+}
+
+.dragActive {
+	border-color: var(--brand-background-medium);
+	background: var(--brand-alpha-weak);
+	transform: translateY(-1px);
+}
+
+.buttonRow {
+	align-items: center;
+}
+
+.gridFields {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 0.85rem;
+}
+
+.hintText {
+	color: var(--neutral-on-background-weak);
+	font-size: 0.9rem;
+	line-height: 1.5;
+}
+
+.exportGrid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 0.75rem;
+}
+
+.hiddenInput {
+	display: none;
+}
+
+@media (max-width: breakpoints.$m) {
+	.toolLayout {
+		grid-template-columns: 1fr;
+	}
+
+	.previewPanel {
+		position: static;
+		height: auto;
+		overflow-y: visible;
+	}
+}
+
+@media (max-width: breakpoints.$s) {
+	.previewPanel,
+	.controlsPanel {
+		padding: 1rem;
+	}
+
+	.gridFields,
+	.exportGrid {
+		grid-template-columns: 1fr;
+	}
+
+	.previewStage {
+		min-height: 22rem;
+	}
+}

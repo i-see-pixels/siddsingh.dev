@@ -1,4 +1,5 @@
 import { baseURL, routes as routesConfig } from "@/resources"
+import { getLiveToolEntries } from "@/features/tools/registry"
 import { getPosts } from "@/utils/utils"
 
 export default async function sitemap() {
@@ -16,6 +17,13 @@ export default async function sitemap() {
 			}))
 		: []
 
+	const tools = routesConfig["/tools"]
+		? getLiveToolEntries().map((tool) => ({
+				url: `${baseURL}${tool.path}`,
+				lastModified: new Date().toISOString().split("T")[0],
+			}))
+		: []
+
 	const activeRoutes = Object.keys(routesConfig).filter(
 		(route) => routesConfig[route as keyof typeof routesConfig],
 	)
@@ -25,5 +33,5 @@ export default async function sitemap() {
 		lastModified: new Date().toISOString().split("T")[0],
 	}))
 
-	return [...routes, ...blogs, ...works]
+	return [...routes, ...blogs, ...works, ...tools]
 }
