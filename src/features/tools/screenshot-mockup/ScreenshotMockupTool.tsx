@@ -34,7 +34,10 @@ import {
 	gradientPresets,
 	shadowOptions,
 } from "./constants"
-import { DEFAULT_SCREENSHOT_MOCKUP_STATE, screenshotMockupReducer } from "./reducer"
+import {
+	DEFAULT_SCREENSHOT_MOCKUP_STATE,
+	screenshotMockupReducer,
+} from "./reducer"
 import type { ExportFormat } from "./types"
 
 type LoadedImageState = {
@@ -87,7 +90,10 @@ function sanitizeFilename(value: string) {
 }
 
 export function ScreenshotMockupTool() {
-	const [state, dispatch] = useReducer(screenshotMockupReducer, DEFAULT_SCREENSHOT_MOCKUP_STATE)
+	const [state, dispatch] = useReducer(
+		screenshotMockupReducer,
+		DEFAULT_SCREENSHOT_MOCKUP_STATE,
+	)
 	const deferredState = useDeferredValue(state)
 	const [loadedImage, setLoadedImage] = useState<LoadedImageState>({
 		image: null,
@@ -101,7 +107,11 @@ export function ScreenshotMockupTool() {
 	const ownedObjectUrlRef = useRef<string | null>(null)
 	const { addToast } = useToast()
 
-	const replaceImageSource = (nextSrc: string | null, nextName: string, ownsSource: boolean) => {
+	const replaceImageSource = (
+		nextSrc: string | null,
+		nextName: string,
+		ownsSource: boolean,
+	) => {
 		if (ownedObjectUrlRef.current) {
 			URL.revokeObjectURL(ownedObjectUrlRef.current)
 			ownedObjectUrlRef.current = null
@@ -137,15 +147,17 @@ export function ScreenshotMockupTool() {
 		})
 	})
 
-	const handleClipboardItems = useEffectEvent((items: DataTransferItemList | null) => {
-		const imageFile = extractImageFile(items)
+	const handleClipboardItems = useEffectEvent(
+		(items: DataTransferItemList | null) => {
+			const imageFile = extractImageFile(items)
 
-		if (!imageFile) {
-			return
-		}
+			if (!imageFile) {
+				return
+			}
 
-		void applyImageFile(imageFile)
-	})
+			void applyImageFile(imageFile)
+		},
+	)
 
 	useEffect(() => {
 		return () => {
@@ -300,7 +312,11 @@ export function ScreenshotMockupTool() {
 			})
 
 			const mimeType = format === "png" ? "image/png" : "image/jpeg"
-			const blob = await toBlob(canvas, mimeType, format === "jpg" ? 0.92 : undefined)
+			const blob = await toBlob(
+				canvas,
+				mimeType,
+				format === "jpg" ? 0.92 : undefined,
+			)
 			const link = document.createElement("a")
 			const objectUrl = URL.createObjectURL(blob)
 			const fileBase = sanitizeFilename(state.imageName || "screenshot-mockup")
@@ -342,7 +358,9 @@ export function ScreenshotMockupTool() {
 					) : (
 						<div className={styles.emptyState}>
 							<Heading as="h3" variant="heading-strong-m">
-								{loadedImage.isLoading ? "Loading preview..." : "Add a screenshot"}
+								{loadedImage.isLoading
+									? "Loading preview..."
+									: "Add a screenshot"}
 							</Heading>
 							<Text marginTop="12" onBackground="neutral-weak">
 								{loadedImage.error}
@@ -352,8 +370,9 @@ export function ScreenshotMockupTool() {
 				</div>
 
 				<Text className={styles.hintText}>
-					The preview updates as you tune the background, padding, browser frame, corners,
-					and shadow. Exports are generated client-side from the same canvas composition.
+					The preview updates as you tune the background, padding, browser
+					frame, corners, and shadow. Exports are generated client-side from the
+					same canvas composition.
 				</Text>
 			</div>
 
@@ -384,8 +403,8 @@ export function ScreenshotMockupTool() {
 							// tabIndex={0}
 						>
 							<Text onBackground="neutral-weak">
-								Supports PNG, JPG, and WebP. You can also paste directly from the
-								clipboard while this page is focused.
+								Supports PNG, JPG, and WebP. You can also paste directly from
+								the clipboard while this page is focused.
 							</Text>
 							<div className={styles.buttonRow}>
 								<Button
@@ -425,7 +444,8 @@ export function ScreenshotMockupTool() {
 								Background
 							</Text>
 							<Text className={styles.hintText}>
-								Choose a transparent export, a flat solid, or a layered gradient.
+								Choose a transparent export, a flat solid, or a layered
+								gradient.
 							</Text>
 						</div>
 						<SegmentedControl
@@ -572,7 +592,7 @@ export function ScreenshotMockupTool() {
 						<Slider
 							id="padding-x"
 							label="Horizontal padding (px)"
-							min={24}
+							min={0}
 							max={220}
 							value={state.paddingX}
 							onChange={(value) =>
@@ -587,7 +607,7 @@ export function ScreenshotMockupTool() {
 						<Slider
 							id="padding-y"
 							label="Vertical padding (px)"
-							min={24}
+							min={0}
 							max={180}
 							value={state.paddingY}
 							onChange={(value) =>
@@ -622,7 +642,8 @@ export function ScreenshotMockupTool() {
 							</Text>
 							<Text className={styles.hintText}>
 								Use PNG when you want transparency. JPG fills transparent
-								backgrounds with a light canvas so social posts still look clean.
+								backgrounds with a light canvas so social posts still look
+								clean.
 							</Text>
 						</div>
 						<div className={styles.exportGrid}>
