@@ -13,9 +13,5 @@ function renderTool(tool: LiveToolEntry) {
 }
 
 export function ToolDetailView({ tool }: { tool: LiveToolEntry }) {
-	return (
-		<Column fillWidth paddingTop="24">
-			{renderTool(tool)}
-		</Column>
-	)
+	return <Column fillWidth>{renderTool(tool)}</Column>
 }

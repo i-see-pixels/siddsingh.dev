@@ -357,7 +357,7 @@ export function ScreenshotMockupTool() {
 						<canvas ref={previewCanvasRef} className={styles.previewCanvas} />
 					) : (
 						<div className={styles.emptyState}>
-							<Heading as="h3" variant="heading-strong-l">
+							<Heading as="h3" variant="heading-strong-m">
 								{loadedImage.isLoading
 									? "Loading preview..."
 									: "Add a screenshot"}
@@ -369,7 +369,7 @@ export function ScreenshotMockupTool() {
 					)}
 				</div>
 
-				<Text onBackground="neutral-weak">
+				<Text className={styles.hintText}>
 					The preview updates as you tune the background, padding, browser
 					frame, corners, and shadow. Exports are generated client-side from the
 					same canvas composition.
@@ -377,93 +377,94 @@ export function ScreenshotMockupTool() {
 			</div>
 
 			<div className={styles.controlsPanel}>
-				<div className={styles.section}>
-					<div className={styles.sectionHeader}>
-						<Text variant="label-default-m" onBackground="brand-weak">
-							Image input
-						</Text>
-						<Heading as="h2" variant="heading-strong-l">
-							Drop, upload, or paste a screenshot
-						</Heading>
-					</div>
-					<div
-						className={`${styles.dropzone} ${isDragging ? styles.dragActive : ""}`}
-						onDragEnter={(event) => {
-							event.preventDefault()
-							setIsDragging(true)
-						}}
-						onDragLeave={(event) => {
-							event.preventDefault()
-							setIsDragging(false)
-						}}
-						onDragOver={(event) => event.preventDefault()}
-						onDrop={handleDrop}
-						onPaste={handlePaste}
-						// tabIndex={0}
-					>
-						<Text onBackground="neutral-weak">
-							Supports PNG, JPG, and WebP. You can also paste directly from the
-							clipboard while this page is focused.
-						</Text>
-						<div className={styles.buttonRow}>
-							<Button
-								variant="secondary"
-								size="m"
-								prefixIcon="openLink"
-								onClick={() => fileInputRef.current?.click()}
-							>
-								Upload screenshot
-							</Button>
-							<Button
-								variant="secondary"
-								size="m"
-								onClick={() =>
-									replaceImageSource(DEMO_IMAGE.src, DEMO_IMAGE.name, false)
-								}
-							>
-								Use demo image
-							</Button>
-							<Button
-								variant="secondary"
-								size="m"
-								onClick={handleReset}
-							>
-								Reset defaults
-							</Button>
+				<div className={styles.controlsContent}>
+					<div className={styles.section}>
+						<div className={styles.sectionHeader}>
+							<Text variant="label-default-m" onBackground="brand-weak">
+								Image input
+							</Text>
+							<Heading as="h2" variant="heading-strong-m">
+								Drop, upload, or paste a screenshot
+							</Heading>
 						</div>
+						<div
+							className={`${styles.dropzone} ${isDragging ? styles.dragActive : ""}`}
+							onDragEnter={(event) => {
+								event.preventDefault()
+								setIsDragging(true)
+							}}
+							onDragLeave={(event) => {
+								event.preventDefault()
+								setIsDragging(false)
+							}}
+							onDragOver={(event) => event.preventDefault()}
+							onDrop={handleDrop}
+							onPaste={handlePaste}
+							// tabIndex={0}
+						>
+							<Text onBackground="neutral-weak">
+								Supports PNG, JPG, and WebP. You can also paste directly from the
+								clipboard while this page is focused.
+							</Text>
+							<div className={styles.buttonRow}>
+								<Button
+									variant="secondary"
+									size="m"
+									prefixIcon="openLink"
+									onClick={() => fileInputRef.current?.click()}
+								>
+									Upload screenshot
+								</Button>
+								<Button
+									variant="secondary"
+									size="m"
+									onClick={() =>
+										replaceImageSource(DEMO_IMAGE.src, DEMO_IMAGE.name, false)
+									}
+								>
+									Use demo image
+								</Button>
+								<Button
+									variant="secondary"
+									size="m"
+									onClick={handleReset}
+								>
+									Reset defaults
+								</Button>
+							</div>
+						</div>
+						<input
+							ref={fileInputRef}
+							type="file"
+							accept="image/png,image/jpeg,image/webp"
+							className={styles.hiddenInput}
+							onChange={handleFileChange}
+						/>
 					</div>
-					<input
-						ref={fileInputRef}
-						type="file"
-						accept="image/png,image/jpeg,image/webp"
-						className={styles.hiddenInput}
-						onChange={handleFileChange}
-					/>
-				</div>
 
-				<div className={styles.section}>
-					<div className={styles.sectionHeader}>
-						<Text variant="label-default-m" onBackground="brand-weak">
-							Background
-						</Text>
-						<Text className={styles.hintText}>
-							Choose a transparent export, a flat solid, or a layered gradient.
-						</Text>
-					</div>
-					<SegmentedControl
-						buttons={backgroundOptions.map((opt) => ({
-							label: opt.label,
-							value: opt.value,
-						}))}
-						selected={state.backgroundStyle}
-						onToggle={(value) =>
-							dispatch({
-								type: "patch",
-								patch: { backgroundStyle: value as typeof state.backgroundStyle },
-							})
-						}
-						fillWidth
-					/>
+					<div className={styles.section}>
+						<div className={styles.sectionHeader}>
+							<Text variant="label-default-m" onBackground="brand-weak">
+								Background
+							</Text>
+							<Text className={styles.hintText}>
+								Choose a transparent export, a flat solid, or a layered gradient.
+							</Text>
+						</div>
+						<SegmentedControl
+							buttons={backgroundOptions.map((opt) => ({
+								label: opt.label,
+								value: opt.value,
+							}))}
+							selected={state.backgroundStyle}
+							onToggle={(value) =>
+								dispatch({
+									type: "patch",
+									patch: { backgroundStyle: value as typeof state.backgroundStyle },
+								})
+							}
+							fillWidth
+						/>
 
 					{state.backgroundStyle === "preset" && (
 						<Select
@@ -541,9 +542,9 @@ export function ScreenshotMockupTool() {
 								showValue
 							/>
 						)}
-				</div>
+					</div>
 
-				<div className={styles.section}>
+					<div className={styles.section}>
 					<div className={styles.sectionHeader}>
 						<Text variant="label-default-m" onBackground="brand-weak">
 							Layout and style
@@ -633,9 +634,9 @@ export function ScreenshotMockupTool() {
 						}
 						showValue
 					/>
-				</div>
+					</div>
 
-				<div className={styles.section}>
+					<div className={styles.section}>
 					<div className={styles.sectionHeader}>
 						<Text variant="label-default-m" onBackground="brand-weak">
 							Export
@@ -682,6 +683,7 @@ export function ScreenshotMockupTool() {
 						>
 							JPG export - 2x
 						</Button>
+					</div>
 					</div>
 				</div>
 			</div>

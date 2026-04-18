@@ -18,13 +18,35 @@ const ASPECT_RATIOS: Record<string, number> = {
 function getShadowPreset(shadowPreset: ShadowPreset) {
 	switch (shadowPreset) {
 		case "lifted":
-			return { blur: 44, offsetY: 24, color: "rgba(15, 23, 42, 0.24)" }
+			return {
+				blur: 20,
+				offsetX: 10,
+				offsetY: 20,
+				color: "rgba(15, 23, 42, 0.44)",
+			}
 		case "float":
-			return { blur: 58, offsetY: 28, color: "rgba(15, 23, 42, 0.3)" }
+			return {
+				blur: 28,
+				offsetX: 20,
+				offsetY: 28,
+				color: "rgba(15, 23, 42, 0.5)",
+			}
 		case "none":
-			return { blur: 0, offsetY: 0, color: "rgba(0, 0, 0, 0)" }
+			return { blur: 0, offsetX: 0, offsetY: 0, color: "rgba(0, 0, 0, 0)" }
+		case "soft":
+			return {
+				blur: 20,
+				offsetX: 15,
+				offsetY: 18,
+				color: "rgba(15, 23, 42, 0.28)",
+			}
 		default:
-			return { blur: 34, offsetY: 18, color: "rgba(15, 23, 42, 0.18)" }
+			return {
+				blur: 34,
+				offsetX: 15,
+				offsetY: 18,
+				color: "rgba(15, 23, 42, 0.18)",
+			}
 	}
 }
 
@@ -71,7 +93,7 @@ function getBackgroundFill(
 	)
 	const angle =
 		state.backgroundStyle === "preset"
-			? (preset?.angle ?? state.gradientAngle)
+			? (state.gradientAngle ?? preset?.angle)
 			: state.gradientAngle
 	const radians = (angle - 90) * (Math.PI / 180)
 	const halfWidth = width / 2
@@ -229,6 +251,7 @@ export function renderMockupCanvas({
 	ctx.save()
 	ctx.shadowBlur = shadow.blur
 	ctx.shadowOffsetY = shadow.offsetY
+	ctx.shadowOffsetX = shadow.offsetX
 	ctx.shadowColor = shadow.color
 	ctx.fillStyle = containerFill
 	createRoundedRectPath(

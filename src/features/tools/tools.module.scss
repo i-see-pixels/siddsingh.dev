@@ -2,14 +2,13 @@
 
 .hero {
 	display: grid;
-	grid-template-columns: minmax(0, 1.25fr) minmax(18rem, 0.75fr);
+	grid-template-columns: 1fr;
 	gap: 1.5rem;
 	width: 100%;
 	margin-bottom: 2.5rem;
 }
 
 .heroPanel,
-.heroAside,
 .toolCard,
 .detailShell,
 .faqItem {
@@ -23,16 +22,8 @@
 }
 
 .heroPanel,
-.heroAside,
 .detailShell {
 	padding: 1.5rem;
-}
-
-.heroAside {
-	display: flex;
-	flex-direction: column;
-	justify-content: space-between;
-	gap: 1rem;
 }
 
 .eyebrow,
@@ -43,7 +34,7 @@
 	align-items: center;
 	gap: 0.375rem;
 	width: fit-content;
-	border-radius: 999px;
+	border-radius: 10px;
 	font-size: 0.82rem;
 	letter-spacing: 0.01em;
 }
@@ -62,7 +53,6 @@
 	color: var(--neutral-on-background-strong);
 }
 
-.metaGrid,
 .highlights,
 .cardHighlights,
 .toolGrid,
@@ -70,10 +60,6 @@
 .faqList {
 	display: grid;
 	gap: 1rem;
-}
-
-.metaGrid {
-	grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .metaCard {
@@ -271,13 +257,8 @@
 
 @media (max-width: breakpoints.$s) {
 	.heroPanel,
-	.heroAside,
 	.toolCard,
 	.detailShell {
 		padding: 1.1rem;
-	}
-
-	.metaGrid {
-		grid-template-columns: 1fr;
 	}
 }
