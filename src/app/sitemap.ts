@@ -1,5 +1,5 @@
-import { baseURL, routes as routesConfig } from "@/resources"
 import { getLiveToolEntries } from "@/features/tools/registry"
+import { baseURL, routes as routesConfig } from "@/resources"
 import { getPosts } from "@/utils/utils"
 
 export default async function sitemap() {

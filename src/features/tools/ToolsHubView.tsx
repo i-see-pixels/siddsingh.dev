@@ -8,9 +8,7 @@ function ToolCard({ tool }: { tool: ToolEntry }) {
 	const isLive = tool.status === "live"
 
 	return (
-		<article
-			className={`${styles.toolCard} ${tool.featured ? styles.featuredCard : ""}`}
-		>
+		<article className={`${styles.toolCard} ${tool.featured ? styles.featuredCard : ""}`}>
 			<div
 				className={`${styles.cardArt} ${!isLive ? styles.comingArt : ""}`}
 				aria-hidden="true"
@@ -23,9 +21,7 @@ function ToolCard({ tool }: { tool: ToolEntry }) {
 
 			<div className={styles.cardHeader}>
 				<div className={styles.cardMeta}>
-					<span
-						className={`${styles.statusPill} ${!isLive ? styles.statusSoon : ""}`}
-					>
+					<span className={`${styles.statusPill} ${!isLive ? styles.statusSoon : ""}`}>
 						{isLive ? "Live now" : "Coming soon"}
 					</span>
 					<span className={styles.metaPill}>{tool.category}</span>
@@ -48,18 +44,11 @@ function ToolCard({ tool }: { tool: ToolEntry }) {
 
 			<div className={styles.cardActions}>
 				{isLive ? (
-					<Button
-						href={tool.path}
-						variant="secondary"
-						size="m"
-						prefixIcon="sparkle"
-					>
+					<Button href={tool.path} variant="secondary" size="m" prefixIcon="sparkle">
 						Open tool
 					</Button>
 				) : (
-					<span className={styles.mutedAction}>
-						Planned for the next release.
-					</span>
+					<span className={styles.mutedAction}>Planned for the next release.</span>
 				)}
 			</div>
 		</article>
@@ -68,9 +57,7 @@ function ToolCard({ tool }: { tool: ToolEntry }) {
 
 export function ToolsHubView() {
 	const featuredTool = getFeaturedTool()
-	const remainingTools = getAllTools().filter(
-		(tool) => tool.slug !== featuredTool.slug,
-	)
+	const remainingTools = getAllTools().filter((tool) => tool.slug !== featuredTool.slug)
 	const liveTools = getLiveToolEntries()
 	const faqs = liveTools.flatMap((tool) => tool.faq || [])
 
@@ -81,13 +68,13 @@ export function ToolsHubView() {
 					<span className={styles.eyebrow}>Free tools for builders</span>
 					<Column gap="16" marginTop="16">
 						<Heading variant="display-strong-m">
-							A growing set of browser-based utilities for screenshots, assets,
-							and launch-ready visuals
+							A growing set of browser-based utilities for screenshots, assets, and
+							launch-ready visuals
 						</Heading>
 						<Text variant="body-default-l" onBackground="neutral-weak">
-							This section is equipped with practical tools that help turn
-							product work into clearer outputs. Everything here is focused on
-							speed, polish, and zero-install workflows.
+							This section is equipped with practical tools that help turn product
+							work into clearer outputs. Everything here is focused on speed, polish,
+							and zero-install workflows.
 						</Text>
 					</Column>
 				</div>
@@ -104,8 +91,8 @@ export function ToolsHubView() {
 						</Heading>
 					</Column>
 					<Text onBackground="neutral-weak">
-						Live tools open in their own editor pages. Roadmap cards stay
-						visible so the section feels intentional from day one.
+						Live tools open in their own editor pages. Roadmap cards stay visible so the
+						section feels intentional from day one.
 					</Text>
 				</div>
 				<div className={styles.toolGrid}>

@@ -22,24 +22,20 @@ const toolEntries: ToolEntry[] = [
 		hero: {
 			eyebrow: "Free design utility",
 			heading: "Make screenshots look polished in seconds",
-			intro:
-				"Built for product posts, changelog visuals, launch assets, and portfolio updates when a raw screenshot needs a bit more presence.",
+			intro: "Built for product posts, changelog visuals, launch assets, and portfolio updates when a raw screenshot needs a bit more presence.",
 		},
 		faq: [
 			{
 				question: "Does it upload screenshots to a server?",
-				answer:
-					"No. The v1 editor keeps image handling in the browser so screenshots stay local to your device.",
+				answer: "No. The v1 editor keeps image handling in the browser so screenshots stay local to your device.",
 			},
 			{
 				question: "What can I customize?",
-				answer:
-					"You can switch between transparent, solid, and gradient backgrounds, adjust padding, choose browser chrome styles, set rounded corners, tune shadow depth, and export at 1x or 2x.",
+				answer: "You can switch between transparent, solid, and gradient backgrounds, adjust padding, choose browser chrome styles, set rounded corners, tune shadow depth, and export at 1x or 2x.",
 			},
 			{
 				question: "Who is this tool for?",
-				answer:
-					"It is useful for indie makers, engineers, product teams, and anyone posting screenshots to social media, docs, launch pages, or case studies.",
+				answer: "It is useful for indie makers, engineers, product teams, and anyone posting screenshots to social media, docs, launch pages, or case studies.",
 			},
 		],
 	},
@@ -63,8 +59,7 @@ const toolEntries: ToolEntry[] = [
 		hero: {
 			eyebrow: "Coming soon",
 			heading: "Share code without fighting screenshots",
-			intro:
-				"Designed for snippets that should feel intentional, readable, and on-brand instead of pasted into a generic screenshot tool.",
+			intro: "Designed for snippets that should feel intentional, readable, and on-brand instead of pasted into a generic screenshot tool.",
 		},
 		faq: [],
 	},
@@ -88,8 +83,7 @@ const toolEntries: ToolEntry[] = [
 		hero: {
 			eyebrow: "Coming soon",
 			heading: "Generate sharper social previews",
-			intro:
-				"Built for people who want quick, consistent OG cards without opening a full design tool every time they publish.",
+			intro: "Built for people who want quick, consistent OG cards without opening a full design tool every time they publish.",
 		},
 		faq: [],
 	},

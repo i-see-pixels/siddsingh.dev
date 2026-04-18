@@ -34,10 +34,7 @@ import {
 	gradientPresets,
 	shadowOptions,
 } from "./constants"
-import {
-	DEFAULT_SCREENSHOT_MOCKUP_STATE,
-	screenshotMockupReducer,
-} from "./reducer"
+import { DEFAULT_SCREENSHOT_MOCKUP_STATE, screenshotMockupReducer } from "./reducer"
 import type { ExportFormat } from "./types"
 
 type LoadedImageState = {
@@ -90,10 +87,7 @@ function sanitizeFilename(value: string) {
 }
 
 export function ScreenshotMockupTool() {
-	const [state, dispatch] = useReducer(
-		screenshotMockupReducer,
-		DEFAULT_SCREENSHOT_MOCKUP_STATE,
-	)
+	const [state, dispatch] = useReducer(screenshotMockupReducer, DEFAULT_SCREENSHOT_MOCKUP_STATE)
 	const deferredState = useDeferredValue(state)
 	const [loadedImage, setLoadedImage] = useState<LoadedImageState>({
 		image: null,
@@ -107,11 +101,7 @@ export function ScreenshotMockupTool() {
 	const ownedObjectUrlRef = useRef<string | null>(null)
 	const { addToast } = useToast()
 
-	const replaceImageSource = (
-		nextSrc: string | null,
-		nextName: string,
-		ownsSource: boolean,
-	) => {
+	const replaceImageSource = (nextSrc: string | null, nextName: string, ownsSource: boolean) => {
 		if (ownedObjectUrlRef.current) {
 			URL.revokeObjectURL(ownedObjectUrlRef.current)
 			ownedObjectUrlRef.current = null
@@ -147,17 +137,15 @@ export function ScreenshotMockupTool() {
 		})
 	})
 
-	const handleClipboardItems = useEffectEvent(
-		(items: DataTransferItemList | null) => {
-			const imageFile = extractImageFile(items)
+	const handleClipboardItems = useEffectEvent((items: DataTransferItemList | null) => {
+		const imageFile = extractImageFile(items)
 
-			if (!imageFile) {
-				return
-			}
+		if (!imageFile) {
+			return
+		}
 
-			void applyImageFile(imageFile)
-		},
-	)
+		void applyImageFile(imageFile)
+	})
 
 	useEffect(() => {
 		return () => {
@@ -312,11 +300,7 @@ export function ScreenshotMockupTool() {
 			})
 
 			const mimeType = format === "png" ? "image/png" : "image/jpeg"
-			const blob = await toBlob(
-				canvas,
-				mimeType,
-				format === "jpg" ? 0.92 : undefined,
-			)
+			const blob = await toBlob(canvas, mimeType, format === "jpg" ? 0.92 : undefined)
 			const link = document.createElement("a")
 			const objectUrl = URL.createObjectURL(blob)
 			const fileBase = sanitizeFilename(state.imageName || "screenshot-mockup")
@@ -358,9 +342,7 @@ export function ScreenshotMockupTool() {
 					) : (
 						<div className={styles.emptyState}>
 							<Heading as="h3" variant="heading-strong-m">
-								{loadedImage.isLoading
-									? "Loading preview..."
-									: "Add a screenshot"}
+								{loadedImage.isLoading ? "Loading preview..." : "Add a screenshot"}
 							</Heading>
 							<Text marginTop="12" onBackground="neutral-weak">
 								{loadedImage.error}
@@ -370,9 +352,8 @@ export function ScreenshotMockupTool() {
 				</div>
 
 				<Text className={styles.hintText}>
-					The preview updates as you tune the background, padding, browser
-					frame, corners, and shadow. Exports are generated client-side from the
-					same canvas composition.
+					The preview updates as you tune the background, padding, browser frame, corners,
+					and shadow. Exports are generated client-side from the same canvas composition.
 				</Text>
 			</div>
 
@@ -424,11 +405,7 @@ export function ScreenshotMockupTool() {
 								>
 									Use demo image
 								</Button>
-								<Button
-									variant="secondary"
-									size="m"
-									onClick={handleReset}
-								>
+								<Button variant="secondary" size="m" onClick={handleReset}>
 									Reset defaults
 								</Button>
 							</div>
@@ -460,230 +437,232 @@ export function ScreenshotMockupTool() {
 							onToggle={(value) =>
 								dispatch({
 									type: "patch",
-									patch: { backgroundStyle: value as typeof state.backgroundStyle },
+									patch: {
+										backgroundStyle: value as typeof state.backgroundStyle,
+									},
 								})
 							}
 							fillWidth
 						/>
 
-					{state.backgroundStyle === "preset" && (
-						<Select
-							id="gradient-preset"
-							label="Gradient preset"
-							options={gradientPresets.map((preset) => ({
-								label: preset.label,
-								value: preset.id,
-							}))}
-							value={state.gradientPresetId}
-							onSelect={(value) =>
-								dispatch({
-									type: "patch",
-									patch: { gradientPresetId: value },
-								})
-							}
-						/>
-					)}
-
-					{state.backgroundStyle === "custom" && (
-						<div className={styles.gridFields}>
-							<ColorInput
-								id="custom-start"
-								label="Gradient start"
-								value={state.customGradientStart}
-								onChange={(event) =>
+						{state.backgroundStyle === "preset" && (
+							<Select
+								id="gradient-preset"
+								label="Gradient preset"
+								options={gradientPresets.map((preset) => ({
+									label: preset.label,
+									value: preset.id,
+								}))}
+								value={state.gradientPresetId}
+								onSelect={(value) =>
 									dispatch({
 										type: "patch",
-										patch: { customGradientStart: event.target.value },
+										patch: { gradientPresetId: value },
 									})
 								}
 							/>
+						)}
+
+						{state.backgroundStyle === "custom" && (
+							<div className={styles.gridFields}>
+								<ColorInput
+									id="custom-start"
+									label="Gradient start"
+									value={state.customGradientStart}
+									onChange={(event) =>
+										dispatch({
+											type: "patch",
+											patch: { customGradientStart: event.target.value },
+										})
+									}
+								/>
+								<ColorInput
+									id="custom-end"
+									label="Gradient end"
+									value={state.customGradientEnd}
+									onChange={(event) =>
+										dispatch({
+											type: "patch",
+											patch: { customGradientEnd: event.target.value },
+										})
+									}
+								/>
+							</div>
+						)}
+
+						{state.backgroundStyle === "solid" && (
 							<ColorInput
-								id="custom-end"
-								label="Gradient end"
-								value={state.customGradientEnd}
+								id="solid-color"
+								label="Solid background"
+								value={state.solidColor}
 								onChange={(event) =>
 									dispatch({
 										type: "patch",
-										patch: { customGradientEnd: event.target.value },
+										patch: { solidColor: event.target.value },
+									})
+								}
+							/>
+						)}
+
+						{state.backgroundStyle !== "solid" &&
+							state.backgroundStyle !== "transparent" && (
+								<Slider
+									id="gradient-angle"
+									label="Gradient angle (deg)"
+									min={0}
+									max={360}
+									value={state.gradientAngle}
+									onChange={(value) =>
+										dispatch({
+											type: "patch",
+											patch: { gradientAngle: value },
+										})
+									}
+									showValue
+								/>
+							)}
+					</div>
+
+					<div className={styles.section}>
+						<div className={styles.sectionHeader}>
+							<Text variant="label-default-m" onBackground="brand-weak">
+								Layout and style
+							</Text>
+						</div>
+
+						<div className={styles.gridFields}>
+							<Select
+								id="aspect-ratio"
+								label="Canvas ratio"
+								options={aspectRatioOptions}
+								value={state.aspectRatio}
+								onSelect={(value) =>
+									dispatch({
+										type: "patch",
+										patch: { aspectRatio: value as typeof state.aspectRatio },
+									})
+								}
+							/>
+							<Select
+								id="frame-style"
+								label="Browser frame"
+								options={frameStyleOptions}
+								value={state.frameStyle}
+								onSelect={(value) =>
+									dispatch({
+										type: "patch",
+										patch: { frameStyle: value as typeof state.frameStyle },
+									})
+								}
+							/>
+							<Select
+								id="shadow-style"
+								label="Shadow preset"
+								options={shadowOptions}
+								value={state.shadowPreset}
+								onSelect={(value) =>
+									dispatch({
+										type: "patch",
+										patch: { shadowPreset: value as typeof state.shadowPreset },
 									})
 								}
 							/>
 						</div>
-					)}
 
-					{state.backgroundStyle === "solid" && (
-						<ColorInput
-							id="solid-color"
-							label="Solid background"
-							value={state.solidColor}
-							onChange={(event) =>
+						<Slider
+							id="padding-x"
+							label="Horizontal padding (px)"
+							min={24}
+							max={220}
+							value={state.paddingX}
+							onChange={(value) =>
 								dispatch({
 									type: "patch",
-									patch: { solidColor: event.target.value },
+									patch: { paddingX: value },
 								})
 							}
+							showValue
 						/>
-					)}
 
-					{state.backgroundStyle !== "solid" &&
-						state.backgroundStyle !== "transparent" && (
-							<Slider
-								id="gradient-angle"
-								label="Gradient angle (deg)"
-								min={0}
-								max={360}
-								value={state.gradientAngle}
-								onChange={(value) =>
-									dispatch({
-										type: "patch",
-										patch: { gradientAngle: value },
-									})
-								}
-								showValue
-							/>
-						)}
+						<Slider
+							id="padding-y"
+							label="Vertical padding (px)"
+							min={24}
+							max={180}
+							value={state.paddingY}
+							onChange={(value) =>
+								dispatch({
+									type: "patch",
+									patch: { paddingY: value },
+								})
+							}
+							showValue
+						/>
+
+						<Slider
+							id="corner-radius"
+							label="Corner radius (px)"
+							min={0}
+							max={48}
+							value={state.cornerRadius}
+							onChange={(value) =>
+								dispatch({
+									type: "patch",
+									patch: { cornerRadius: value },
+								})
+							}
+							showValue
+						/>
 					</div>
 
 					<div className={styles.section}>
-					<div className={styles.sectionHeader}>
-						<Text variant="label-default-m" onBackground="brand-weak">
-							Layout and style
-						</Text>
-					</div>
-
-					<div className={styles.gridFields}>
-						<Select
-							id="aspect-ratio"
-							label="Canvas ratio"
-							options={aspectRatioOptions}
-							value={state.aspectRatio}
-							onSelect={(value) =>
-								dispatch({
-									type: "patch",
-									patch: { aspectRatio: value as typeof state.aspectRatio },
-								})
-							}
-						/>
-						<Select
-							id="frame-style"
-							label="Browser frame"
-							options={frameStyleOptions}
-							value={state.frameStyle}
-							onSelect={(value) =>
-								dispatch({
-									type: "patch",
-									patch: { frameStyle: value as typeof state.frameStyle },
-								})
-							}
-						/>
-						<Select
-							id="shadow-style"
-							label="Shadow preset"
-							options={shadowOptions}
-							value={state.shadowPreset}
-							onSelect={(value) =>
-								dispatch({
-									type: "patch",
-									patch: { shadowPreset: value as typeof state.shadowPreset },
-								})
-							}
-						/>
-					</div>
-
-					<Slider
-						id="padding-x"
-						label="Horizontal padding (px)"
-						min={24}
-						max={220}
-						value={state.paddingX}
-						onChange={(value) =>
-							dispatch({
-								type: "patch",
-								patch: { paddingX: value },
-							})
-						}
-						showValue
-					/>
-
-					<Slider
-						id="padding-y"
-						label="Vertical padding (px)"
-						min={24}
-						max={180}
-						value={state.paddingY}
-						onChange={(value) =>
-							dispatch({
-								type: "patch",
-								patch: { paddingY: value },
-							})
-						}
-						showValue
-					/>
-
-					<Slider
-						id="corner-radius"
-						label="Corner radius (px)"
-						min={0}
-						max={48}
-						value={state.cornerRadius}
-						onChange={(value) =>
-							dispatch({
-								type: "patch",
-								patch: { cornerRadius: value },
-							})
-						}
-						showValue
-					/>
-					</div>
-
-					<div className={styles.section}>
-					<div className={styles.sectionHeader}>
-						<Text variant="label-default-m" onBackground="brand-weak">
-							Export
-						</Text>
-						<Text className={styles.hintText}>
-							Use PNG when you want transparency. JPG fills transparent
-							backgrounds with a light canvas so social posts still look clean.
-						</Text>
-					</div>
-					<div className={styles.exportGrid}>
-						<Button
-							variant="secondary"
-							size="m"
-							onClick={() => void handleExport("png", 1)}
-							disabled={!loadedImage.image || isExporting}
-							fillWidth
-						>
-							PNG export - 1x
-						</Button>
-						<Button
-							variant="secondary"
-							size="m"
-							onClick={() => void handleExport("png", 2)}
-							disabled={!loadedImage.image || isExporting}
-							fillWidth
-						>
-							PNG export - 2x
-						</Button>
-						<Button
-							variant="secondary"
-							size="m"
-							onClick={() => void handleExport("jpg", 1)}
-							disabled={!loadedImage.image || isExporting}
-							fillWidth
-						>
-							JPG export - 1x
-						</Button>
-						<Button
-							variant="secondary"
-							size="m"
-							onClick={() => void handleExport("jpg", 2)}
-							disabled={!loadedImage.image || isExporting}
-							fillWidth
-						>
-							JPG export - 2x
-						</Button>
-					</div>
+						<div className={styles.sectionHeader}>
+							<Text variant="label-default-m" onBackground="brand-weak">
+								Export
+							</Text>
+							<Text className={styles.hintText}>
+								Use PNG when you want transparency. JPG fills transparent
+								backgrounds with a light canvas so social posts still look clean.
+							</Text>
+						</div>
+						<div className={styles.exportGrid}>
+							<Button
+								variant="secondary"
+								size="m"
+								onClick={() => void handleExport("png", 1)}
+								disabled={!loadedImage.image || isExporting}
+								fillWidth
+							>
+								PNG export - 1x
+							</Button>
+							<Button
+								variant="secondary"
+								size="m"
+								onClick={() => void handleExport("png", 2)}
+								disabled={!loadedImage.image || isExporting}
+								fillWidth
+							>
+								PNG export - 2x
+							</Button>
+							<Button
+								variant="secondary"
+								size="m"
+								onClick={() => void handleExport("jpg", 1)}
+								disabled={!loadedImage.image || isExporting}
+								fillWidth
+							>
+								JPG export - 1x
+							</Button>
+							<Button
+								variant="secondary"
+								size="m"
+								onClick={() => void handleExport("jpg", 2)}
+								disabled={!loadedImage.image || isExporting}
+								fillWidth
+							>
+								JPG export - 2x
+							</Button>
+						</div>
 					</div>
 				</div>
 			</div>

@@ -70,26 +70,25 @@
 
 /* Thin scrollbars */
 * {
-    scrollbar-width: thin;
-    scrollbar-color: var(--neutral-alpha-medium) transparent;
+	scrollbar-width: thin;
+	scrollbar-color: var(--neutral-alpha-medium) transparent;
 }
 
 *::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+	width: 6px;
+	height: 6px;
 }
 
 *::-webkit-scrollbar-track {
-    background: transparent;
+	background: transparent;
 }
 
 *::-webkit-scrollbar-thumb {
-    background-color: var(--neutral-alpha-medium);
-    border-radius: 10px;
-    border: 1px solid transparent;
+	background-color: var(--neutral-alpha-medium);
+	border-radius: 10px;
+	border: 1px solid transparent;
 }
 
 *::-webkit-scrollbar-thumb:hover {
-    background-color: var(--neutral-alpha-strong);
+	background-color: var(--neutral-alpha-strong);
 }
-

@@ -65,12 +65,7 @@ function createRoundedRectPath(
 	ctx.lineTo(x + width - safeRadius, y)
 	ctx.quadraticCurveTo(x + width, y, x + width, y + safeRadius)
 	ctx.lineTo(x + width, y + height - safeRadius)
-	ctx.quadraticCurveTo(
-		x + width,
-		y + height,
-		x + width - safeRadius,
-		y + height,
-	)
+	ctx.quadraticCurveTo(x + width, y + height, x + width - safeRadius, y + height)
 	ctx.lineTo(x + safeRadius, y + height)
 	ctx.quadraticCurveTo(x, y + height, x, y + height - safeRadius)
 	ctx.lineTo(x, y + safeRadius)
@@ -88,9 +83,7 @@ function getBackgroundFill(
 		return state.solidColor
 	}
 
-	const preset = gradientPresets.find(
-		(item) => item.id === state.gradientPresetId,
-	)
+	const preset = gradientPresets.find((item) => item.id === state.gradientPresetId)
 	const angle =
 		state.backgroundStyle === "preset"
 			? (state.gradientAngle ?? preset?.angle)
@@ -109,9 +102,7 @@ function getBackgroundFill(
 			? (preset?.start ?? "#0f172a")
 			: state.customGradientStart
 	const end =
-		state.backgroundStyle === "preset"
-			? (preset?.end ?? "#22d3ee")
-			: state.customGradientEnd
+		state.backgroundStyle === "preset" ? (preset?.end ?? "#22d3ee") : state.customGradientEnd
 
 	gradient.addColorStop(0, start)
 	gradient.addColorStop(1, end)
@@ -196,14 +187,12 @@ export function renderMockupCanvas({
 	)
 	const imageWidth = Math.max(220, image.naturalWidth * imageScale)
 	const imageHeight = Math.max(140, image.naturalHeight * imageScale)
-	const frameHeight =
-		state.frameStyle === "none" ? 0 : state.frameStyle === "minimal" ? 30 : 46
+	const frameHeight = state.frameStyle === "none" ? 0 : state.frameStyle === "minimal" ? 30 : 46
 	const frameWidth = imageWidth
 	const frameContentHeight = imageHeight + frameHeight
 	const baseWidth = frameWidth + state.paddingX * 2
 	const baseHeight = frameContentHeight + state.paddingY * 2
-	const explicitRatio =
-		state.aspectRatio === "auto" ? null : ASPECT_RATIOS[state.aspectRatio]
+	const explicitRatio = state.aspectRatio === "auto" ? null : ASPECT_RATIOS[state.aspectRatio]
 
 	let canvasWidth = baseWidth
 	let canvasHeight = baseHeight
@@ -254,26 +243,12 @@ export function renderMockupCanvas({
 	ctx.shadowOffsetX = shadow.offsetX
 	ctx.shadowColor = shadow.color
 	ctx.fillStyle = containerFill
-	createRoundedRectPath(
-		ctx,
-		frameX,
-		frameY,
-		frameWidth,
-		frameContentHeight,
-		state.cornerRadius,
-	)
+	createRoundedRectPath(ctx, frameX, frameY, frameWidth, frameContentHeight, state.cornerRadius)
 	ctx.fill()
 	ctx.restore()
 
 	ctx.save()
-	createRoundedRectPath(
-		ctx,
-		frameX,
-		frameY,
-		frameWidth,
-		frameContentHeight,
-		state.cornerRadius,
-	)
+	createRoundedRectPath(ctx, frameX, frameY, frameWidth, frameContentHeight, state.cornerRadius)
 	ctx.clip()
 
 	if (state.frameStyle !== "none") {
