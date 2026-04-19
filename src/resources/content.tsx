@@ -53,10 +53,12 @@ const home: Home = {
 	path: "/",
 	image: "/images/og/home.png",
 	label: "Home",
-	title: `${person.name} | ${person.role}`,
+	title: `${person.name} | AI Workflows, Developer Tools, and Solo Product Engineering`,
 	description:
-		"Portfolio of Siddhant Singh, a software engineer building solo products, developer tools, and practical AI workflows.",
-	headline: <>Shipping solo products, developer tools, and practical AI workflows</>,
+		"Siddhant Singh is a software engineer building AI workflows, developer tools, and solo products with Next.js, TypeScript, and product-first engineering.",
+	headline: (
+		<>AI workflows, developer tools, and solo products built with product-first engineering</>
+	),
 	featured: {
 		display: true,
 		title: (
@@ -74,8 +76,9 @@ const home: Home = {
 			<Text as="span" size="xl" weight="strong">
 				Optum
 			</Text>{" "}
-			based in Gurugram. Outside work, I build solo ideas, developer tooling, and AI-enabled
-			experiments with Next.js, TypeScript, and product-first thinking.
+			in Gurugram. I build browser-based tools, AI-assisted workflows, and solo product
+			experiments with Next.js, TypeScript, and a practical product engineering mindset for
+			builders who want useful software, not demo ware.
 		</>
 	),
 }
@@ -83,8 +86,8 @@ const home: Home = {
 const about: About = {
 	path: "/about",
 	label: "About",
-	title: `About ${person.name}`,
-	description: `Meet ${person.name}, a ${person.role.toLowerCase()} based in ${person.location}.`,
+	title: `About ${person.name} | Software Engineer, AI Workflows, and Developer Tools`,
+	description: `${person.name} is a ${person.role.toLowerCase()} based in ${person.location} building AI workflows, developer tools, browser extensions, and solo products with Next.js and TypeScript.`,
 	tableOfContent: {
 		display: true,
 		subItems: false,
@@ -238,22 +241,22 @@ const about: About = {
 const blog: Blog = {
 	path: "/blog",
 	label: "Blog",
-	title: "Notes on building",
-	description: `Personal notes from ${person.name} on solo products, developer tools, and practical AI workflows.`,
+	title: "Blog | AI Workflows, Developer Tools, and Solo Product Notes",
+	description: `Essays and build notes from ${person.name} on AI workflows, developer tools, product engineering, and finishing side projects.`,
 }
 
 const work: Work = {
 	path: "/work",
 	label: "Work",
-	title: "Selected projects",
-	description: `Solo products, experiments, and developer tools by ${person.name}.`,
+	title: "Projects | AI Tools, Developer Tools, and Solo Product Case Studies",
+	description: `Case studies and project breakdowns from ${person.name} covering AI tools, browser extensions, developer tooling, and solo product experiments.`,
 }
 
 const toolsHub: ToolsHub = {
 	path: "/tools",
 	label: "Tools",
-	title: `Free tools – ${person.name}`,
-	description: `Free browser-based tools by ${person.name} for screenshots, visuals, and product assets.`,
+	title: "Free Tools | Screenshot Mockups, Launch Visuals, and Product Asset Utilities",
+	description: `Free browser-based tools by ${person.name} for screenshot mockups, launch visuals, product assets, and fast workflows for builders.`,
 }
 
 export { person, social, newsletter, home, about, blog, work, toolsHub }

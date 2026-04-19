@@ -1,3 +1,5 @@
+import Script from "next/script"
+
 import { CustomMDX, ScrollToHash } from "@/components"
 import { Projects } from "@/components/work/Projects"
 import { about, baseURL, person, work } from "@/resources"
@@ -44,7 +46,7 @@ export async function generateMetadata({
 	if (!post) return {}
 
 	return Meta.generate({
-		title: post.metadata.title,
+		title: `${post.metadata.title} | Project Case Study | ${person.name}`,
 		description: post.metadata.summary,
 		baseURL: baseURL,
 		image: post.metadata.image || `/api/og/generate?title=${post.metadata.title}`,
@@ -72,11 +74,53 @@ export default async function Project({
 		post.metadata.team?.map((person) => ({
 			src: person.avatar,
 		})) || []
+	const projectStructuredData = [
+		{
+			"@context": "https://schema.org",
+			"@type": "CreativeWork",
+			name: post.metadata.title,
+			description: post.metadata.summary,
+			datePublished: post.metadata.publishedAt,
+			dateModified: post.metadata.publishedAt,
+			url: `${baseURL}${work.path}/${post.slug}`,
+			image:
+				post.metadata.images.length > 0
+					? `${baseURL}${post.metadata.images[0]}`
+					: undefined,
+			author: {
+				"@type": "Person",
+				name: person.name,
+				url: `${baseURL}${about.path}`,
+			},
+		},
+		{
+			"@context": "https://schema.org",
+			"@type": "BreadcrumbList",
+			itemListElement: [
+				{ "@type": "ListItem", position: 1, name: "Home", item: baseURL },
+				{
+					"@type": "ListItem",
+					position: 2,
+					name: work.label,
+					item: `${baseURL}${work.path}`,
+				},
+				{
+					"@type": "ListItem",
+					position: 3,
+					name: post.metadata.title,
+					item: `${baseURL}${work.path}/${post.slug}`,
+				},
+			],
+		},
+	]
 
 	return (
 		<Column as="section" maxWidth="m" horizontal="center" gap="l">
+			<Script id={`project-${post.slug}-structured-data`} type="application/ld+json">
+				{JSON.stringify(projectStructuredData)}
+			</Script>
 			<Schema
-				as="blogPosting"
+				as="webPage"
 				baseURL={baseURL}
 				path={`${work.path}/${post.slug}`}
 				title={post.metadata.title}
@@ -101,6 +145,9 @@ export default async function Project({
 					{post.metadata.publishedAt && formatDate(post.metadata.publishedAt)}
 				</Text>
 				<Heading variant="display-strong-m">{post.metadata.title}</Heading>
+				<Text variant="body-default-l" onBackground="neutral-weak" align="center">
+					{post.metadata.summary}
+				</Text>
 			</Column>
 			<Row marginBottom="32" horizontal="center">
 				<Row gap="16" vertical="center">
@@ -119,6 +166,17 @@ export default async function Project({
 					</Text>
 				</Row>
 			</Row>
+			{post.metadata.link && (
+				<Button
+					href={post.metadata.link}
+					variant="secondary"
+					size="m"
+					weight="default"
+					prefixIcon="arrowUpRightFromSquare"
+				>
+					View live project
+				</Button>
+			)}
 			{post.metadata.images.length > 0 && (
 				<Media
 					priority

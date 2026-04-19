@@ -1,6 +1,8 @@
+import Script from "next/script"
+
 import TableOfContents from "@/components/about/TableOfContents"
 import styles from "@/components/about/about.module.scss"
-import { about, baseURL, person, social } from "@/resources"
+import { about, baseURL, blog, person, social, toolsHub, work } from "@/resources"
 import {
 	Avatar,
 	Button,
@@ -28,6 +30,46 @@ export async function generateMetadata() {
 }
 
 export default function About() {
+	const aboutStructuredData = [
+		{
+			"@context": "https://schema.org",
+			"@type": "Person",
+			name: person.name,
+			url: `${baseURL}${about.path}`,
+			image: `${baseURL}${person.avatar}`,
+			jobTitle: person.role,
+			description: about.description,
+			email: person.email,
+			address: {
+				"@type": "PostalAddress",
+				addressLocality: "Gurugram",
+				addressCountry: "IN",
+			},
+			sameAs: social.map((item) => item.link).filter((link) => !link.startsWith("mailto:")),
+			knowsAbout: [
+				"AI workflows",
+				"developer tools",
+				"browser extensions",
+				"Next.js",
+				"TypeScript",
+				"product engineering",
+			],
+		},
+		{
+			"@context": "https://schema.org",
+			"@type": "BreadcrumbList",
+			itemListElement: [
+				{ "@type": "ListItem", position: 1, name: "Home", item: baseURL },
+				{
+					"@type": "ListItem",
+					position: 2,
+					name: about.label,
+					item: `${baseURL}${about.path}`,
+				},
+			],
+		},
+	]
+
 	const structure = [
 		{
 			title: about.intro.title,
@@ -52,6 +94,9 @@ export default function About() {
 	]
 	return (
 		<Column maxWidth="m">
+			<Script id="about-structured-data" type="application/ld+json">
+				{JSON.stringify(aboutStructuredData)}
+			</Script>
 			<Schema
 				as="webPage"
 				baseURL={baseURL}
@@ -152,6 +197,16 @@ export default function About() {
 						>
 							{person.role}
 						</Text>
+						<Text
+							className={styles.textAlign}
+							variant="body-default-l"
+							onBackground="neutral-weak"
+							marginTop="16"
+						>
+							I build AI workflows, developer tools, browser extensions, and solo
+							products with Next.js, TypeScript, and a product-first engineering
+							approach.
+						</Text>
 						{social.length > 0 && (
 							<Row
 								className={styles.blockAlign}
@@ -194,6 +249,23 @@ export default function About() {
 									)}
 							</Row>
 						)}
+						<Row
+							className={styles.blockAlign}
+							gap="8"
+							wrap
+							horizontal="center"
+							paddingTop="8"
+						>
+							<Button href={work.path} variant="secondary" size="s" arrowIcon>
+								View project case studies
+							</Button>
+							<Button href={toolsHub.path} variant="secondary" size="s" arrowIcon>
+								Browse free builder tools
+							</Button>
+							<Button href={blog.path} variant="secondary" size="s" arrowIcon>
+								Read build notes
+							</Button>
+						</Row>
 					</Column>
 
 					{about.intro.display && (

@@ -11,9 +11,9 @@ const toolEntries: ToolEntry[] = [
 		icon: "sparkle",
 		featured: true,
 		summary:
-			"Turn raw screenshots into launch-ready visuals with gradients, browser chrome, rounded corners, and fast exports.",
+			"Turn raw screenshots into polished product visuals with gradients, browser chrome, rounded corners, and fast exports.",
 		description:
-			"A free browser-based screenshot beautifier with customizable backgrounds, padding, shadows, browser frames, and instant PNG/JPG export.",
+			"A free browser-based screenshot mockup generator with customizable backgrounds, padding, shadows, browser frames, and fast PNG or JPG export for launch visuals, docs, and changelogs.",
 		highlights: [
 			"Upload, drag and drop, or paste screenshots instantly",
 			"Customize gradients, padding, chrome, corner radius, and shadow depth",
@@ -48,9 +48,9 @@ const toolEntries: ToolEntry[] = [
 		category: "content",
 		icon: "document",
 		summary:
-			"Convert code snippets into clean visual cards for social posts, changelogs, docs, and blog embeds.",
+			"Convert code snippets into polished visual cards for social posts, changelogs, docs, and blog embeds.",
 		description:
-			"A lightweight code snapshot generator tuned for readable snippets, simple themes, and share-ready exports.",
+			"A lightweight browser-based code screenshot generator tuned for readable snippets, simple themes, and share-ready exports.",
 		highlights: [
 			"Syntax-highlighted snippet cards",
 			"Theme presets for social posts and docs",
@@ -72,9 +72,9 @@ const toolEntries: ToolEntry[] = [
 		category: "marketing",
 		icon: "rocket",
 		summary:
-			"Create lightweight social preview cards for product launches, blog posts, changelogs, and landing pages.",
+			"Create lightweight Open Graph cards for product launches, blog posts, changelogs, and landing pages.",
 		description:
-			"A focused OG image builder for fast announcement graphics, social cards, and simple branded previews.",
+			"A focused Open Graph image generator for fast announcement graphics, social cards, and branded previews.",
 		highlights: [
 			"Title-first social card layouts",
 			"Fast preset-based composition",

@@ -1,3 +1,5 @@
+import Script from "next/script"
+
 import { CustomMDX, ScrollToHash } from "@/components"
 import { Posts } from "@/components/blog/Posts"
 import { ShareSection } from "@/components/blog/ShareSection"
@@ -44,7 +46,7 @@ export async function generateMetadata({
 	if (!post) return {}
 
 	return Meta.generate({
-		title: post.metadata.title,
+		title: `${post.metadata.title} | ${person.name}`,
 		description: post.metadata.summary,
 		baseURL: baseURL,
 		image: post.metadata.image || `/api/og/generate?title=${post.metadata.title}`,
@@ -72,12 +74,62 @@ export default async function Blog({
 		post.metadata.team?.map((person) => ({
 			src: person.avatar,
 		})) || []
+	const postStructuredData = [
+		{
+			"@context": "https://schema.org",
+			"@type": "Article",
+			headline: post.metadata.title,
+			description: post.metadata.summary,
+			datePublished: post.metadata.publishedAt,
+			dateModified: post.metadata.publishedAt,
+			image: post.metadata.image
+				? `${baseURL}${post.metadata.image}`
+				: `${baseURL}/api/og/generate?title=${encodeURIComponent(post.metadata.title)}`,
+			mainEntityOfPage: `${baseURL}${blog.path}/${post.slug}`,
+			author: {
+				"@type": "Person",
+				name: person.name,
+				url: `${baseURL}${about.path}`,
+			},
+			publisher: {
+				"@type": "Person",
+				name: person.name,
+				image: `${baseURL}${person.avatar}`,
+			},
+			keywords: post.metadata.tags || [],
+		},
+		{
+			"@context": "https://schema.org",
+			"@type": "BreadcrumbList",
+			itemListElement: [
+				{ "@type": "ListItem", position: 1, name: "Home", item: baseURL },
+				{
+					"@type": "ListItem",
+					position: 2,
+					name: blog.label,
+					item: `${baseURL}${blog.path}`,
+				},
+				{
+					"@type": "ListItem",
+					position: 3,
+					name: post.metadata.title,
+					item: `${baseURL}${blog.path}/${post.slug}`,
+				},
+			],
+		},
+	]
 
 	return (
 		<Row fillWidth>
 			<Row maxWidth={12} m={{ hide: true }} />
 			<Row fillWidth horizontal="center">
 				<Column as="section" maxWidth="m" horizontal="center" gap="l" paddingTop="24">
+					<Script
+						id={`blog-post-${post.slug}-structured-data`}
+						type="application/ld+json"
+					>
+						{JSON.stringify(postStructuredData)}
+					</Script>
 					<Schema
 						as="blogPosting"
 						baseURL={baseURL}
@@ -108,6 +160,9 @@ export default async function Blog({
 							{post.metadata.publishedAt && formatDate(post.metadata.publishedAt)}
 						</Text>
 						<Heading variant="display-strong-m">{post.metadata.title}</Heading>
+						<Text variant="body-default-l" onBackground="neutral-weak" align="center">
+							{post.metadata.summary}
+						</Text>
 						{post.metadata.subtitle && (
 							<Text
 								variant="body-default-l"
@@ -117,6 +172,19 @@ export default async function Blog({
 							>
 								{post.metadata.subtitle}
 							</Text>
+						)}
+						{post.metadata.tags && post.metadata.tags.length > 0 && (
+							<Row gap="8" wrap horizontal="center">
+								{post.metadata.tags.map((tag) => (
+									<Text
+										key={tag}
+										variant="label-default-s"
+										onBackground="brand-weak"
+									>
+										{tag}
+									</Text>
+								))}
+							</Row>
 						)}
 					</Column>
 					<Row marginBottom="32" horizontal="center">

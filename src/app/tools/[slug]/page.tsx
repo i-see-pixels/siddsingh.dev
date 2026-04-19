@@ -1,3 +1,5 @@
+import Script from "next/script"
+
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 
@@ -29,7 +31,7 @@ export async function generateMetadata({
 	}
 
 	return Meta.generate({
-		title: `${tool.name} | Free tools`,
+		title: `${tool.name} | Free Browser-Based Tool | ${person.name}`,
 		description: tool.description,
 		baseURL,
 		image: `/api/og/generate?title=${encodeURIComponent(tool.name)}`,
@@ -53,9 +55,42 @@ export default async function ToolPage({
 	}
 
 	const liveTool = tool as LiveToolEntry
+	const toolStructuredData = [
+		{
+			"@context": "https://schema.org",
+			"@type": "WebApplication",
+			name: liveTool.name,
+			description: liveTool.description,
+			url: `${baseURL}${liveTool.path}`,
+			applicationCategory: "UtilitiesApplication",
+			operatingSystem: "Web Browser",
+			creator: {
+				"@type": "Person",
+				name: person.name,
+				url: baseURL,
+			},
+		},
+		{
+			"@context": "https://schema.org",
+			"@type": "BreadcrumbList",
+			itemListElement: [
+				{ "@type": "ListItem", position: 1, name: "Home", item: baseURL },
+				{ "@type": "ListItem", position: 2, name: "Tools", item: `${baseURL}/tools` },
+				{
+					"@type": "ListItem",
+					position: 3,
+					name: liveTool.name,
+					item: `${baseURL}${liveTool.path}`,
+				},
+			],
+		},
+	]
 
 	return (
 		<Column fillWidth>
+			<Script id={`tool-${liveTool.slug}-structured-data`} type="application/ld+json">
+				{JSON.stringify(toolStructuredData)}
+			</Script>
 			<Schema
 				as="webPage"
 				baseURL={baseURL}
