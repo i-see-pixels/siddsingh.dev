@@ -18,13 +18,18 @@ import {
 } from "@once-ui-system/core"
 
 export async function generateMetadata() {
-	return Meta.generate({
+	const generatedMeta = await Meta.generate({
 		title: home.title,
 		description: home.description,
 		baseURL: baseURL,
 		path: home.path,
 		image: home.image,
 	})
+
+	return {
+		...generatedMeta,
+		metadataBase: new URL(baseURL),
+	}
 }
 
 export default async function RootLayout({
@@ -55,17 +60,17 @@ export default async function RootLayout({
                   
                   // Set defaults from config
                   const config = ${JSON.stringify({
-						brand: style.brand,
-						accent: style.accent,
-						neutral: style.neutral,
-						solid: style.solid,
-						"solid-style": style.solidStyle,
-						border: style.border,
-						surface: style.surface,
-						transition: style.transition,
-						scaling: style.scaling,
-						"viz-style": dataStyle.variant,
-					})};
+										brand: style.brand,
+										accent: style.accent,
+										neutral: style.neutral,
+										solid: style.solid,
+										"solid-style": style.solidStyle,
+										border: style.border,
+										surface: style.surface,
+										transition: style.transition,
+										scaling: style.scaling,
+										"viz-style": dataStyle.variant,
+									})};
                   
                   // Apply default values
                   Object.entries(config).forEach(([key, value]) => {

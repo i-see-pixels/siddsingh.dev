@@ -7,13 +7,20 @@ import { getPosts } from "@/utils/utils"
 import { Button, Column, Heading, Meta, Row, Schema, Text } from "@once-ui-system/core"
 
 export async function generateMetadata() {
-	return Meta.generate({
+	const generatedMeta = await Meta.generate({
 		title: blog.title,
 		description: blog.description,
 		baseURL: baseURL,
 		image: `/api/og/generate?title=${encodeURIComponent(blog.title)}`,
 		path: blog.path,
 	})
+
+	return {
+		...generatedMeta,
+		alternates: {
+			canonical: "/blog",
+		},
+	}
 }
 
 export default function Blog() {

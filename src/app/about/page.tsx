@@ -20,13 +20,20 @@ import {
 import React from "react"
 
 export async function generateMetadata() {
-	return Meta.generate({
+	const generatedMeta = await Meta.generate({
 		title: about.title,
 		description: about.description,
 		baseURL: baseURL,
 		image: `/api/og/generate?title=${encodeURIComponent(about.title)}`,
 		path: about.path,
 	})
+
+	return {
+		...generatedMeta,
+		alternates: {
+			canonical: "/about",
+		},
+	}
 }
 
 export default function About() {

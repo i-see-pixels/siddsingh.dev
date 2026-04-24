@@ -30,13 +30,20 @@ export async function generateMetadata({
 		return {}
 	}
 
-	return Meta.generate({
+	const generatedMeta = await Meta.generate({
 		title: `${tool.name} | Free Browser-Based Tool | ${person.name}`,
 		description: tool.description,
 		baseURL,
 		image: `/api/og/generate?title=${encodeURIComponent(tool.name)}`,
 		path: tool.path,
 	})
+
+	return {
+		...generatedMeta,
+		alternates: {
+			canonical: `/tools/${tool.slug}`,
+		},
+	}
 }
 
 export default async function ToolPage({

@@ -6,13 +6,20 @@ import { baseURL, blog, person, toolsHub, work } from "@/resources"
 import { Button, Column, Meta, Row, Schema, Text } from "@once-ui-system/core"
 
 export async function generateMetadata() {
-	return Meta.generate({
+	const generatedMeta = await Meta.generate({
 		title: toolsHub.title,
 		description: toolsHub.description,
 		baseURL,
 		image: `/api/og/generate?title=${encodeURIComponent(toolsHub.title)}`,
 		path: toolsHub.path,
 	})
+
+	return {
+		...generatedMeta,
+		alternates: {
+			canonical: "/tools",
+		},
+	}
 }
 
 export default function ToolsPage() {

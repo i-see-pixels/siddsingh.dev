@@ -45,13 +45,20 @@ export async function generateMetadata({
 
 	if (!post) return {}
 
-	return Meta.generate({
+	const generatedMeta = await Meta.generate({
 		title: `${post.metadata.title} | Project Case Study | ${person.name}`,
 		description: post.metadata.summary,
 		baseURL: baseURL,
 		image: post.metadata.image || `/api/og/generate?title=${post.metadata.title}`,
 		path: `${work.path}/${post.slug}`,
 	})
+
+	return {
+		...generatedMeta,
+		alternates: {
+			canonical: `/work/${post.slug}`,
+		},
+	}
 }
 
 export default async function Project({
