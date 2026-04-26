@@ -67,28 +67,3 @@
   --scheme-neutral-600-50: rgba(137,152,159,0.5);
   /*
 }*/
-
-/* Thin scrollbars */
-* {
-	scrollbar-width: thin;
-	scrollbar-color: var(--neutral-alpha-medium) transparent;
-}
-
-*::-webkit-scrollbar {
-	width: 6px;
-	height: 6px;
-}
-
-*::-webkit-scrollbar-track {
-	background: transparent;
-}
-
-*::-webkit-scrollbar-thumb {
-	background-color: var(--neutral-alpha-medium);
-	border-radius: 10px;
-	border: 1px solid transparent;
-}
-
-*::-webkit-scrollbar-thumb:hover {
-	background-color: var(--neutral-alpha-strong);
-}

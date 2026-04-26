@@ -4,6 +4,7 @@ import {
 	type ChangeEvent,
 	type ClipboardEvent as ReactClipboardEvent,
 	type DragEvent as ReactDragEvent,
+	type PointerEvent as ReactPointerEvent,
 	startTransition,
 	useDeferredValue,
 	useEffect,
@@ -14,17 +15,45 @@ import {
 } from "react"
 
 import {
-	Button,
-	ColorInput,
-	Heading,
-	SegmentedControl,
-	Select,
-	Slider,
-	Text,
-	useToast,
-} from "@once-ui-system/core"
+	DownloadIcon,
+	ExpandIcon,
+	ImagePlusIcon,
+	MinusIcon,
+	RefreshCcwIcon,
+	ScanSearchIcon,
+	SparklesIcon,
+	UploadIcon,
+	ZoomInIcon,
+} from "lucide-react"
+import { toast } from "sonner"
 
-import styles from "./ScreenshotMockupTool.module.scss"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import {
+	Field,
+	FieldContent,
+	FieldDescription,
+	FieldGroup,
+	FieldLabel,
+} from "@/components/ui/field"
+import { Input } from "@/components/ui/input"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import {
+	Select,
+	SelectContent,
+	SelectGroup,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select"
+import { Slider } from "@/components/ui/slider"
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
+import {
+	ToolWorkspaceSection,
+	ToolWorkspaceShell,
+} from "@/features/tools/ToolWorkspaceShell"
+import type { LiveToolEntry } from "@/features/tools/types"
+import { cn } from "@/lib/utils"
 import { renderMockupCanvas } from "./canvas"
 import {
 	DEMO_IMAGE,
@@ -34,14 +63,30 @@ import {
 	gradientPresets,
 	shadowOptions,
 } from "./constants"
-import { DEFAULT_SCREENSHOT_MOCKUP_STATE, screenshotMockupReducer } from "./reducer"
-import type { ExportFormat } from "./types"
+import {
+	DEFAULT_SCREENSHOT_MOCKUP_STATE,
+	screenshotMockupReducer,
+} from "./reducer"
+import type {
+	AspectRatioOption,
+	BackgroundStyle,
+	BrowserFrameStyle,
+	ExportFormat,
+	ShadowPreset,
+} from "./types"
 
 type LoadedImageState = {
 	image: HTMLImageElement | null
 	isLoading: boolean
 	error: string | null
 }
+
+type PreviewOffset = {
+	x: number
+	y: number
+}
+
+const ZOOM_LEVELS = [0.75, 1, 1.25, 1.5, 2] as const
 
 function extractImageFile(items: DataTransferItemList | null) {
 	if (!items) {
@@ -86,8 +131,168 @@ function sanitizeFilename(value: string) {
 		.replace(/^-+|-+$/g, "")
 }
 
-export function ScreenshotMockupTool() {
-	const [state, dispatch] = useReducer(screenshotMockupReducer, DEFAULT_SCREENSHOT_MOCKUP_STATE)
+function getSingleValue(value: number | readonly number[]) {
+	return Array.isArray(value) ? (value[0] ?? 0) : value
+}
+
+function getSingleSelection<T extends string>(
+	value: T[] | string[] | null | undefined,
+) {
+	if (!value?.length) {
+		return null
+	}
+
+	return value[0] as T
+}
+
+type SelectOption<T extends string> = {
+	value: T
+	label: string
+}
+
+type SelectFieldProps<T extends string> = {
+	id: string
+	label: string
+	value: T
+	options: SelectOption<T>[]
+	description?: string
+	onValueChange: (value: T) => void
+}
+
+function SelectField<T extends string>({
+	id,
+	label,
+	value,
+	options,
+	description,
+	onValueChange,
+}: SelectFieldProps<T>) {
+	return (
+		<Field>
+			<FieldLabel htmlFor={id}>{label}</FieldLabel>
+			<FieldContent>
+				<Select
+					items={options}
+					value={value}
+					onValueChange={(nextValue) => {
+						if (typeof nextValue === "string") {
+							onValueChange(nextValue as T)
+						}
+					}}
+				>
+					<SelectTrigger id={id} className="w-full" aria-label={label}>
+						<SelectValue placeholder={label} />
+					</SelectTrigger>
+					<SelectContent align="start">
+						<SelectGroup>
+							{options.map((option) => (
+								<SelectItem key={option.value} value={option.value}>
+									{option.label}
+								</SelectItem>
+							))}
+						</SelectGroup>
+					</SelectContent>
+				</Select>
+				{description ? (
+					<FieldDescription>{description}</FieldDescription>
+				) : null}
+			</FieldContent>
+		</Field>
+	)
+}
+
+type SliderFieldProps = {
+	id: string
+	label: string
+	value: number
+	min: number
+	max: number
+	step?: number
+	description?: string
+	onValueChange: (value: number) => void
+}
+
+function SliderField({
+	id,
+	label,
+	value,
+	min,
+	max,
+	step = 1,
+	description,
+	onValueChange,
+}: SliderFieldProps) {
+	return (
+		<Field>
+			<div className="flex items-center justify-between gap-3">
+				<FieldLabel htmlFor={id}>{label}</FieldLabel>
+				<Badge variant="outline">{value}</Badge>
+			</div>
+			<FieldContent>
+				<Slider
+					id={id}
+					min={min}
+					max={max}
+					step={step}
+					value={value}
+					onValueChange={(nextValue) =>
+						onValueChange(getSingleValue(nextValue))
+					}
+				/>
+				{description ? (
+					<FieldDescription>{description}</FieldDescription>
+				) : null}
+			</FieldContent>
+		</Field>
+	)
+}
+
+type ColorFieldProps = {
+	id: string
+	label: string
+	value: string
+	description?: string
+	onChange: (value: string) => void
+}
+
+function ColorField({
+	id,
+	label,
+	value,
+	description,
+	onChange,
+}: ColorFieldProps) {
+	return (
+		<Field>
+			<FieldLabel htmlFor={id}>{label}</FieldLabel>
+			<FieldContent>
+				<div className="flex items-center gap-3 rounded-lg border border-input bg-background px-3 py-2">
+					<Input
+						id={id}
+						type="color"
+						value={value}
+						onChange={(event) => onChange(event.target.value)}
+						className=""
+					/>
+					<div className="min-w-0">
+						<p className="text-sm font-medium uppercase text-foreground">
+							{value}
+						</p>
+					</div>
+				</div>
+				{description ? (
+					<FieldDescription>{description}</FieldDescription>
+				) : null}
+			</FieldContent>
+		</Field>
+	)
+}
+
+export function ScreenshotMockupTool({ tool }: { tool: LiveToolEntry }) {
+	const [state, dispatch] = useReducer(
+		screenshotMockupReducer,
+		DEFAULT_SCREENSHOT_MOCKUP_STATE,
+	)
 	const deferredState = useDeferredValue(state)
 	const [loadedImage, setLoadedImage] = useState<LoadedImageState>({
 		image: null,
@@ -96,12 +301,28 @@ export function ScreenshotMockupTool() {
 	})
 	const [isDragging, setIsDragging] = useState(false)
 	const [isExporting, setIsExporting] = useState(false)
+	const [previewScale, setPreviewScale] = useState<number>(1)
+	const [previewOffset, setPreviewOffset] = useState<PreviewOffset>({
+		x: 0,
+		y: 0,
+	})
+	const [isPanningPreview, setIsPanningPreview] = useState(false)
 	const previewCanvasRef = useRef<HTMLCanvasElement | null>(null)
+	const previewViewportRef = useRef<HTMLDivElement | null>(null)
 	const fileInputRef = useRef<HTMLInputElement | null>(null)
 	const ownedObjectUrlRef = useRef<string | null>(null)
-	const { addToast } = useToast()
+	const dragStateRef = useRef<{
+		pointerId: number
+		startX: number
+		startY: number
+		startOffset: PreviewOffset
+	} | null>(null)
 
-	const replaceImageSource = (nextSrc: string | null, nextName: string, ownsSource: boolean) => {
+	const replaceImageSource = (
+		nextSrc: string | null,
+		nextName: string,
+		ownsSource: boolean,
+	) => {
 		if (ownedObjectUrlRef.current) {
 			URL.revokeObjectURL(ownedObjectUrlRef.current)
 			ownedObjectUrlRef.current = null
@@ -118,34 +339,66 @@ export function ScreenshotMockupTool() {
 				imageName: nextName,
 			})
 		})
+
+		setPreviewOffset({
+			x: 0,
+			y: 0,
+		})
+	}
+
+	const clampPreviewOffset = (
+		nextOffset: PreviewOffset,
+		scale: number = previewScale,
+	): PreviewOffset => {
+		const viewport = previewViewportRef.current
+		const canvas = previewCanvasRef.current
+
+		if (!viewport || !canvas || scale <= 1) {
+			return {
+				x: 0,
+				y: 0,
+			}
+		}
+
+		const baseWidth = canvas.offsetWidth || canvas.width
+		const baseHeight = canvas.offsetHeight || canvas.height
+		const maxOffsetX = Math.max(
+			0,
+			(baseWidth * scale - viewport.clientWidth) / 2,
+		)
+		const maxOffsetY = Math.max(
+			0,
+			(baseHeight * scale - viewport.clientHeight) / 2,
+		)
+
+		return {
+			x: Math.min(maxOffsetX, Math.max(-maxOffsetX, nextOffset.x)),
+			y: Math.min(maxOffsetY, Math.max(-maxOffsetY, nextOffset.y)),
+		}
 	}
 
 	const applyImageFile = useEffectEvent(async (file: File) => {
 		if (!file.type.startsWith("image/")) {
-			addToast({
-				variant: "danger",
-				message: "Only PNG, JPG, or WebP images are supported.",
-			})
+			toast.error("Only PNG, JPG, or WebP images are supported.")
 			return
 		}
 
 		const objectUrl = URL.createObjectURL(file)
 		replaceImageSource(objectUrl, file.name, true)
-		addToast({
-			variant: "success",
-			message: "Screenshot loaded.",
-		})
+		toast.success("Screenshot loaded.")
 	})
 
-	const handleClipboardItems = useEffectEvent((items: DataTransferItemList | null) => {
-		const imageFile = extractImageFile(items)
+	const handleClipboardItems = useEffectEvent(
+		(items: DataTransferItemList | null) => {
+			const imageFile = extractImageFile(items)
 
-		if (!imageFile) {
-			return
-		}
+			if (!imageFile) {
+				return
+			}
 
-		void applyImageFile(imageFile)
-	})
+			void applyImageFile(imageFile)
+		},
+	)
 
 	useEffect(() => {
 		return () => {
@@ -230,6 +483,33 @@ export function ScreenshotMockupTool() {
 	}, [deferredState, loadedImage.image])
 
 	useEffect(() => {
+		if (!loadedImage.image || previewScale <= 1) {
+			setPreviewOffset((currentOffset) =>
+				currentOffset.x === 0 && currentOffset.y === 0
+					? currentOffset
+					: {
+							x: 0,
+							y: 0,
+						},
+			)
+			return
+		}
+
+		setPreviewOffset((currentOffset) => {
+			const nextOffset = clampPreviewOffset(currentOffset)
+
+			if (
+				nextOffset.x === currentOffset.x &&
+				nextOffset.y === currentOffset.y
+			) {
+				return currentOffset
+			}
+
+			return nextOffset
+		})
+	}, [previewScale, deferredState, loadedImage.image])
+
+	useEffect(() => {
 		const handlePaste = (event: ClipboardEvent) => {
 			handleClipboardItems(event.clipboardData?.items ?? null)
 		}
@@ -276,10 +556,12 @@ export function ScreenshotMockupTool() {
 		}
 
 		dispatch({ type: "reset" })
-		addToast({
-			variant: "success",
-			message: "Defaults restored.",
+		setPreviewScale(1)
+		setPreviewOffset({
+			x: 0,
+			y: 0,
 		})
+		toast.success("Defaults restored.")
 	}
 
 	const handleExport = async (format: ExportFormat, scale: number) => {
@@ -300,7 +582,11 @@ export function ScreenshotMockupTool() {
 			})
 
 			const mimeType = format === "png" ? "image/png" : "image/jpeg"
-			const blob = await toBlob(canvas, mimeType, format === "jpg" ? 0.92 : undefined)
+			const blob = await toBlob(
+				canvas,
+				mimeType,
+				format === "jpg" ? 0.92 : undefined,
+			)
 			const link = document.createElement("a")
 			const objectUrl = URL.createObjectURL(blob)
 			const fileBase = sanitizeFilename(state.imageName || "screenshot-mockup")
@@ -310,362 +596,603 @@ export function ScreenshotMockupTool() {
 			link.click()
 			URL.revokeObjectURL(objectUrl)
 
-			addToast({
-				variant: "success",
-				message: `Exported ${format.toUpperCase()} at ${scale}x.`,
-			})
+			toast.success(`Exported ${format.toUpperCase()} at ${scale}x.`)
 		} catch (error) {
 			console.error(error)
-			addToast({
-				variant: "danger",
-				message: "Export failed. Try again with a different screenshot.",
-			})
+			toast.error("Export failed. Try again with a different screenshot.")
 		} finally {
 			setIsExporting(false)
 		}
 	}
 
-	return (
-		<section className={styles.toolLayout}>
-			<div className={styles.previewPanel}>
-				<div className={styles.previewMeta}>
-					<div className={styles.statusRow}>
-						<span className={styles.statusPill}>Live preview</span>
-						<span className={styles.metaPill}>{state.imageName}</span>
-					</div>
-					<span className={styles.hintPill}>Paste with Ctrl/Cmd + V</span>
-				</div>
+	const handleQuickZoom = (direction: "in" | "out") => {
+		const currentIndex = ZOOM_LEVELS.findIndex(
+			(level) => level === previewScale,
+		)
+		const safeIndex = currentIndex === -1 ? 1 : currentIndex
+		const nextIndex =
+			direction === "in"
+				? Math.min(ZOOM_LEVELS.length - 1, safeIndex + 1)
+				: Math.max(0, safeIndex - 1)
 
-				<div className={styles.previewStage}>
-					{loadedImage.image ? (
-						<canvas ref={previewCanvasRef} className={styles.previewCanvas} />
-					) : (
-						<div className={styles.emptyState}>
-							<Heading as="h3" variant="heading-strong-m">
-								{loadedImage.isLoading ? "Loading preview..." : "Add a screenshot"}
-							</Heading>
-							<Text marginTop="12" onBackground="neutral-weak">
-								{loadedImage.error}
-							</Text>
-						</div>
-					)}
-				</div>
+		setPreviewScale(ZOOM_LEVELS[nextIndex])
+	}
 
-				<Text className={styles.hintText}>
-					The preview updates as you tune the background, padding, browser frame, corners,
-					and shadow. Exports are generated client-side from the same canvas composition.
-				</Text>
+	const handlePreviewPointerDown = (
+		event: ReactPointerEvent<HTMLDivElement>,
+	) => {
+		if (!loadedImage.image || previewScale <= 1) {
+			return
+		}
+
+		event.preventDefault()
+		event.currentTarget.setPointerCapture(event.pointerId)
+		dragStateRef.current = {
+			pointerId: event.pointerId,
+			startX: event.clientX,
+			startY: event.clientY,
+			startOffset: previewOffset,
+		}
+		setIsPanningPreview(true)
+	}
+
+	const handlePreviewPointerMove = (
+		event: ReactPointerEvent<HTMLDivElement>,
+	) => {
+		const dragState = dragStateRef.current
+
+		if (!dragState || dragState.pointerId !== event.pointerId) {
+			return
+		}
+
+		event.preventDefault()
+		const deltaX = event.clientX - dragState.startX
+		const deltaY = event.clientY - dragState.startY
+		const nextOffset = clampPreviewOffset({
+			x: dragState.startOffset.x + deltaX,
+			y: dragState.startOffset.y + deltaY,
+		})
+
+		setPreviewOffset(nextOffset)
+	}
+
+	const endPreviewPan = (event?: ReactPointerEvent<HTMLDivElement>) => {
+		if (event && dragStateRef.current?.pointerId === event.pointerId) {
+			event.currentTarget.releasePointerCapture(event.pointerId)
+		}
+
+		dragStateRef.current = null
+		setIsPanningPreview(false)
+	}
+
+	const toolbar = (
+		<>
+			<Badge variant="outline">{state.imageName}</Badge>
+			<Button
+				type="button"
+				variant="outline"
+				size="sm"
+				onClick={() => {
+					setPreviewScale(1)
+					setPreviewOffset({
+						x: 0,
+						y: 0,
+					})
+				}}
+			>
+				<ScanSearchIcon data-icon="inline-start" />
+				Fit
+			</Button>
+			<Button
+				type="button"
+				variant="outline"
+				size="icon-sm"
+				onClick={() => handleQuickZoom("out")}
+				aria-label="Zoom out"
+			>
+				<MinusIcon />
+			</Button>
+			<Badge variant="secondary">{Math.round(previewScale * 100)}%</Badge>
+			<Button
+				type="button"
+				variant="outline"
+				size="icon-sm"
+				onClick={() => handleQuickZoom("in")}
+				aria-label="Zoom in"
+			>
+				<ZoomInIcon />
+			</Button>
+		</>
+	)
+
+	const sidebarFooter = (
+		<div className="flex flex-col gap-2">
+			<div className="grid grid-cols-2 gap-2">
+				<Button
+					type="button"
+					variant="outline"
+					size="sm"
+					onClick={() =>
+						replaceImageSource(DEMO_IMAGE.src, DEMO_IMAGE.name, false)
+					}
+				>
+					<SparklesIcon data-icon="inline-start" />
+					Demo
+				</Button>
+				<Button type="button" variant="outline" size="sm" onClick={handleReset}>
+					<RefreshCcwIcon data-icon="inline-start" />
+					Reset
+				</Button>
 			</div>
+			<Button
+				type="button"
+				onClick={() => void handleExport("png", 2)}
+				disabled={!loadedImage.image || isExporting}
+			>
+				<DownloadIcon data-icon="inline-start" />
+				Quick export PNG 2x
+			</Button>
+		</div>
+	)
 
-			<div className={styles.controlsPanel}>
-				<div className={styles.controlsContent}>
-					<div className={styles.section}>
-						<div className={styles.sectionHeader}>
-							<Text variant="label-default-m" onBackground="brand-weak">
-								Image input
-							</Text>
-							<Heading as="h2" variant="heading-strong-m">
-								Drop, upload, or paste a screenshot
-							</Heading>
-						</div>
-						<div
-							className={`${styles.dropzone} ${isDragging ? styles.dragActive : ""}`}
-							onDragEnter={(event) => {
-								event.preventDefault()
-								setIsDragging(true)
-							}}
-							onDragLeave={(event) => {
-								event.preventDefault()
-								setIsDragging(false)
-							}}
-							onDragOver={(event) => event.preventDefault()}
-							onDrop={handleDrop}
-							onPaste={handlePaste}
-							// tabIndex={0}
-						>
-							<Text onBackground="neutral-weak">
-								Supports PNG, JPG, and WebP. You can also paste directly from the
-								clipboard while this page is focused.
-							</Text>
-							<div className={styles.buttonRow}>
-								<Button
-									variant="secondary"
-									size="m"
-									prefixIcon="openLink"
-									onClick={() => fileInputRef.current?.click()}
-								>
-									Upload screenshot
-								</Button>
-								<Button
-									variant="secondary"
-									size="m"
-									onClick={() =>
-										replaceImageSource(DEMO_IMAGE.src, DEMO_IMAGE.name, false)
-									}
-								>
-									Use demo image
-								</Button>
-								<Button variant="secondary" size="m" onClick={handleReset}>
-									Reset defaults
-								</Button>
-							</div>
-						</div>
-						<input
-							ref={fileInputRef}
-							type="file"
-							accept="image/png,image/jpeg,image/webp"
-							className={styles.hiddenInput}
-							onChange={handleFileChange}
-						/>
-					</div>
+	return (
+		<ToolWorkspaceShell
+			tool={tool}
+			toolbar={toolbar}
+			sidebarFooter={sidebarFooter}
+			sidebarContent={
+				<>
+					<ToolWorkspaceSection
+						title="Image"
+						description="Drop, upload, or paste a screenshot to start styling."
+					>
+						<FieldGroup>
+							<Field>
+								<FieldContent>
+									<div
+										className={cn(
+											"flex flex-col gap-4 rounded-xl border border-dashed border-border bg-muted/30 p-4 transition-colors",
+											isDragging && "border-primary bg-primary/5",
+										)}
+										onDragEnter={(event) => {
+											event.preventDefault()
+											setIsDragging(true)
+										}}
+										onDragLeave={(event) => {
+											event.preventDefault()
+											setIsDragging(false)
+										}}
+										onDragOver={(event) => event.preventDefault()}
+										onDrop={handleDrop}
+										onPaste={handlePaste}
+									>
+										<div className="flex items-start gap-3">
+											<div className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-border bg-background text-muted-foreground">
+												<ImagePlusIcon />
+											</div>
+											<div className="min-w-0">
+												<p className="text-sm font-medium">
+													PNG, JPG, and WebP supported
+												</p>
+												<p className="text-xs leading-relaxed text-muted-foreground">
+													Paste with Ctrl/Cmd + V or drag a screenshot straight
+													onto this panel.
+												</p>
+											</div>
+										</div>
+										<div className="flex flex-wrap gap-2">
+											<Button
+												type="button"
+												variant="secondary"
+												size="sm"
+												onClick={() => fileInputRef.current?.click()}
+											>
+												<UploadIcon data-icon="inline-start" />
+												Upload
+											</Button>
+											<Button
+												type="button"
+												variant="outline"
+												size="sm"
+												onClick={() =>
+													replaceImageSource(
+														DEMO_IMAGE.src,
+														DEMO_IMAGE.name,
+														false,
+													)
+												}
+											>
+												<SparklesIcon data-icon="inline-start" />
+												Use demo image
+											</Button>
+										</div>
+										<div className="flex flex-wrap items-center gap-2">
+											<Badge variant="outline">{state.imageName}</Badge>
+											<Badge variant="secondary">Client-side only</Badge>
+										</div>
+									</div>
+									<input
+										ref={fileInputRef}
+										type="file"
+										accept="image/png,image/jpeg,image/webp"
+										className="hidden"
+										onChange={handleFileChange}
+									/>
+								</FieldContent>
+							</Field>
+						</FieldGroup>
+					</ToolWorkspaceSection>
 
-					<div className={styles.section}>
-						<div className={styles.sectionHeader}>
-							<Text variant="label-default-m" onBackground="brand-weak">
-								Background
-							</Text>
-							<Text className={styles.hintText}>
-								Choose a transparent export, a flat solid, or a layered gradient.
-							</Text>
-						</div>
-						<SegmentedControl
-							buttons={backgroundOptions.map((opt) => ({
-								label: opt.label,
-								value: opt.value,
-							}))}
-							selected={state.backgroundStyle}
-							onToggle={(value) =>
-								dispatch({
-									type: "patch",
-									patch: {
-										backgroundStyle: value as typeof state.backgroundStyle,
-									},
-								})
-							}
-							fillWidth
-						/>
+					<ToolWorkspaceSection
+						title="Background"
+						description="Choose a transparent export, a flat solid, or a layered gradient."
+					>
+						<FieldGroup>
+							<Field>
+								<FieldLabel>Background mode</FieldLabel>
+								<FieldContent>
+									<ToggleGroup
+										value={[state.backgroundStyle]}
+										onValueChange={(nextValue) => {
+											const nextStyle =
+												getSingleSelection<BackgroundStyle>(nextValue)
 
-						{state.backgroundStyle === "preset" && (
-							<Select
-								id="gradient-preset"
-								label="Gradient preset"
-								options={gradientPresets.map((preset) => ({
-									label: preset.label,
-									value: preset.id,
-								}))}
-								value={state.gradientPresetId}
-								onSelect={(value) =>
-									dispatch({
-										type: "patch",
-										patch: { gradientPresetId: value },
-									})
-								}
-							/>
-						)}
+											if (!nextStyle) {
+												return
+											}
 
-						{state.backgroundStyle === "custom" && (
-							<div className={styles.gridFields}>
-								<ColorInput
-									id="custom-start"
-									label="Gradient start"
-									value={state.customGradientStart}
-									onChange={(event) =>
+											dispatch({
+												type: "patch",
+												patch: { backgroundStyle: nextStyle },
+											})
+										}}
+										variant="outline"
+										size="sm"
+										spacing={1}
+										className="w-full flex-wrap"
+									>
+										{backgroundOptions.map((option) => (
+											<ToggleGroupItem key={option.value} value={option.value}>
+												{option.label}
+											</ToggleGroupItem>
+										))}
+									</ToggleGroup>
+								</FieldContent>
+							</Field>
+
+							{state.backgroundStyle === "preset" ? (
+								<SelectField
+									id="gradient-preset"
+									label="Gradient preset"
+									value={state.gradientPresetId}
+									options={gradientPresets.map((preset) => ({
+										label: preset.label,
+										value: preset.id,
+									}))}
+									onValueChange={(nextValue) =>
 										dispatch({
 											type: "patch",
-											patch: { customGradientStart: event.target.value },
+											patch: { gradientPresetId: nextValue },
 										})
 									}
 								/>
-								<ColorInput
-									id="custom-end"
-									label="Gradient end"
-									value={state.customGradientEnd}
-									onChange={(event) =>
+							) : null}
+
+							{state.backgroundStyle === "custom" ? (
+								<div className="grid gap-4 sm:grid-cols-2">
+									<ColorField
+										id="custom-start"
+										label="Gradient start"
+										value={state.customGradientStart}
+										onChange={(nextValue) =>
+											dispatch({
+												type: "patch",
+												patch: { customGradientStart: nextValue },
+											})
+										}
+									/>
+									<ColorField
+										id="custom-end"
+										label="Gradient end"
+										value={state.customGradientEnd}
+										onChange={(nextValue) =>
+											dispatch({
+												type: "patch",
+												patch: { customGradientEnd: nextValue },
+											})
+										}
+									/>
+								</div>
+							) : null}
+
+							{state.backgroundStyle === "solid" ? (
+								<ColorField
+									id="solid-color"
+									label="Solid background"
+									value={state.solidColor}
+									onChange={(nextValue) =>
 										dispatch({
 											type: "patch",
-											patch: { customGradientEnd: event.target.value },
+											patch: { solidColor: nextValue },
 										})
 									}
 								/>
-							</div>
-						)}
+							) : null}
 
-						{state.backgroundStyle === "solid" && (
-							<ColorInput
-								id="solid-color"
-								label="Solid background"
-								value={state.solidColor}
-								onChange={(event) =>
-									dispatch({
-										type: "patch",
-										patch: { solidColor: event.target.value },
-									})
-								}
-							/>
-						)}
-
-						{state.backgroundStyle !== "solid" &&
-							state.backgroundStyle !== "transparent" && (
-								<Slider
+							{state.backgroundStyle !== "solid" &&
+							state.backgroundStyle !== "transparent" ? (
+								<SliderField
 									id="gradient-angle"
-									label="Gradient angle (deg)"
+									label="Gradient angle"
 									min={0}
 									max={360}
 									value={state.gradientAngle}
-									onChange={(value) =>
+									description="Controls the direction of the gradient wash."
+									onValueChange={(nextValue) =>
 										dispatch({
 											type: "patch",
-											patch: { gradientAngle: value },
+											patch: { gradientAngle: nextValue },
 										})
 									}
-									showValue
 								/>
-							)}
-					</div>
+							) : null}
+						</FieldGroup>
+					</ToolWorkspaceSection>
 
-					<div className={styles.section}>
-						<div className={styles.sectionHeader}>
-							<Text variant="label-default-m" onBackground="brand-weak">
-								Layout and style
-							</Text>
-						</div>
+					<ToolWorkspaceSection
+						title="Layout"
+						description="Tune the frame, spacing, crop ratio, corners, and shadow."
+					>
+						<FieldGroup>
+							<div className="grid gap-4 sm:grid-cols-2">
+								<SelectField
+									id="aspect-ratio"
+									label="Canvas ratio"
+									value={state.aspectRatio}
+									options={
+										aspectRatioOptions as SelectOption<AspectRatioOption>[]
+									}
+									onValueChange={(nextValue) =>
+										dispatch({
+											type: "patch",
+											patch: { aspectRatio: nextValue },
+										})
+									}
+								/>
+								<SelectField
+									id="frame-style"
+									label="Browser frame"
+									value={state.frameStyle}
+									options={
+										frameStyleOptions as SelectOption<BrowserFrameStyle>[]
+									}
+									onValueChange={(nextValue) =>
+										dispatch({
+											type: "patch",
+											patch: { frameStyle: nextValue },
+										})
+									}
+								/>
+							</div>
 
-						<div className={styles.gridFields}>
-							<Select
-								id="aspect-ratio"
-								label="Canvas ratio"
-								options={aspectRatioOptions}
-								value={state.aspectRatio}
-								onSelect={(value) =>
-									dispatch({
-										type: "patch",
-										patch: { aspectRatio: value as typeof state.aspectRatio },
-									})
-								}
-							/>
-							<Select
-								id="frame-style"
-								label="Browser frame"
-								options={frameStyleOptions}
-								value={state.frameStyle}
-								onSelect={(value) =>
-									dispatch({
-										type: "patch",
-										patch: { frameStyle: value as typeof state.frameStyle },
-									})
-								}
-							/>
-							<Select
+							<SelectField
 								id="shadow-style"
 								label="Shadow preset"
-								options={shadowOptions}
 								value={state.shadowPreset}
-								onSelect={(value) =>
+								options={shadowOptions as SelectOption<ShadowPreset>[]}
+								onValueChange={(nextValue) =>
 									dispatch({
 										type: "patch",
-										patch: { shadowPreset: value as typeof state.shadowPreset },
+										patch: { shadowPreset: nextValue },
 									})
 								}
 							/>
-						</div>
 
-						<Slider
-							id="padding-x"
-							label="Horizontal padding (px)"
-							min={0}
-							max={220}
-							value={state.paddingX}
-							onChange={(value) =>
-								dispatch({
-									type: "patch",
-									patch: { paddingX: value },
-								})
-							}
-							showValue
-						/>
+							<SliderField
+								id="padding-x"
+								label="Horizontal padding"
+								min={0}
+								max={220}
+								value={state.paddingX}
+								onValueChange={(nextValue) =>
+									dispatch({
+										type: "patch",
+										patch: { paddingX: nextValue },
+									})
+								}
+							/>
+							<SliderField
+								id="padding-y"
+								label="Vertical padding"
+								min={0}
+								max={180}
+								value={state.paddingY}
+								onValueChange={(nextValue) =>
+									dispatch({
+										type: "patch",
+										patch: { paddingY: nextValue },
+									})
+								}
+							/>
+							<SliderField
+								id="corner-radius"
+								label="Corner radius"
+								min={0}
+								max={48}
+								value={state.cornerRadius}
+								onValueChange={(nextValue) =>
+									dispatch({
+										type: "patch",
+										patch: { cornerRadius: nextValue },
+									})
+								}
+							/>
+						</FieldGroup>
+					</ToolWorkspaceSection>
 
-						<Slider
-							id="padding-y"
-							label="Vertical padding (px)"
-							min={0}
-							max={180}
-							value={state.paddingY}
-							onChange={(value) =>
-								dispatch({
-									type: "patch",
-									patch: { paddingY: value },
-								})
-							}
-							showValue
-						/>
-
-						<Slider
-							id="corner-radius"
-							label="Corner radius (px)"
-							min={0}
-							max={48}
-							value={state.cornerRadius}
-							onChange={(value) =>
-								dispatch({
-									type: "patch",
-									patch: { cornerRadius: value },
-								})
-							}
-							showValue
-						/>
-					</div>
-
-					<div className={styles.section}>
-						<div className={styles.sectionHeader}>
-							<Text variant="label-default-m" onBackground="brand-weak">
-								Export
-							</Text>
-							<Text className={styles.hintText}>
-								Use PNG when you want transparency. JPG fills transparent
-								backgrounds with a light canvas so social posts still look clean.
-							</Text>
-						</div>
-						<div className={styles.exportGrid}>
+					<ToolWorkspaceSection
+						title="Export"
+						description="Use PNG for transparency. JPG fills transparent backgrounds with a light canvas."
+					>
+						<div className="grid gap-2 sm:grid-cols-2">
 							<Button
-								variant="secondary"
-								size="m"
+								type="button"
+								variant="outline"
+								size="sm"
 								onClick={() => void handleExport("png", 1)}
 								disabled={!loadedImage.image || isExporting}
-								fillWidth
 							>
-								PNG export - 1x
+								<DownloadIcon data-icon="inline-start" />
+								PNG 1x
 							</Button>
 							<Button
-								variant="secondary"
-								size="m"
+								type="button"
+								variant="outline"
+								size="sm"
 								onClick={() => void handleExport("png", 2)}
 								disabled={!loadedImage.image || isExporting}
-								fillWidth
 							>
-								PNG export - 2x
+								<DownloadIcon data-icon="inline-start" />
+								PNG 2x
 							</Button>
 							<Button
-								variant="secondary"
-								size="m"
+								type="button"
+								variant="outline"
+								size="sm"
 								onClick={() => void handleExport("jpg", 1)}
 								disabled={!loadedImage.image || isExporting}
-								fillWidth
 							>
-								JPG export - 1x
+								<DownloadIcon data-icon="inline-start" />
+								JPG 1x
 							</Button>
 							<Button
-								variant="secondary"
-								size="m"
+								type="button"
+								variant="outline"
+								size="sm"
 								onClick={() => void handleExport("jpg", 2)}
 								disabled={!loadedImage.image || isExporting}
-								fillWidth
 							>
-								JPG export - 2x
+								<DownloadIcon data-icon="inline-start" />
+								JPG 2x
 							</Button>
 						</div>
+					</ToolWorkspaceSection>
+				</>
+			}
+		>
+			<div
+				onDragEnter={(event) => {
+					event.preventDefault()
+					setIsDragging(true)
+				}}
+				onDragOver={(event) => event.preventDefault()}
+			>
+				{isDragging ? (
+					<div
+						className="absolute inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm"
+						onDragLeave={(event) => {
+							event.preventDefault()
+							setIsDragging(false)
+						}}
+						onDragOver={(event) => event.preventDefault()}
+						onDrop={handleDrop}
+					>
+						<div className="pointer-events-none flex flex-col items-center gap-4 rounded-xl border-2 border-dashed border-primary bg-background p-8 text-center shadow-lg">
+							<div className="flex size-16 items-center justify-center rounded-full bg-primary/10 text-primary">
+								<ImagePlusIcon className="size-8" />
+							</div>
+							<div>
+								<p className="text-lg font-semibold">Drop image here</p>
+								<p className="text-sm text-muted-foreground">
+									PNG, JPG, or WebP
+								</p>
+							</div>
+						</div>
 					</div>
-				</div>
+				) : null}
+				<ScrollArea className="min-h-0">
+					{loadedImage.image ? (
+						<div className="flex flex-col items-center gap-4">
+							<div
+								ref={previewViewportRef}
+								className={cn(
+									"flex min-h-80 w-full items-center justify-center overflow-hidden border border-border/60 bg-background/80 p-4",
+									previewScale > 1
+										? "cursor-grab touch-none"
+										: "cursor-default",
+									isPanningPreview && "cursor-grabbing",
+								)}
+								onPointerDown={handlePreviewPointerDown}
+								onPointerMove={handlePreviewPointerMove}
+								onPointerUp={endPreviewPan}
+								onPointerCancel={endPreviewPan}
+							>
+								<div
+									className="transition-transform duration-200"
+									style={{
+										transform: `translate(${previewOffset.x}px, ${previewOffset.y}px)`,
+									}}
+								>
+									<div
+										className="origin-center transition-transform duration-200"
+										style={{ transform: `scale(${previewScale})` }}
+									>
+										<canvas
+											ref={previewCanvasRef}
+											className="h-auto max-w-full border border-border/60 bg-background shadow-xl"
+										/>
+									</div>
+								</div>
+							</div>
+							<div className="flex items-center justify-center gap-2 text-xs text-muted-foreground px-10">
+								<ExpandIcon className="size-3" />
+								<span>
+									Preview zoom is UI-only and does not affect exports. Drag to
+									pan when zoomed in past 100%.
+								</span>
+							</div>
+						</div>
+					) : (
+						<div className="flex w-full h-[calc(100dvh-69px)] items-center justify-center">
+							<div className="flex max-w-lg flex-col items-center gap-4 rounded-2xl border border-dashed border-border bg-background px-8 py-10 text-center shadow-sm">
+								<div className="flex size-12 items-center justify-center rounded-xl border border-border bg-muted text-muted-foreground">
+									{loadedImage.isLoading ? <SparklesIcon /> : <ImagePlusIcon />}
+								</div>
+								<div className="space-y-2">
+									<p className="text-lg font-semibold">
+										{loadedImage.isLoading
+											? "Loading preview..."
+											: "Add a screenshot"}
+									</p>
+									<p className="text-sm leading-relaxed text-muted-foreground">
+										{loadedImage.error}
+									</p>
+								</div>
+								<div className="flex flex-wrap justify-center gap-2">
+									<Button
+										type="button"
+										variant="secondary"
+										onClick={() => fileInputRef.current?.click()}
+									>
+										<UploadIcon data-icon="inline-start" />
+										Upload screenshot
+									</Button>
+									<Button
+										type="button"
+										variant="outline"
+										onClick={() =>
+											replaceImageSource(DEMO_IMAGE.src, DEMO_IMAGE.name, false)
+										}
+									>
+										<SparklesIcon data-icon="inline-start" />
+										Use demo image
+									</Button>
+								</div>
+							</div>
+						</div>
+					)}
+				</ScrollArea>
 			</div>
-		</section>
+		</ToolWorkspaceShell>
 	)
 }

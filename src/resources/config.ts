@@ -62,11 +62,25 @@ const code = Geist_Mono({
 	display: "swap",
 })
 
+const sans = Geist({
+	variable: "--font-sans",
+	subsets: ["latin"],
+	display: "swap",
+})
+
+const mono = Geist_Mono({
+	variable: "--font-mono",
+	subsets: ["latin"],
+	display: "swap",
+})
+
 const fonts: FontsConfig = {
 	heading: heading,
 	body: body,
 	label: label,
 	code: code,
+	sans: sans,
+	mono: mono,
 }
 
 // default customization applied to the HTML in the main layout.tsx

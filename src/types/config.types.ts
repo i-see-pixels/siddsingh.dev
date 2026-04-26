@@ -40,6 +40,8 @@ export type FontsConfig = {
 	body: NextFontWithVariable
 	label: NextFontWithVariable
 	code: NextFontWithVariable
+	sans: NextFontWithVariable
+	mono: NextFontWithVariable
 }
 
 /**
@@ -168,9 +170,9 @@ export type SocialSharingConfig = {
 }
 
 /**
- * Top-level config types for once-ui.config.js
+ * Top-level config types for config.js
  */
-export type OnceUIConfig = {
+export type SiteUIConfig = {
 	display: DisplayConfig
 	mailchimp: MailchimpConfig
 	routes: RoutesConfig

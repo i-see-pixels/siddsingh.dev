@@ -7,7 +7,7 @@ import { ToolDetailView } from "@/features/tools/ToolDetailView"
 import { getLiveToolEntries, getToolBySlug } from "@/features/tools/registry"
 import type { LiveToolEntry } from "@/features/tools/types"
 import { baseURL, person } from "@/resources"
-import { Column, Meta, Schema } from "@once-ui-system/core"
+import { Meta, Schema } from "@once-ui-system/core"
 
 export async function generateStaticParams(): Promise<{ slug: string }[]> {
 	return getLiveToolEntries().map((tool) => ({
@@ -94,7 +94,7 @@ export default async function ToolPage({
 	]
 
 	return (
-		<Column fillWidth>
+		<>
 			<Script id={`tool-${liveTool.slug}-structured-data`} type="application/ld+json">
 				{JSON.stringify(toolStructuredData)}
 			</Script>
@@ -112,6 +112,6 @@ export default async function ToolPage({
 				}}
 			/>
 			<ToolDetailView tool={liveTool} />
-		</Column>
+		</>
 	)
 }

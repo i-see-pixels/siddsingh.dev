@@ -38,6 +38,7 @@ export default async function RootLayout({
 }: Readonly<{
 	children: React.ReactNode
 }>) {
+	console.log(fonts)
 	return (
 		<Flex
 			suppressHydrationWarning
@@ -86,25 +87,27 @@ export default async function RootLayout({
                     return themeValue;
                   };
                   
-                  // Apply saved theme
-                  const savedTheme = localStorage.getItem('data-theme');
-                  const resolvedTheme = resolveTheme(savedTheme);
-                  root.setAttribute('data-theme', resolvedTheme);
-                  
-                  // Apply any saved style overrides
-                  const styleKeys = Object.keys(config);
-                  styleKeys.forEach(key => {
+                   // Apply saved theme
+                   const savedTheme = localStorage.getItem('data-theme');
+                   const resolvedTheme = resolveTheme(savedTheme);
+                   root.setAttribute('data-theme', resolvedTheme);
+                   root.classList.toggle('dark', resolvedTheme === 'dark');
+                   
+                   // Apply any saved style overrides
+                   const styleKeys = Object.keys(config);
+                   styleKeys.forEach(key => {
                     const value = localStorage.getItem('data-' + key);
                     if (value) {
                       root.setAttribute('data-' + key, value);
                     }
                   });
-                } catch (e) {
-                  console.error('Failed to initialize theme:', e);
-                  document.documentElement.setAttribute('data-theme', 'dark');
-                }
-              })();
-            `}</Script>
+                 } catch (e) {
+                   console.error('Failed to initialize theme:', e);
+                   document.documentElement.setAttribute('data-theme', 'dark');
+                   document.documentElement.classList.add('dark');
+                 }
+               })();
+             `}</Script>
 			</head>
 			<Providers>
 				<Column

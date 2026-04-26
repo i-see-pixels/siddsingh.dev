@@ -13,6 +13,7 @@ const ASPECT_RATIOS: Record<string, number> = {
 	"16:9": 16 / 9,
 	"4:3": 4 / 3,
 	"1:1": 1,
+	"9:16": 9 / 16,
 }
 
 function getShadowPreset(shadowPreset: ShadowPreset) {
@@ -187,9 +188,13 @@ export function renderMockupCanvas({
 	)
 	const imageWidth = Math.max(220, image.naturalWidth * imageScale)
 	const imageHeight = Math.max(140, image.naturalHeight * imageScale)
-	const frameHeight = state.frameStyle === "none" ? 0 : state.frameStyle === "minimal" ? 30 : 46
-	const frameWidth = imageWidth
-	const frameContentHeight = imageHeight + frameHeight
+	const isIphone = state.frameStyle === "iphone"
+	const sf = imageWidth / 400
+	const bezel = isIphone ? Math.max(12, imageWidth * 0.04) : 0
+	const frameHeight = state.frameStyle === "none" ? 0 : state.frameStyle === "minimal" ? 30 : isIphone ? bezel : 46
+	const frameWidth = imageWidth + (isIphone ? bezel * 2 : 0)
+	const frameContentHeight = imageHeight + frameHeight + (isIphone ? bezel : 0)
+	const outerRadius = isIphone ? state.cornerRadius + bezel : state.cornerRadius
 	const baseWidth = frameWidth + state.paddingX * 2
 	const baseHeight = frameContentHeight + state.paddingY * 2
 	const explicitRatio = state.aspectRatio === "auto" ? null : ASPECT_RATIOS[state.aspectRatio]
@@ -229,7 +234,7 @@ export function renderMockupCanvas({
 	const frameY = (canvasHeight - frameContentHeight) / 2
 	const shadow = getShadowPreset(state.shadowPreset)
 	const containerFill =
-		state.frameStyle === "dark"
+		state.frameStyle === "dark" || state.frameStyle === "iphone"
 			? "#111827"
 			: state.frameStyle === "light"
 				? "#ffffff"
@@ -238,23 +243,63 @@ export function renderMockupCanvas({
 					: "#ffffff"
 
 	ctx.save()
+
+	if (isIphone) {
+		ctx.shadowBlur = shadow.blur
+		ctx.shadowOffsetY = shadow.offsetY
+		ctx.shadowOffsetX = shadow.offsetX
+		ctx.shadowColor = shadow.color
+		ctx.fillStyle = containerFill
+
+		const bw = Math.max(3, imageWidth * 0.01)
+		const drawButton = (bx: number, by: number, w: number, h: number) => {
+			createRoundedRectPath(ctx, bx, by, w, h, bw / 2)
+			ctx.fill()
+		}
+
+		drawButton(frameX - bw, frameY + 80 * sf, bw, 24 * sf)
+		drawButton(frameX - bw, frameY + 120 * sf, bw, 48 * sf)
+		drawButton(frameX - bw, frameY + 176 * sf, bw, 48 * sf)
+		drawButton(frameX + frameWidth, frameY + 140 * sf, bw, 72 * sf)
+	}
+
 	ctx.shadowBlur = shadow.blur
 	ctx.shadowOffsetY = shadow.offsetY
 	ctx.shadowOffsetX = shadow.offsetX
 	ctx.shadowColor = shadow.color
 	ctx.fillStyle = containerFill
-	createRoundedRectPath(ctx, frameX, frameY, frameWidth, frameContentHeight, state.cornerRadius)
+	createRoundedRectPath(ctx, frameX, frameY, frameWidth, frameContentHeight, outerRadius)
 	ctx.fill()
 	ctx.restore()
 
 	ctx.save()
-	createRoundedRectPath(ctx, frameX, frameY, frameWidth, frameContentHeight, state.cornerRadius)
+	createRoundedRectPath(ctx, frameX, frameY, frameWidth, frameContentHeight, outerRadius)
 	ctx.clip()
 
-	if (state.frameStyle !== "none") {
+	if (state.frameStyle !== "none" && !isIphone) {
 		drawBrowserChrome(ctx, state, frameX, frameY, frameWidth, frameHeight)
 	}
 
-	ctx.drawImage(image, frameX, frameY + frameHeight, imageWidth, imageHeight)
+	const imageX = frameX + (isIphone ? bezel : 0)
+	const imageY = frameY + frameHeight
+
+	if (isIphone) {
+		ctx.save()
+		createRoundedRectPath(ctx, imageX, imageY, imageWidth, imageHeight, state.cornerRadius)
+		ctx.clip()
+		ctx.drawImage(image, imageX, imageY, imageWidth, imageHeight)
+		ctx.restore()
+
+		const islandWidth = Math.min(imageWidth * 0.35, 160)
+		const islandHeight = Math.max(24, imageWidth * 0.08)
+		const islandY = imageY + Math.max(8, imageWidth * 0.03)
+		const islandX = imageX + (imageWidth - islandWidth) / 2
+
+		ctx.fillStyle = "#000000"
+		createRoundedRectPath(ctx, islandX, islandY, islandWidth, islandHeight, islandHeight / 2)
+		ctx.fill()
+	} else {
+		ctx.drawImage(image, imageX, imageY, imageWidth, imageHeight)
+	}
 	ctx.restore()
 }

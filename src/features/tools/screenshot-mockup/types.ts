@@ -1,7 +1,7 @@
 export type BackgroundStyle = "transparent" | "solid" | "preset" | "custom"
-export type AspectRatioOption = "auto" | "16:9" | "4:3" | "1:1"
+export type AspectRatioOption = "auto" | "16:9" | "4:3" | "1:1" | "9:16"
 export type ShadowPreset = "none" | "soft" | "lifted" | "float"
-export type BrowserFrameStyle = "none" | "light" | "dark" | "minimal"
+export type BrowserFrameStyle = "none" | "light" | "dark" | "minimal" | "iphone"
 export type ExportFormat = "png" | "jpg"
 
 export type GradientPreset = {

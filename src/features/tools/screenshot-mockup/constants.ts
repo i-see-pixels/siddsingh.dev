@@ -50,6 +50,7 @@ export const aspectRatioOptions: Array<{
 	{ value: "16:9", label: "16:9" },
 	{ value: "4:3", label: "4:3" },
 	{ value: "1:1", label: "1:1" },
+	{ value: "9:16", label: "9:16" },
 ]
 
 export const frameStyleOptions: Array<{
@@ -59,6 +60,7 @@ export const frameStyleOptions: Array<{
 	{ value: "dark", label: "Dark" },
 	{ value: "light", label: "Light" },
 	{ value: "minimal", label: "Minimal" },
+	{ value: "iphone", label: "iPhone" },
 	{ value: "none", label: "None" },
 ]
 

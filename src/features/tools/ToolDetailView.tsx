@@ -1,17 +1,15 @@
-import { Column } from "@once-ui-system/core"
-
 import { ScreenshotMockupTool } from "./screenshot-mockup/ScreenshotMockupTool"
 import type { LiveToolEntry } from "./types"
 
 function renderTool(tool: LiveToolEntry) {
 	switch (tool.slug) {
 		case "screenshot-mockup":
-			return <ScreenshotMockupTool />
+			return <ScreenshotMockupTool tool={tool} />
 		default:
 			return null
 	}
 }
 
 export function ToolDetailView({ tool }: { tool: LiveToolEntry }) {
-	return <Column fillWidth>{renderTool(tool)}</Column>
+	return <>{renderTool(tool)}</>
 }

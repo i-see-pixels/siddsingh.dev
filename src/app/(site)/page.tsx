@@ -1,24 +1,20 @@
 import Script from "next/script"
 
-import { Mailchimp } from "@/components"
+import { HomeHero, Mailchimp } from "@/components"
 import { Posts } from "@/components/blog/Posts"
 import { Projects } from "@/components/work/Projects"
 import { getFeaturedTool } from "@/features/tools/registry"
-import { about, baseURL, blog, home, person, routes, toolsHub, work } from "@/resources"
-import { getPosts } from "@/utils/utils"
 import {
-	Avatar,
-	Badge,
-	Button,
-	Column,
-	Heading,
-	Line,
-	Meta,
-	RevealFx,
-	Row,
-	Schema,
-	Text,
-} from "@once-ui-system/core"
+	about,
+	baseURL,
+	home,
+	person,
+	routes,
+	toolsHub,
+	work,
+} from "@/resources"
+import { getPosts } from "@/utils/utils"
+import { Button, Column, Heading, Line, Meta, RevealFx, Row, Schema, Text } from "@once-ui-system/core"
 
 export async function generateMetadata() {
 	const generatedMeta = await Meta.generate({
@@ -154,124 +150,7 @@ export default function Home() {
 				}}
 			/>
 			<Column fillWidth horizontal="center" gap="m">
-				<Column maxWidth="s" horizontal="center" align="center">
-					{home.featured.display && (
-						<RevealFx
-							fillWidth
-							horizontal="center"
-							paddingTop="16"
-							paddingBottom="32"
-							paddingLeft="12"
-						>
-							<Badge
-								background="brand-alpha-weak"
-								paddingX="12"
-								paddingY="4"
-								onBackground="neutral-strong"
-								textVariant="label-default-s"
-								arrow={false}
-								href={home.featured.href}
-							>
-								<Row paddingY="2">{home.featured.title}</Row>
-							</Badge>
-						</RevealFx>
-					)}
-					<RevealFx translateY="4" fillWidth horizontal="center" paddingBottom="16">
-						<Heading wrap="balance" variant="display-strong-l">
-							{home.headline}
-						</Heading>
-					</RevealFx>
-					<RevealFx
-						translateY="8"
-						delay={0.2}
-						fillWidth
-						horizontal="center"
-						paddingBottom="32"
-					>
-						<Text
-							wrap="balance"
-							onBackground="neutral-weak"
-							variant="heading-default-xl"
-						>
-							{home.subline}
-						</Text>
-					</RevealFx>
-					<RevealFx paddingTop="12" delay={0.4} horizontal="center" paddingLeft="12">
-						<Button
-							id="about"
-							data-border="rounded"
-							href={about.path}
-							variant="secondary"
-							size="m"
-							weight="default"
-							arrowIcon
-						>
-							<Row gap="8" vertical="center" paddingRight="4">
-								{about.avatar.display && (
-									<Avatar
-										marginRight="8"
-										style={{ marginLeft: "-0.75rem" }}
-										src={person.avatar}
-										size="m"
-									/>
-								)}
-								{about.label}
-							</Row>
-						</Button>
-					</RevealFx>
-					<RevealFx translateY="12" delay={0.5} fillWidth paddingTop="24">
-						<Column
-							fillWidth
-							maxWidth="m"
-							padding="24"
-							radius="xl"
-							border="neutral-alpha-weak"
-							background="neutral-alpha-weak"
-							gap="20"
-						>
-							<Column gap="8">
-								<Text variant="label-default-m" onBackground="brand-weak">
-									What you&apos;ll find here
-								</Text>
-								<Text onBackground="neutral-weak" variant="body-default-l">
-									I publish practical work across three tracks: browser-based
-									tools for builders, case studies from shipped product
-									experiments, and notes on AI workflows, side projects, and
-									product engineering.
-								</Text>
-							</Column>
-							<Row gap="12" wrap>
-								<Button
-									href={toolsHub.path}
-									variant="secondary"
-									size="m"
-									weight="default"
-									arrowIcon
-								>
-									Explore browser-based tools
-								</Button>
-								<Button
-									href={work.path}
-									variant="secondary"
-									size="m"
-									weight="default"
-									arrowIcon
-								>
-									See product case studies
-								</Button>
-								<Button
-									href={blog.path}
-									variant="secondary"
-									size="m"
-									weight="default"
-									arrowIcon
-								>
-									Read notes on shipping side projects
-								</Button>
-							</Row>
-						</Column>
-					</RevealFx>
-				</Column>
+				<HomeHero />
 			</Column>
 			<RevealFx translateY="16" delay={0.6} fillWidth>
 				<Column fillWidth gap="24">
@@ -280,26 +159,28 @@ export default function Home() {
 							Credibility snapshot
 						</Text>
 						<Heading as="h2" variant="display-strong-xs" wrap="balance">
-							Proof of work across AI tooling, solo products, and product engineering
+							Proof of work across AI tooling, solo products, and product
+							engineering
 						</Heading>
 						<Column gap="12">
 							<Text onBackground="neutral-weak" variant="body-default-l">
-								Based in Gurugram, I work on software at Optum and use independent
-								projects to deepen my hands-on experience with Next.js, TypeScript,
-								browser extensions, and AI-assisted product workflows.
+								Based in Gurugram, I work on software at Optum and use
+								independent projects to deepen my hands-on experience with
+								Next.js, TypeScript, browser extensions, and AI-assisted product
+								workflows.
 							</Text>
 							<Text onBackground="neutral-weak" variant="body-default-m">
-								Built <strong>plenz</strong>, an open-source AI prompt refiner that
-								works across ChatGPT, Claude, Gemini, and Perplexity.
+								Built <strong>plenz</strong>, an open-source AI prompt refiner
+								that works across ChatGPT, Claude, Gemini, and Perplexity.
 							</Text>
 							<Text onBackground="neutral-weak" variant="body-default-m">
 								Created <strong>{featuredTool.name}</strong>, a browser-based
-								screenshot tool for launch visuals, changelogs, docs, and portfolio
-								assets.
+								screenshot tool for launch visuals, changelogs, docs, and
+								portfolio assets.
 							</Text>
 							<Text onBackground="neutral-weak" variant="body-default-m">
-								Write about finishing side projects, evaluating ideas, and building
-								practical AI and developer tooling in public.
+								Write about finishing side projects, evaluating ideas, and
+								building practical AI and developer tooling in public.
 							</Text>
 						</Column>
 					</Column>
@@ -311,10 +192,11 @@ export default function Home() {
 							A browser-based screenshot tool for faster launch-ready visuals
 						</Heading>
 						<Text onBackground="neutral-weak" variant="body-default-l">
-							{featuredTool.name} helps founders, engineers, and product teams turn
-							raw screenshots into polished assets without opening a heavyweight
-							design tool. It stays close to the real job to be done: create cleaner
-							visuals for product posts, changelogs, docs, and case studies.
+							{featuredTool.name} helps founders, engineers, and product teams
+							turn raw screenshots into polished assets without opening a
+							heavyweight design tool. It stays close to the real job to be
+							done: create cleaner visuals for product posts, changelogs, docs,
+							and case studies.
 						</Text>
 						<Row gap="12" wrap>
 							<Button
@@ -346,8 +228,9 @@ export default function Home() {
 								Case studies from products and experiments shipped in public
 							</Heading>
 							<Text onBackground="neutral-weak" variant="body-default-l">
-								These projects show how I approach AI product UX, developer tooling,
-								and pragmatic implementation from idea to shipped experience.
+								These projects show how I approach AI product UX, developer
+								tooling, and pragmatic implementation from idea to shipped
+								experience.
 							</Text>
 						</Column>
 						<Projects range={[1, 1]} />
@@ -393,8 +276,9 @@ export default function Home() {
 						More solo products, experiments, and developer tooling
 					</Heading>
 					<Text onBackground="neutral-weak" variant="body-default-l">
-						Explore additional product experiments, implementation details, and build
-						choices across AI, developer experience, and launch-focused utilities.
+						Explore additional product experiments, implementation details, and
+						build choices across AI, developer experience, and launch-focused
+						utilities.
 					</Text>
 				</Column>
 				<Projects range={[2]} />

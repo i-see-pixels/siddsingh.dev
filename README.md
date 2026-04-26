@@ -17,6 +17,7 @@ Personal portfolio and blog for Siddhant Singh, built with Next.js, TypeScript, 
 - React 19
 - TypeScript
 - Once UI
+- shadcn/ui with base ui
 - MDX
 - Sass
 
@@ -36,7 +37,7 @@ pnpm dev
 
 ## Configuration
 
-- Site config: `src/resources/once-ui.config.ts`
+- Site config: `src/resources/config.ts`
 - Content and profile data: `src/resources/content.tsx`
 - Environment variables: `.env.example`
 
