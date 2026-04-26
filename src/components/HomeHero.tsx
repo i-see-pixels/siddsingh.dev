@@ -1,16 +1,7 @@
 import Image from "next/image"
 
 import { about, home, person } from "@/resources"
-import {
-	Avatar,
-	Badge,
-	Button,
-	Column,
-	Heading,
-	RevealFx,
-	Row,
-	Text,
-} from "@once-ui-system/core"
+import { Avatar, Badge, Button, Column, Heading, RevealFx, Row, Text } from "@once-ui-system/core"
 
 import styles from "./HomeHero.module.scss"
 

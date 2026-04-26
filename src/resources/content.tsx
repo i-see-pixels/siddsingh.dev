@@ -1,13 +1,4 @@
-import type {
-	About,
-	Blog,
-	Home,
-	Newsletter,
-	Person,
-	Social,
-	ToolsHub,
-	Work,
-} from "@/types"
+import type { About, Blog, Home, Newsletter, Person, Social, ToolsHub, Work } from "@/types"
 import { Column, Row, Text } from "@once-ui-system/core"
 
 const person: Person = {
@@ -28,11 +19,7 @@ const person: Person = {
 const newsletter: Newsletter = {
 	display: false,
 	title: <>Subscribe to {person.firstName}'s Newsletter</>,
-	description: (
-		<>
-			Occasional notes on product building, AI workflows, and developer tools.
-		</>
-	),
+	description: <>Occasional notes on product building, AI workflows, and developer tools.</>,
 }
 
 const social: Social = [
@@ -70,10 +57,7 @@ const home: Home = {
 	description:
 		"Siddhant Singh is a software engineer building AI workflows, developer tools, and solo products with Next.js, TypeScript, and product-first engineering.",
 	headline: (
-		<>
-			AI workflows, developer tools, and solo products built with product-first
-			engineering
-		</>
+		<>AI workflows, developer tools, and solo products built with product-first engineering</>
 	),
 	featured: {
 		display: true,
@@ -88,10 +72,10 @@ const home: Home = {
 	},
 	subline: (
 		<>
-			I'm Siddhant, a software engineer, living in Gurugram. I build
-			browser-based tools, AI-assisted workflows, and solo product experiments
-			with Next.js, TypeScript, and a practical product engineering mindset for
-			builders who want useful software, not demo ware.
+			I'm Siddhant, a software engineer, living in Gurugram. I build browser-based tools,
+			AI-assisted workflows, and solo product experiments with Next.js, TypeScript, and a
+			practical product engineering mindset for builders who want useful software, not demo
+			ware.
 		</>
 	),
 }
@@ -118,17 +102,16 @@ const about: About = {
 		description: (
 			<>
 				<Text as="p">
-					I work as a software engineer and spend my off-hours building
-					independent products and developer tools. I enjoy turning rough ideas
-					into reliable software, especially when the problem sits at the
-					intersection of product thinking, automation, and developer
-					experience.
+					I work as a software engineer and spend my off-hours building independent
+					products and developer tools. I enjoy turning rough ideas into reliable
+					software, especially when the problem sits at the intersection of product
+					thinking, automation, and developer experience.
 				</Text>
 				<Text as="p">
-					Recent work has centered on AI-assisted workflows, browser extensions,
-					Next.js applications, and tools that help people move from idea to
-					implementation faster. I care about simple interfaces, fast feedback
-					loops, and building things that are genuinely useful.
+					Recent work has centered on AI-assisted workflows, browser extensions, Next.js
+					applications, and tools that help people move from idea to implementation
+					faster. I care about simple interfaces, fast feedback loops, and building things
+					that are genuinely useful.
 				</Text>
 			</>
 		),
@@ -157,8 +140,8 @@ const about: About = {
 						value: (
 							<>
 								Bring a maker mindset into day-to-day engineering by exploring
-								better workflows, automation opportunities, and sharper
-								developer experience.
+								better workflows, automation opportunities, and sharper developer
+								experience.
 							</>
 						),
 					},
@@ -184,8 +167,8 @@ const about: About = {
 						value: (
 							<>
 								Use side projects to deepen hands-on experience with browser
-								extensions, AI integrations, Next.js applications, TypeScript,
-								and distribution-first product development.
+								extensions, AI integrations, Next.js applications, TypeScript, and
+								distribution-first product development.
 							</>
 						),
 					},
@@ -200,9 +183,7 @@ const about: About = {
 		institutions: [
 			{
 				name: "Delhi Technological University",
-				description: (
-					<>Bachelor of Technology in Computer Science and Engineering</>
-				),
+				description: <>Bachelor of Technology in Computer Science and Engineering</>,
 			},
 		],
 	},
@@ -214,8 +195,8 @@ const about: About = {
 				title: "Product engineering",
 				description: (
 					<>
-						Building full-stack product experiences with TypeScript, Next.js,
-						and modern frontend tooling.
+						Building full-stack product experiences with TypeScript, Next.js, and modern
+						frontend tooling.
 					</>
 				),
 				tags: [
@@ -234,8 +215,8 @@ const about: About = {
 				title: "AI and developer tooling",
 				description: (
 					<>
-						Prototyping AI-assisted workflows, browser extensions, and internal
-						tools that help ideas ship faster.
+						Prototyping AI-assisted workflows, browser extensions, and internal tools
+						that help ideas ship faster.
 					</>
 				),
 				tags: [
@@ -271,8 +252,7 @@ const work: Work = {
 const toolsHub: ToolsHub = {
 	path: "/tools",
 	label: "Tools",
-	title:
-		"Free Tools | Screenshot Mockups, Launch Visuals, and Product Asset Utilities",
+	title: "Free Tools | Screenshot Mockups, Launch Visuals, and Product Asset Utilities",
 	description: `Free browser-based tools by ${person.name} for screenshot mockups, launch visuals, product assets, and fast workflows for builders.`,
 }
 
