@@ -191,7 +191,14 @@ export function renderMockupCanvas({
 	const isIphone = state.frameStyle === "iphone"
 	const sf = imageWidth / 400
 	const bezel = isIphone ? Math.max(12, imageWidth * 0.04) : 0
-	const frameHeight = state.frameStyle === "none" ? 0 : state.frameStyle === "minimal" ? 30 : isIphone ? bezel : 46
+	const frameHeight =
+		state.frameStyle === "none"
+			? 0
+			: state.frameStyle === "minimal"
+				? 30
+				: isIphone
+					? bezel
+					: 46
 	const frameWidth = imageWidth + (isIphone ? bezel * 2 : 0)
 	const frameContentHeight = imageHeight + frameHeight + (isIphone ? bezel : 0)
 	const outerRadius = isIphone ? state.cornerRadius + bezel : state.cornerRadius

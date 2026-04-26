@@ -48,10 +48,7 @@ import {
 } from "@/components/ui/select"
 import { Slider } from "@/components/ui/slider"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
-import {
-	ToolWorkspaceSection,
-	ToolWorkspaceShell,
-} from "@/features/tools/ToolWorkspaceShell"
+import { ToolWorkspaceSection, ToolWorkspaceShell } from "@/features/tools/ToolWorkspaceShell"
 import type { LiveToolEntry } from "@/features/tools/types"
 import { cn } from "@/lib/utils"
 import { renderMockupCanvas } from "./canvas"
@@ -63,10 +60,7 @@ import {
 	gradientPresets,
 	shadowOptions,
 } from "./constants"
-import {
-	DEFAULT_SCREENSHOT_MOCKUP_STATE,
-	screenshotMockupReducer,
-} from "./reducer"
+import { DEFAULT_SCREENSHOT_MOCKUP_STATE, screenshotMockupReducer } from "./reducer"
 import type {
 	AspectRatioOption,
 	BackgroundStyle,
@@ -135,9 +129,7 @@ function getSingleValue(value: number | readonly number[]) {
 	return Array.isArray(value) ? (value[0] ?? 0) : value
 }
 
-function getSingleSelection<T extends string>(
-	value: T[] | string[] | null | undefined,
-) {
+function getSingleSelection<T extends string>(value: T[] | string[] | null | undefined) {
 	if (!value?.length) {
 		return null
 	}
@@ -193,9 +185,7 @@ function SelectField<T extends string>({
 						</SelectGroup>
 					</SelectContent>
 				</Select>
-				{description ? (
-					<FieldDescription>{description}</FieldDescription>
-				) : null}
+				{description ? <FieldDescription>{description}</FieldDescription> : null}
 			</FieldContent>
 		</Field>
 	)
@@ -235,13 +225,9 @@ function SliderField({
 					max={max}
 					step={step}
 					value={value}
-					onValueChange={(nextValue) =>
-						onValueChange(getSingleValue(nextValue))
-					}
+					onValueChange={(nextValue) => onValueChange(getSingleValue(nextValue))}
 				/>
-				{description ? (
-					<FieldDescription>{description}</FieldDescription>
-				) : null}
+				{description ? <FieldDescription>{description}</FieldDescription> : null}
 			</FieldContent>
 		</Field>
 	)
@@ -255,13 +241,7 @@ type ColorFieldProps = {
 	onChange: (value: string) => void
 }
 
-function ColorField({
-	id,
-	label,
-	value,
-	description,
-	onChange,
-}: ColorFieldProps) {
+function ColorField({ id, label, value, description, onChange }: ColorFieldProps) {
 	return (
 		<Field>
 			<FieldLabel htmlFor={id}>{label}</FieldLabel>
@@ -275,24 +255,17 @@ function ColorField({
 						className=""
 					/>
 					<div className="min-w-0">
-						<p className="text-sm font-medium uppercase text-foreground">
-							{value}
-						</p>
+						<p className="text-sm font-medium uppercase text-foreground">{value}</p>
 					</div>
 				</div>
-				{description ? (
-					<FieldDescription>{description}</FieldDescription>
-				) : null}
+				{description ? <FieldDescription>{description}</FieldDescription> : null}
 			</FieldContent>
 		</Field>
 	)
 }
 
 export function ScreenshotMockupTool({ tool }: { tool: LiveToolEntry }) {
-	const [state, dispatch] = useReducer(
-		screenshotMockupReducer,
-		DEFAULT_SCREENSHOT_MOCKUP_STATE,
-	)
+	const [state, dispatch] = useReducer(screenshotMockupReducer, DEFAULT_SCREENSHOT_MOCKUP_STATE)
 	const deferredState = useDeferredValue(state)
 	const [loadedImage, setLoadedImage] = useState<LoadedImageState>({
 		image: null,
@@ -318,11 +291,7 @@ export function ScreenshotMockupTool({ tool }: { tool: LiveToolEntry }) {
 		startOffset: PreviewOffset
 	} | null>(null)
 
-	const replaceImageSource = (
-		nextSrc: string | null,
-		nextName: string,
-		ownsSource: boolean,
-	) => {
+	const replaceImageSource = (nextSrc: string | null, nextName: string, ownsSource: boolean) => {
 		if (ownedObjectUrlRef.current) {
 			URL.revokeObjectURL(ownedObjectUrlRef.current)
 			ownedObjectUrlRef.current = null
@@ -362,14 +331,8 @@ export function ScreenshotMockupTool({ tool }: { tool: LiveToolEntry }) {
 
 		const baseWidth = canvas.offsetWidth || canvas.width
 		const baseHeight = canvas.offsetHeight || canvas.height
-		const maxOffsetX = Math.max(
-			0,
-			(baseWidth * scale - viewport.clientWidth) / 2,
-		)
-		const maxOffsetY = Math.max(
-			0,
-			(baseHeight * scale - viewport.clientHeight) / 2,
-		)
+		const maxOffsetX = Math.max(0, (baseWidth * scale - viewport.clientWidth) / 2)
+		const maxOffsetY = Math.max(0, (baseHeight * scale - viewport.clientHeight) / 2)
 
 		return {
 			x: Math.min(maxOffsetX, Math.max(-maxOffsetX, nextOffset.x)),
@@ -388,17 +351,15 @@ export function ScreenshotMockupTool({ tool }: { tool: LiveToolEntry }) {
 		toast.success("Screenshot loaded.")
 	})
 
-	const handleClipboardItems = useEffectEvent(
-		(items: DataTransferItemList | null) => {
-			const imageFile = extractImageFile(items)
+	const handleClipboardItems = useEffectEvent((items: DataTransferItemList | null) => {
+		const imageFile = extractImageFile(items)
 
-			if (!imageFile) {
-				return
-			}
+		if (!imageFile) {
+			return
+		}
 
-			void applyImageFile(imageFile)
-		},
-	)
+		void applyImageFile(imageFile)
+	})
 
 	useEffect(() => {
 		return () => {
@@ -498,10 +459,7 @@ export function ScreenshotMockupTool({ tool }: { tool: LiveToolEntry }) {
 		setPreviewOffset((currentOffset) => {
 			const nextOffset = clampPreviewOffset(currentOffset)
 
-			if (
-				nextOffset.x === currentOffset.x &&
-				nextOffset.y === currentOffset.y
-			) {
+			if (nextOffset.x === currentOffset.x && nextOffset.y === currentOffset.y) {
 				return currentOffset
 			}
 
@@ -582,11 +540,7 @@ export function ScreenshotMockupTool({ tool }: { tool: LiveToolEntry }) {
 			})
 
 			const mimeType = format === "png" ? "image/png" : "image/jpeg"
-			const blob = await toBlob(
-				canvas,
-				mimeType,
-				format === "jpg" ? 0.92 : undefined,
-			)
+			const blob = await toBlob(canvas, mimeType, format === "jpg" ? 0.92 : undefined)
 			const link = document.createElement("a")
 			const objectUrl = URL.createObjectURL(blob)
 			const fileBase = sanitizeFilename(state.imageName || "screenshot-mockup")
@@ -606,9 +560,7 @@ export function ScreenshotMockupTool({ tool }: { tool: LiveToolEntry }) {
 	}
 
 	const handleQuickZoom = (direction: "in" | "out") => {
-		const currentIndex = ZOOM_LEVELS.findIndex(
-			(level) => level === previewScale,
-		)
+		const currentIndex = ZOOM_LEVELS.findIndex((level) => level === previewScale)
 		const safeIndex = currentIndex === -1 ? 1 : currentIndex
 		const nextIndex =
 			direction === "in"
@@ -618,9 +570,7 @@ export function ScreenshotMockupTool({ tool }: { tool: LiveToolEntry }) {
 		setPreviewScale(ZOOM_LEVELS[nextIndex])
 	}
 
-	const handlePreviewPointerDown = (
-		event: ReactPointerEvent<HTMLDivElement>,
-	) => {
+	const handlePreviewPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
 		if (!loadedImage.image || previewScale <= 1) {
 			return
 		}
@@ -636,9 +586,7 @@ export function ScreenshotMockupTool({ tool }: { tool: LiveToolEntry }) {
 		setIsPanningPreview(true)
 	}
 
-	const handlePreviewPointerMove = (
-		event: ReactPointerEvent<HTMLDivElement>,
-	) => {
+	const handlePreviewPointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
 		const dragState = dragStateRef.current
 
 		if (!dragState || dragState.pointerId !== event.pointerId) {
@@ -712,9 +660,7 @@ export function ScreenshotMockupTool({ tool }: { tool: LiveToolEntry }) {
 					type="button"
 					variant="outline"
 					size="sm"
-					onClick={() =>
-						replaceImageSource(DEMO_IMAGE.src, DEMO_IMAGE.name, false)
-					}
+					onClick={() => replaceImageSource(DEMO_IMAGE.src, DEMO_IMAGE.name, false)}
 				>
 					<SparklesIcon data-icon="inline-start" />
 					Demo
@@ -775,8 +721,8 @@ export function ScreenshotMockupTool({ tool }: { tool: LiveToolEntry }) {
 													PNG, JPG, and WebP supported
 												</p>
 												<p className="text-xs leading-relaxed text-muted-foreground">
-													Paste with Ctrl/Cmd + V or drag a screenshot straight
-													onto this panel.
+													Paste with Ctrl/Cmd + V or drag a screenshot
+													straight onto this panel.
 												</p>
 											</div>
 										</div>
@@ -852,7 +798,10 @@ export function ScreenshotMockupTool({ tool }: { tool: LiveToolEntry }) {
 										className="w-full flex-wrap"
 									>
 										{backgroundOptions.map((option) => (
-											<ToggleGroupItem key={option.value} value={option.value}>
+											<ToggleGroupItem
+												key={option.value}
+												value={option.value}
+											>
 												{option.label}
 											</ToggleGroupItem>
 										))}
@@ -963,9 +912,7 @@ export function ScreenshotMockupTool({ tool }: { tool: LiveToolEntry }) {
 									id="frame-style"
 									label="Browser frame"
 									value={state.frameStyle}
-									options={
-										frameStyleOptions as SelectOption<BrowserFrameStyle>[]
-									}
+									options={frameStyleOptions as SelectOption<BrowserFrameStyle>[]}
 									onValueChange={(nextValue) =>
 										dispatch({
 											type: "patch",
@@ -1103,9 +1050,7 @@ export function ScreenshotMockupTool({ tool }: { tool: LiveToolEntry }) {
 							</div>
 							<div>
 								<p className="text-lg font-semibold">Drop image here</p>
-								<p className="text-sm text-muted-foreground">
-									PNG, JPG, or WebP
-								</p>
+								<p className="text-sm text-muted-foreground">PNG, JPG, or WebP</p>
 							</div>
 						</div>
 					</div>
@@ -1117,9 +1062,7 @@ export function ScreenshotMockupTool({ tool }: { tool: LiveToolEntry }) {
 								ref={previewViewportRef}
 								className={cn(
 									"flex min-h-80 w-full items-center justify-center overflow-hidden border border-border/60 bg-background/80 p-4",
-									previewScale > 1
-										? "cursor-grab touch-none"
-										: "cursor-default",
+									previewScale > 1 ? "cursor-grab touch-none" : "cursor-default",
 									isPanningPreview && "cursor-grabbing",
 								)}
 								onPointerDown={handlePreviewPointerDown}
@@ -1147,8 +1090,8 @@ export function ScreenshotMockupTool({ tool }: { tool: LiveToolEntry }) {
 							<div className="flex items-center justify-center gap-2 text-xs text-muted-foreground px-10">
 								<ExpandIcon className="size-3" />
 								<span>
-									Preview zoom is UI-only and does not affect exports. Drag to
-									pan when zoomed in past 100%.
+									Preview zoom is UI-only and does not affect exports. Drag to pan
+									when zoomed in past 100%.
 								</span>
 							</div>
 						</div>
@@ -1181,7 +1124,11 @@ export function ScreenshotMockupTool({ tool }: { tool: LiveToolEntry }) {
 										type="button"
 										variant="outline"
 										onClick={() =>
-											replaceImageSource(DEMO_IMAGE.src, DEMO_IMAGE.name, false)
+											replaceImageSource(
+												DEMO_IMAGE.src,
+												DEMO_IMAGE.name,
+												false,
+											)
 										}
 									>
 										<SparklesIcon data-icon="inline-start" />

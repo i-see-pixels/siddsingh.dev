@@ -8,12 +8,7 @@ function ThemeShortcut() {
 
 	React.useEffect(() => {
 		const down = (e: KeyboardEvent) => {
-			if (
-				(e.key === "d" || e.key === "D") &&
-				!e.metaKey &&
-				!e.ctrlKey &&
-				!e.altKey
-			) {
+			if ((e.key === "d" || e.key === "D") && !e.metaKey && !e.ctrlKey && !e.altKey) {
 				if (
 					(e.target instanceof HTMLElement && e.target.isContentEditable) ||
 					e.target instanceof HTMLInputElement ||
@@ -42,7 +37,8 @@ export function ThemeProvider({
 	return (
 		<NextThemesProvider
 			attribute="class"
-			defaultTheme="dark"
+			defaultTheme="system"
+			storageKey="data-theme"
 			enableSystem
 			disableTransitionOnChange
 			enableColorScheme

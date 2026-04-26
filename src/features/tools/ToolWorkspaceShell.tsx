@@ -7,11 +7,7 @@ import Link from "next/link"
 
 import { Badge } from "@/components/ui/badge"
 import { Button, buttonVariants } from "@/components/ui/button"
-import {
-	Collapsible,
-	CollapsibleContent,
-	CollapsibleTrigger,
-} from "@/components/ui/collapsible"
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import {
 	Sidebar,
@@ -200,9 +196,7 @@ export function ToolWorkspaceShell({
 
 				<SidebarFooter className="gap-3 p-3">
 					{sidebarFooter ? (
-						<div className="group-data-[collapsible=icon]:hidden">
-							{sidebarFooter}
-						</div>
+						<div className="group-data-[collapsible=icon]:hidden">{sidebarFooter}</div>
 					) : null}
 				</SidebarFooter>
 			</Sidebar>

@@ -8,15 +8,18 @@ import styles from "./HomeHero.module.scss"
 const heroHighlights = [
 	{
 		title: "AI workflows",
-		description: "Practical systems and automations that help builders move from idea to execution.",
+		description:
+			"Practical systems and automations that help builders move from idea to execution.",
 	},
 	{
 		title: "Developer tools",
-		description: "Browser-first utilities for launch visuals, prompts, and sharper product workflows.",
+		description:
+			"Browser-first utilities for launch visuals, prompts, and sharper product workflows.",
 	},
 	{
 		title: "Solo products",
-		description: "Independent experiments shipped in public to test useful ideas with real users.",
+		description:
+			"Independent experiments shipped in public to test useful ideas with real users.",
 	},
 ] as const
 
@@ -40,7 +43,11 @@ export function HomeHero() {
 					</RevealFx>
 				)}
 				<RevealFx translateY={4} fillWidth>
-					<Text className={styles.heroEyebrow} variant="label-default-m" onBackground="brand-weak">
+					<Text
+						className={styles.heroEyebrow}
+						variant="label-default-m"
+						onBackground="brand-weak"
+					>
 						What I do
 					</Text>
 				</RevealFx>
@@ -96,7 +103,13 @@ export function HomeHero() {
 						>
 							Explore browser-based tools
 						</Button>
-						<Button href={work.path} variant="secondary" size="m" weight="default" arrowIcon>
+						<Button
+							href={work.path}
+							variant="secondary"
+							size="m"
+							weight="default"
+							arrowIcon
+						>
 							See product case studies
 						</Button>
 					</Row>
@@ -135,7 +148,8 @@ export function HomeHero() {
 									Current focus
 								</Text>
 								<Text variant="body-default-m" onBackground="neutral-weak">
-									AI tooling, browser workflows, and useful software built to ship.
+									AI tooling, browser workflows, and useful software built to
+									ship.
 								</Text>
 							</div>
 						</div>
