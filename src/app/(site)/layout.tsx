@@ -38,7 +38,6 @@ export default async function RootLayout({
 }: Readonly<{
 	children: React.ReactNode
 }>) {
-	console.log(fonts)
 	return (
 		<Flex
 			suppressHydrationWarning
