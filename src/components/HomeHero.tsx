@@ -1,27 +1,18 @@
 import Image from "next/image"
 
-import { about, home, person, toolsHub, work } from "@/resources"
-import { Avatar, Badge, Button, Column, Heading, RevealFx, Row, Text } from "@once-ui-system/core"
+import { about, home, person } from "@/resources"
+import {
+	Avatar,
+	Badge,
+	Button,
+	Column,
+	Heading,
+	RevealFx,
+	Row,
+	Text,
+} from "@once-ui-system/core"
 
 import styles from "./HomeHero.module.scss"
-
-const heroHighlights = [
-	{
-		title: "AI workflows",
-		description:
-			"Practical systems and automations that help builders move from idea to execution.",
-	},
-	{
-		title: "Developer tools",
-		description:
-			"Browser-first utilities for launch visuals, prompts, and sharper product workflows.",
-	},
-	{
-		title: "Solo products",
-		description:
-			"Independent experiments shipped in public to test useful ideas with real users.",
-	},
-] as const
 
 export function HomeHero() {
 	return (
@@ -72,7 +63,7 @@ export function HomeHero() {
 					</Text>
 				</RevealFx>
 				<RevealFx translateY={10} delay={0.25} fillWidth>
-					<Row gap="12" wrap className={styles.heroActions}>
+					<Column fillWidth horizontal="center" gap="m">
 						<Button
 							id="about"
 							data-border="rounded"
@@ -94,37 +85,7 @@ export function HomeHero() {
 								{about.label}
 							</Row>
 						</Button>
-						<Button
-							href={toolsHub.path}
-							variant="secondary"
-							size="m"
-							weight="default"
-							arrowIcon
-						>
-							Explore browser-based tools
-						</Button>
-						<Button
-							href={work.path}
-							variant="secondary"
-							size="m"
-							weight="default"
-							arrowIcon
-						>
-							See product case studies
-						</Button>
-					</Row>
-				</RevealFx>
-				<RevealFx translateY={12} delay={0.35} fillWidth>
-					<div className={styles.heroHighlights}>
-						{heroHighlights.map((item) => (
-							<div key={item.title} className={styles.heroHighlightCard}>
-								<Text variant="heading-strong-l">{item.title}</Text>
-								<Text variant="body-default-m" onBackground="neutral-weak">
-									{item.description}
-								</Text>
-							</div>
-						))}
-					</div>
+					</Column>
 				</RevealFx>
 			</Column>
 			<RevealFx translateY={12} delay={0.45}>
@@ -133,23 +94,22 @@ export function HomeHero() {
 					<div className={styles.heroPopup}>
 						<div className={styles.heroPopupBody}>
 							<Text className={styles.heroPopupTag} variant="label-default-s">
-								Product-first engineering
+								Sr. Software Engineer
 							</Text>
 							<Image
 								priority
 								className={styles.heroImage}
 								src="/images/halftone_hero.png"
 								alt={`${person.name} halftone portrait`}
-								width={399}
-								height={1076}
+								width={250}
+								height={832}
 							/>
 							<div className={styles.heroPopupNote}>
 								<Text variant="label-default-s" onBackground="brand-weak">
 									Current focus
 								</Text>
 								<Text variant="body-default-m" onBackground="neutral-weak">
-									AI tooling, browser workflows, and useful software built to
-									ship.
+									Becoming visible to the world 😎
 								</Text>
 							</div>
 						</div>
