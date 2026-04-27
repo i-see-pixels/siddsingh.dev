@@ -66,11 +66,13 @@ import type {
 	BackgroundStyle,
 	BrowserFrameStyle,
 	ExportFormat,
+	ScreenshotMockupState,
 	ShadowPreset,
 } from "./types"
 
 type LoadedImageState = {
 	image: HTMLImageElement | null
+	previewImage: HTMLCanvasElement | null
 	isLoading: boolean
 	error: string | null
 }
@@ -212,11 +214,42 @@ function SliderField({
 	description,
 	onValueChange,
 }: SliderFieldProps) {
+	const [localValue, setLocalValue] = useState(value)
+	const pendingValueRef = useRef(value)
+	const animationFrameRef = useRef<number | null>(null)
+
+	useEffect(() => {
+		setLocalValue(value)
+		pendingValueRef.current = value
+	}, [value])
+
+	useEffect(() => {
+		return () => {
+			if (animationFrameRef.current !== null) {
+				cancelAnimationFrame(animationFrameRef.current)
+			}
+		}
+	}, [])
+
+	const handleValueChange = (nextValue: number) => {
+		pendingValueRef.current = nextValue
+		setLocalValue(nextValue)
+
+		if (animationFrameRef.current !== null) {
+			return
+		}
+
+		animationFrameRef.current = requestAnimationFrame(() => {
+			animationFrameRef.current = null
+			onValueChange(pendingValueRef.current)
+		})
+	}
+
 	return (
 		<Field>
 			<div className="flex items-center justify-between gap-3">
 				<FieldLabel htmlFor={id}>{label}</FieldLabel>
-				<Badge variant="outline">{value}</Badge>
+				<Badge variant="outline">{localValue}</Badge>
 			</div>
 			<FieldContent>
 				<Slider
@@ -224,8 +257,8 @@ function SliderField({
 					min={min}
 					max={max}
 					step={step}
-					value={value}
-					onValueChange={(nextValue) => onValueChange(getSingleValue(nextValue))}
+					value={localValue}
+					onValueChange={(nextValue) => handleValueChange(getSingleValue(nextValue))}
 				/>
 				{description ? <FieldDescription>{description}</FieldDescription> : null}
 			</FieldContent>
@@ -269,6 +302,7 @@ export function ScreenshotMockupTool({ tool }: { tool: LiveToolEntry }) {
 	const deferredState = useDeferredValue(state)
 	const [loadedImage, setLoadedImage] = useState<LoadedImageState>({
 		image: null,
+		previewImage: null,
 		isLoading: true,
 		error: null,
 	})
@@ -282,8 +316,11 @@ export function ScreenshotMockupTool({ tool }: { tool: LiveToolEntry }) {
 	const [isPanningPreview, setIsPanningPreview] = useState(false)
 	const previewCanvasRef = useRef<HTMLCanvasElement | null>(null)
 	const previewViewportRef = useRef<HTMLDivElement | null>(null)
+	const previewOffsetLayerRef = useRef<HTMLDivElement | null>(null)
 	const fileInputRef = useRef<HTMLInputElement | null>(null)
 	const ownedObjectUrlRef = useRef<string | null>(null)
+	const previewOffsetRef = useRef(previewOffset)
+	const previewPanFrameRef = useRef<number | null>(null)
 	const dragStateRef = useRef<{
 		pointerId: number
 		startX: number
@@ -315,6 +352,15 @@ export function ScreenshotMockupTool({ tool }: { tool: LiveToolEntry }) {
 		})
 	}
 
+	const patchState = (patch: Partial<ScreenshotMockupState>) => {
+		startTransition(() => {
+			dispatch({
+				type: "patch",
+				patch,
+			})
+		})
+	}
+
 	const clampPreviewOffset = (
 		nextOffset: PreviewOffset,
 		scale: number = previewScale,
@@ -338,6 +384,26 @@ export function ScreenshotMockupTool({ tool }: { tool: LiveToolEntry }) {
 			x: Math.min(maxOffsetX, Math.max(-maxOffsetX, nextOffset.x)),
 			y: Math.min(maxOffsetY, Math.max(-maxOffsetY, nextOffset.y)),
 		}
+	}
+
+	const applyPreviewOffset = (nextOffset: PreviewOffset) => {
+		previewOffsetRef.current = nextOffset
+
+		if (previewPanFrameRef.current !== null) {
+			return
+		}
+
+		previewPanFrameRef.current = requestAnimationFrame(() => {
+			previewPanFrameRef.current = null
+			const layer = previewOffsetLayerRef.current
+
+			if (!layer) {
+				return
+			}
+
+			const offset = previewOffsetRef.current
+			layer.style.transform = `translate3d(${offset.x}px, ${offset.y}px, 0)`
+		})
 	}
 
 	const applyImageFile = useEffectEvent(async (file: File) => {
@@ -366,13 +432,22 @@ export function ScreenshotMockupTool({ tool }: { tool: LiveToolEntry }) {
 			if (ownedObjectUrlRef.current) {
 				URL.revokeObjectURL(ownedObjectUrlRef.current)
 			}
+
+			if (previewPanFrameRef.current !== null) {
+				cancelAnimationFrame(previewPanFrameRef.current)
+			}
 		}
 	}, [])
+
+	useEffect(() => {
+		applyPreviewOffset(previewOffset)
+	}, [previewOffset])
 
 	useEffect(() => {
 		if (!state.imageSrc) {
 			setLoadedImage({
 				image: null,
+				previewImage: null,
 				isLoading: false,
 				error: "Upload or paste a screenshot to start styling it.",
 			})
@@ -384,6 +459,7 @@ export function ScreenshotMockupTool({ tool }: { tool: LiveToolEntry }) {
 
 		setLoadedImage({
 			image: null,
+			previewImage: null,
 			isLoading: true,
 			error: null,
 		})
@@ -393,9 +469,29 @@ export function ScreenshotMockupTool({ tool }: { tool: LiveToolEntry }) {
 				return
 			}
 
+			const maxContentWidth = 1040
+			const maxContentHeight = 780
+			const imageScale = Math.min(
+				maxContentWidth / image.naturalWidth,
+				maxContentHeight / image.naturalHeight,
+				1.15,
+			)
+			const previewWidth = Math.max(220, image.naturalWidth * imageScale)
+			const previewHeight = Math.max(140, image.naturalHeight * imageScale)
+
+			const previewCanvas = document.createElement("canvas")
+			previewCanvas.width = previewWidth
+			previewCanvas.height = previewHeight
+			const pCtx = previewCanvas.getContext("2d")
+
+			if (pCtx) {
+				pCtx.drawImage(image, 0, 0, previewWidth, previewHeight)
+			}
+
 			startTransition(() => {
 				setLoadedImage({
 					image,
+					previewImage: previewCanvas,
 					isLoading: false,
 					error: null,
 				})
@@ -409,6 +505,7 @@ export function ScreenshotMockupTool({ tool }: { tool: LiveToolEntry }) {
 
 			setLoadedImage({
 				image: null,
+				previewImage: null,
 				isLoading: false,
 				error: "That image could not be loaded. Try another screenshot.",
 			})
@@ -428,20 +525,29 @@ export function ScreenshotMockupTool({ tool }: { tool: LiveToolEntry }) {
 			return
 		}
 
-		if (!loadedImage.image) {
+		const previewImage = loadedImage.previewImage
+		if (!previewImage) {
 			const context = canvas.getContext("2d")
 			context?.clearRect(0, 0, canvas.width, canvas.height)
 			return
 		}
 
-		renderMockupCanvas({
-			canvas,
-			image: loadedImage.image,
-			state: deferredState,
-			scale: 1,
-			format: "png",
-		})
-	}, [deferredState, loadedImage.image])
+		const render = () => {
+			renderMockupCanvas({
+				canvas,
+				image: previewImage,
+				state: deferredState,
+				scale: 1,
+				format: "png",
+			})
+		}
+
+		const animationFrameId = requestAnimationFrame(render)
+
+		return () => {
+			cancelAnimationFrame(animationFrameId)
+		}
+	}, [deferredState, loadedImage.previewImage])
 
 	useEffect(() => {
 		if (!loadedImage.image || previewScale <= 1) {
@@ -581,7 +687,7 @@ export function ScreenshotMockupTool({ tool }: { tool: LiveToolEntry }) {
 			pointerId: event.pointerId,
 			startX: event.clientX,
 			startY: event.clientY,
-			startOffset: previewOffset,
+			startOffset: previewOffsetRef.current,
 		}
 		setIsPanningPreview(true)
 	}
@@ -601,7 +707,7 @@ export function ScreenshotMockupTool({ tool }: { tool: LiveToolEntry }) {
 			y: dragState.startOffset.y + deltaY,
 		})
 
-		setPreviewOffset(nextOffset)
+		applyPreviewOffset(nextOffset)
 	}
 
 	const endPreviewPan = (event?: ReactPointerEvent<HTMLDivElement>) => {
@@ -610,6 +716,7 @@ export function ScreenshotMockupTool({ tool }: { tool: LiveToolEntry }) {
 		}
 
 		dragStateRef.current = null
+		setPreviewOffset(previewOffsetRef.current)
 		setIsPanningPreview(false)
 	}
 
@@ -787,10 +894,7 @@ export function ScreenshotMockupTool({ tool }: { tool: LiveToolEntry }) {
 												return
 											}
 
-											dispatch({
-												type: "patch",
-												patch: { backgroundStyle: nextStyle },
-											})
+											patchState({ backgroundStyle: nextStyle })
 										}}
 										variant="outline"
 										size="sm"
@@ -819,10 +923,7 @@ export function ScreenshotMockupTool({ tool }: { tool: LiveToolEntry }) {
 										value: preset.id,
 									}))}
 									onValueChange={(nextValue) =>
-										dispatch({
-											type: "patch",
-											patch: { gradientPresetId: nextValue },
-										})
+										patchState({ gradientPresetId: nextValue })
 									}
 								/>
 							) : null}
@@ -834,10 +935,7 @@ export function ScreenshotMockupTool({ tool }: { tool: LiveToolEntry }) {
 										label="Gradient start"
 										value={state.customGradientStart}
 										onChange={(nextValue) =>
-											dispatch({
-												type: "patch",
-												patch: { customGradientStart: nextValue },
-											})
+											patchState({ customGradientStart: nextValue })
 										}
 									/>
 									<ColorField
@@ -845,10 +943,7 @@ export function ScreenshotMockupTool({ tool }: { tool: LiveToolEntry }) {
 										label="Gradient end"
 										value={state.customGradientEnd}
 										onChange={(nextValue) =>
-											dispatch({
-												type: "patch",
-												patch: { customGradientEnd: nextValue },
-											})
+											patchState({ customGradientEnd: nextValue })
 										}
 									/>
 								</div>
@@ -859,12 +954,7 @@ export function ScreenshotMockupTool({ tool }: { tool: LiveToolEntry }) {
 									id="solid-color"
 									label="Solid background"
 									value={state.solidColor}
-									onChange={(nextValue) =>
-										dispatch({
-											type: "patch",
-											patch: { solidColor: nextValue },
-										})
-									}
+									onChange={(nextValue) => patchState({ solidColor: nextValue })}
 								/>
 							) : null}
 
@@ -878,10 +968,7 @@ export function ScreenshotMockupTool({ tool }: { tool: LiveToolEntry }) {
 									value={state.gradientAngle}
 									description="Controls the direction of the gradient wash."
 									onValueChange={(nextValue) =>
-										dispatch({
-											type: "patch",
-											patch: { gradientAngle: nextValue },
-										})
+										patchState({ gradientAngle: nextValue })
 									}
 								/>
 							) : null}
@@ -902,10 +989,7 @@ export function ScreenshotMockupTool({ tool }: { tool: LiveToolEntry }) {
 										aspectRatioOptions as SelectOption<AspectRatioOption>[]
 									}
 									onValueChange={(nextValue) =>
-										dispatch({
-											type: "patch",
-											patch: { aspectRatio: nextValue },
-										})
+										patchState({ aspectRatio: nextValue })
 									}
 								/>
 								<SelectField
@@ -914,10 +998,7 @@ export function ScreenshotMockupTool({ tool }: { tool: LiveToolEntry }) {
 									value={state.frameStyle}
 									options={frameStyleOptions as SelectOption<BrowserFrameStyle>[]}
 									onValueChange={(nextValue) =>
-										dispatch({
-											type: "patch",
-											patch: { frameStyle: nextValue },
-										})
+										patchState({ frameStyle: nextValue })
 									}
 								/>
 							</div>
@@ -928,10 +1009,7 @@ export function ScreenshotMockupTool({ tool }: { tool: LiveToolEntry }) {
 								value={state.shadowPreset}
 								options={shadowOptions as SelectOption<ShadowPreset>[]}
 								onValueChange={(nextValue) =>
-									dispatch({
-										type: "patch",
-										patch: { shadowPreset: nextValue },
-									})
+									patchState({ shadowPreset: nextValue })
 								}
 							/>
 
@@ -941,12 +1019,7 @@ export function ScreenshotMockupTool({ tool }: { tool: LiveToolEntry }) {
 								min={0}
 								max={220}
 								value={state.paddingX}
-								onValueChange={(nextValue) =>
-									dispatch({
-										type: "patch",
-										patch: { paddingX: nextValue },
-									})
-								}
+								onValueChange={(nextValue) => patchState({ paddingX: nextValue })}
 							/>
 							<SliderField
 								id="padding-y"
@@ -954,12 +1027,7 @@ export function ScreenshotMockupTool({ tool }: { tool: LiveToolEntry }) {
 								min={0}
 								max={180}
 								value={state.paddingY}
-								onValueChange={(nextValue) =>
-									dispatch({
-										type: "patch",
-										patch: { paddingY: nextValue },
-									})
-								}
+								onValueChange={(nextValue) => patchState({ paddingY: nextValue })}
 							/>
 							<SliderField
 								id="corner-radius"
@@ -968,10 +1036,7 @@ export function ScreenshotMockupTool({ tool }: { tool: LiveToolEntry }) {
 								max={48}
 								value={state.cornerRadius}
 								onValueChange={(nextValue) =>
-									dispatch({
-										type: "patch",
-										patch: { cornerRadius: nextValue },
-									})
+									patchState({ cornerRadius: nextValue })
 								}
 							/>
 						</FieldGroup>
@@ -1071,13 +1136,21 @@ export function ScreenshotMockupTool({ tool }: { tool: LiveToolEntry }) {
 								onPointerCancel={endPreviewPan}
 							>
 								<div
-									className="transition-transform duration-200"
+									ref={previewOffsetLayerRef}
+									className={cn(
+										"will-change-transform",
+										!isPanningPreview && "transition-transform duration-200",
+									)}
 									style={{
-										transform: `translate(${previewOffset.x}px, ${previewOffset.y}px)`,
+										transform: `translate3d(${previewOffset.x}px, ${previewOffset.y}px, 0)`,
 									}}
 								>
 									<div
-										className="origin-center transition-transform duration-200"
+										className={cn(
+											"origin-center will-change-transform",
+											!isPanningPreview &&
+												"transition-transform duration-200",
+										)}
 										style={{ transform: `scale(${previewScale})` }}
 									>
 										<canvas

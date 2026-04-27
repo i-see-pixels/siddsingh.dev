@@ -3,7 +3,7 @@ import type { ExportFormat, ScreenshotMockupState, ShadowPreset } from "./types"
 
 type RenderMockupCanvasArgs = {
 	canvas: HTMLCanvasElement
-	image: HTMLImageElement
+	image: HTMLImageElement | HTMLCanvasElement
 	state: ScreenshotMockupState
 	scale?: number
 	format?: ExportFormat
@@ -179,15 +179,18 @@ export function renderMockupCanvas({
 	scale = 1,
 	format = "png",
 }: RenderMockupCanvasArgs) {
+	const sourceWidth = image instanceof HTMLImageElement ? image.naturalWidth : image.width
+	const sourceHeight = image instanceof HTMLImageElement ? image.naturalHeight : image.height
 	const maxContentWidth = 1040
 	const maxContentHeight = 780
+	const maxImageScale = image instanceof HTMLImageElement ? 1.15 : 1
 	const imageScale = Math.min(
-		maxContentWidth / image.naturalWidth,
-		maxContentHeight / image.naturalHeight,
-		1.15,
+		maxContentWidth / sourceWidth,
+		maxContentHeight / sourceHeight,
+		maxImageScale,
 	)
-	const imageWidth = Math.max(220, image.naturalWidth * imageScale)
-	const imageHeight = Math.max(140, image.naturalHeight * imageScale)
+	const imageWidth = Math.max(220, sourceWidth * imageScale)
+	const imageHeight = Math.max(140, sourceHeight * imageScale)
 	const isIphone = state.frameStyle === "iphone"
 	const sf = imageWidth / 400
 	const bezel = isIphone ? Math.max(12, imageWidth * 0.04) : 0
@@ -217,8 +220,16 @@ export function renderMockupCanvas({
 		}
 	}
 
-	canvas.width = Math.round(canvasWidth * scale)
-	canvas.height = Math.round(canvasHeight * scale)
+	const scaledCanvasWidth = Math.round(canvasWidth * scale)
+	const scaledCanvasHeight = Math.round(canvasHeight * scale)
+
+	if (canvas.width !== scaledCanvasWidth) {
+		canvas.width = scaledCanvasWidth
+	}
+
+	if (canvas.height !== scaledCanvasHeight) {
+		canvas.height = scaledCanvasHeight
+	}
 
 	const ctx = canvas.getContext("2d")
 
