@@ -252,8 +252,9 @@ const work: Work = {
 const toolsHub: ToolsHub = {
 	path: "/tools",
 	label: "Tools",
-	title: "Free Tools | Screenshot Mockups, Launch Visuals, and Product Asset Utilities",
-	description: `Free browser-based tools by ${person.name} for screenshot mockups, launch visuals, product assets, and fast workflows for builders.`,
+	title: "Free Tools | Siddhant Singh",
+	description:
+		"Discover a suite of free, powerful tools tailored for SaaS companies, designed to streamline your workflow and boost your productivity.",
 }
 
 export { person, social, newsletter, home, about, blog, work, toolsHub }

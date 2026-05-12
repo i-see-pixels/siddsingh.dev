@@ -92,7 +92,7 @@ export function HomeHero() {
 								className={styles.heroImage}
 								src="/images/halftone_hero.png"
 								alt={`${person.name} halftone portrait`}
-								width={250}
+								width={500}
 								height={832}
 							/>
 							<div className={styles.heroPopupNote}>

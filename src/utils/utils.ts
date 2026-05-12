@@ -68,7 +68,46 @@ function getMDXData(dir: string) {
 	})
 }
 
+function resolvePostsDir(customPath: string[]) {
+	const baseDir = process.cwd()
+	const directPath = path.join(baseDir, ...customPath)
+
+	if (fs.existsSync(directPath)) {
+		return directPath
+	}
+
+	const appIndex = customPath.indexOf("app")
+	if (appIndex === -1) {
+		notFound()
+	}
+
+	const nextSegment = customPath[appIndex + 1]
+	if (nextSegment?.startsWith("(") && nextSegment.endsWith(")")) {
+		notFound()
+	}
+
+	const appDir = path.join(baseDir, ...customPath.slice(0, appIndex + 1))
+	if (!fs.existsSync(appDir)) {
+		notFound()
+	}
+
+	const nestedPath = customPath.slice(appIndex + 1)
+	const routeGroupMatch = fs.readdirSync(appDir, { withFileTypes: true }).find((entry) => {
+		if (!entry.isDirectory() || !entry.name.startsWith("(") || !entry.name.endsWith(")")) {
+			return false
+		}
+
+		return fs.existsSync(path.join(appDir, entry.name, ...nestedPath))
+	})
+
+	if (!routeGroupMatch) {
+		notFound()
+	}
+
+	return path.join(appDir, routeGroupMatch.name, ...nestedPath)
+}
+
 export function getPosts(customPath = ["", "", "", ""]) {
-	const postsDir = path.join(process.cwd(), ...customPath)
+	const postsDir = resolvePostsDir(customPath)
 	return getMDXData(postsDir)
 }

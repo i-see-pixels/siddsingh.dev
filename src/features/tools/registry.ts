@@ -24,20 +24,38 @@ const toolEntries: ToolEntry[] = [
 			heading: "Make screenshots look polished in seconds",
 			intro: "Built for product posts, changelog visuals, launch assets, and portfolio updates when a raw screenshot needs a bit more presence.",
 		},
-		faq: [
-			{
-				question: "Does it upload screenshots to a server?",
-				answer: "No. The v1 editor keeps image handling in the browser so screenshots stay local to your device.",
-			},
-			{
-				question: "What can I customize?",
-				answer: "You can switch between transparent, solid, and gradient backgrounds, adjust padding, choose browser chrome styles, set rounded corners, tune shadow depth, and export at 1x or 2x.",
-			},
-			{
-				question: "Who is this tool for?",
-				answer: "It is useful for indie makers, engineers, product teams, and anyone posting screenshots to social media, docs, launch pages, or case studies.",
-			},
+		image: {
+			path: "/images/screenshot_mockup.png",
+			alt: "Screenshot Mockup Generator",
+		},
+	},
+	{
+		slug: "plenz-ai-prompt-refiner",
+		name: "plenz - ai prompt refiner",
+		label: "Plenz",
+		path: "https://plenz.siddsingh.dev/",
+		status: "live",
+		category: "ai",
+		icon: "sparkle",
+		featured: true,
+		summary:
+			"plenz turns simple ideas into detailed, structured AI prompts for ChatGPT, Claude, and Gemini.",
+		description:
+			"A free AI prompt refiner that transforms basic instructions into rich, layered prompts with context, persona, format, and tone. Designed for quick iteration on ChatGPT, Claude, and Gemini.",
+		highlights: [
+			"Refines prompts with context, role, format, constraints, and tone",
+			"One-click export to ChatGPT, Claude, and Gemini",
+			"Useful for social posts, emails, articles, and scripts",
 		],
+		hero: {
+			eyebrow: "AI prompt assistant",
+			heading: "Make your AI prompts sharper in seconds",
+			intro: "A lightweight prompt refiner for ChatGPT, Claude, and Gemini users who want clearer, more detailed instructions without the manual rewriting.",
+		},
+		image: {
+			path: "/images/projects/plenz/plenz_screenshot-01.png",
+			alt: "plenz - ai prompt refiner",
+		},
 	},
 	{
 		slug: "code-to-image",
@@ -61,7 +79,6 @@ const toolEntries: ToolEntry[] = [
 			heading: "Share code without fighting screenshots",
 			intro: "Designed for snippets that should feel intentional, readable, and on-brand instead of pasted into a generic screenshot tool.",
 		},
-		faq: [],
 	},
 	{
 		slug: "open-graph-generator",
@@ -85,7 +102,6 @@ const toolEntries: ToolEntry[] = [
 			heading: "Generate sharper social previews",
 			intro: "Built for people who want quick, consistent OG cards without opening a full design tool every time they publish.",
 		},
-		faq: [],
 	},
 ]
 

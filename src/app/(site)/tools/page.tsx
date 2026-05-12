@@ -2,8 +2,8 @@ import Script from "next/script"
 
 import { ToolsHubView } from "@/features/tools/ToolsHubView"
 import { getLiveToolEntries } from "@/features/tools/registry"
-import { baseURL, blog, person, toolsHub, work } from "@/resources"
-import { Button, Column, Meta, Row, Schema, Text } from "@once-ui-system/core"
+import { baseURL, person, toolsHub } from "@/resources"
+import { Column, Meta, Schema, Text } from "@once-ui-system/core"
 
 export async function generateMetadata() {
 	const generatedMeta = await Meta.generate({
@@ -47,7 +47,7 @@ export default function ToolsPage() {
 	]
 
 	return (
-		<Column maxWidth="l" fillWidth>
+		<Column maxWidth="l" fillWidth align="center">
 			<Script id="tools-structured-data" type="application/ld+json">
 				{JSON.stringify(toolsStructuredData)}
 			</Script>
@@ -57,28 +57,25 @@ export default function ToolsPage() {
 				title={toolsHub.title}
 				description={toolsHub.description}
 				path={toolsHub.path}
-				image={`/api/og/generate?title=${encodeURIComponent(toolsHub.title)}`}
+				image={`/api/og/generate?title=${encodeURIComponent("Free Tools")}`}
 				author={{
 					name: person.name,
 					url: `${baseURL}${toolsHub.path}`,
 					image: `${baseURL}${person.avatar}`,
 				}}
 			/>
-			<Column gap="16" paddingTop="24" paddingX="24" maxWidth="m">
-				<Text variant="display-strong-xs">{toolsHub.title}</Text>
-				<Text onBackground="neutral-weak" variant="body-default-l">
-					This is where I publish free browser-based tools for screenshots, launch
-					visuals, and product assets that help builders move faster without installing a
-					full design stack.
+			<Column gap="16" marginBottom="48" paddingX="24" align="center" fillWidth>
+				<Text as="h1" variant="display-strong-s" align="center">
+					Free tools for builders
 				</Text>
-				<Row gap="12" wrap>
-					<Button href={work.path} variant="secondary" size="m" arrowIcon>
-						See tools behind the projects
-					</Button>
-					<Button href={blog.path} variant="secondary" size="m" arrowIcon>
-						Read how these tools get built
-					</Button>
-				</Row>
+				<Text
+					onBackground="neutral-weak"
+					variant="body-default-xl"
+					align="center"
+					paddingX="160"
+				>
+					{toolsHub.description}
+				</Text>
 			</Column>
 			<ToolsHubView />
 		</Column>
