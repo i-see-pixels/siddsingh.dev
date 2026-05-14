@@ -19,6 +19,8 @@ export function screenshotMockupReducer(
 				...state,
 				...action.patch,
 			}
+		case "replace":
+			return action.state
 		case "reset":
 			return createDefaultScreenshotMockupState()
 		default:

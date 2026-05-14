@@ -13,20 +13,13 @@ import {
 	Sidebar,
 	SidebarContent,
 	SidebarFooter,
-	SidebarGroup,
-	SidebarGroupContent,
-	SidebarGroupLabel,
 	SidebarHeader,
 	SidebarInset,
-	SidebarMenu,
-	SidebarMenuButton,
-	SidebarMenuItem,
 	SidebarProvider,
 	SidebarRail,
 	SidebarSeparator,
 	SidebarTrigger,
 } from "@/components/ui/sidebar"
-import { getLiveToolEntries } from "@/features/tools/registry"
 import type { LiveToolEntry } from "@/features/tools/types"
 import { cn } from "@/lib/utils"
 import {
@@ -48,6 +41,7 @@ const SIDEBAR_WIDTH_PRESETS = [
 type ToolWorkspaceShellProps = {
 	tool: LiveToolEntry
 	toolbar?: ReactNode
+	sidebarNavigation?: ReactNode
 	sidebarContent: ReactNode
 	sidebarFooter?: ReactNode
 	children: ReactNode
@@ -111,12 +105,13 @@ export function ToolWorkspaceSection({
 export function ToolWorkspaceShell({
 	tool,
 	toolbar,
+	sidebarNavigation,
 	sidebarContent,
 	sidebarFooter,
 	children,
 }: ToolWorkspaceShellProps) {
-	const liveTools = getLiveToolEntries()
 	const ToolIcon = getToolIcon(tool.category)
+	const hasSidebarNavigation = Boolean(sidebarNavigation)
 
 	return (
 		<SidebarProvider
@@ -128,62 +123,68 @@ export function ToolWorkspaceShell({
 			}
 			className="min-h-screen bg-background"
 		>
-			<Sidebar className="border-r border-sidebar-border/80" variant="sidebar">
-				<SidebarHeader className="gap-3 border-b border-sidebar-border/80 p-3">
-					<div className="flex items-center justify-between gap-2">
+			{hasSidebarNavigation ? (
+				<Sidebar
+					collapsible="none"
+					className="fixed inset-y-0 left-0 z-20 h-svh border-r border-sidebar-border/80"
+					style={{ "--sidebar-width": "4.75rem" } as CSSProperties}
+					variant="sidebar"
+				>
+					<SidebarHeader className="items-center gap-3 border-b border-sidebar-border/80 p-3">
 						<Link
 							href="/tools"
 							className={buttonVariants({
 								variant: "ghost",
-								size: "sm",
-								className:
-									"justify-start group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0",
+								size: "icon-sm",
 							})}
+							aria-label="Back to tools"
 						>
-							<ArrowLeftIcon data-icon="inline-start" />
-							<span className="group-data-[collapsible=icon]:hidden">
-								Back to tools
-							</span>
+							<ArrowLeftIcon />
 						</Link>
-					</div>
-
-					<div className="flex items-start gap-3 group-data-[collapsible=icon]:justify-center">
 						<div className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-sidebar-border bg-sidebar-accent text-sidebar-accent-foreground">
 							<ToolIcon />
 						</div>
-						<div className="min-w-0 group-data-[collapsible=icon]:hidden">
-							<p className="truncate text-sm font-medium text-sidebar-foreground">
-								{tool.name}
-							</p>
-							<p className="line-clamp-2 text-xs leading-relaxed text-sidebar-foreground/70">
-								{tool.summary}
-							</p>
-						</div>
-					</div>
+					</SidebarHeader>
 
-					<SidebarGroup className="p-0 group-data-[collapsible=icon]:hidden">
-						<SidebarGroupLabel>Live tools</SidebarGroupLabel>
-						<SidebarGroupContent>
-							<SidebarMenu>
-								{liveTools.map((entry) => {
-									const EntryIcon = getToolIcon(entry.category)
+					<SidebarContent>
+						<ScrollArea className="h-full">
+							<div className="flex flex-col items-center gap-2 p-3">
+								{sidebarNavigation}
+							</div>
+						</ScrollArea>
+					</SidebarContent>
+				</Sidebar>
+			) : null}
 
-									return (
-										<SidebarMenuItem key={entry.slug}>
-											<SidebarMenuButton
-												isActive={entry.slug === tool.slug}
-												render={<Link href={entry.path} />}
-												tooltip={entry.name}
-											>
-												<EntryIcon />
-												<span>{entry.label}</span>
-											</SidebarMenuButton>
-										</SidebarMenuItem>
-									)
+			<Sidebar
+				className={cn(
+					"border-r border-sidebar-border/80",
+					hasSidebarNavigation && "md:left-19!",
+				)}
+				style={
+					{ "--sidebar-width": `${SIDEBAR_WIDTH_PRESETS[2].width}px` } as CSSProperties
+				}
+				variant="sidebar"
+			>
+				<SidebarHeader className="gap-3 p-3">
+					{hasSidebarNavigation ? null : (
+						<div className="flex items-center justify-between gap-2">
+							<Link
+								href="/tools"
+								className={buttonVariants({
+									variant: "ghost",
+									size: "sm",
+									className:
+										"justify-start group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0",
 								})}
-							</SidebarMenu>
-						</SidebarGroupContent>
-					</SidebarGroup>
+							>
+								<ArrowLeftIcon data-icon="inline-start" />
+								<span className="group-data-[collapsible=icon]:hidden">
+									Back to tools
+								</span>
+							</Link>
+						</div>
+					)}
 				</SidebarHeader>
 
 				<SidebarContent>
@@ -192,21 +193,20 @@ export function ToolWorkspaceShell({
 					</ScrollArea>
 				</SidebarContent>
 
-				<SidebarSeparator />
-
-				<SidebarFooter className="gap-3 p-3">
+				<SidebarFooter className="gap-3 p-3 bg-background">
 					{sidebarFooter ? (
 						<div className="group-data-[collapsible=icon]:hidden">{sidebarFooter}</div>
 					) : null}
 				</SidebarFooter>
 			</Sidebar>
 
-			<SidebarInset className="min-h-screen rounded-none!">
+			<SidebarInset
+				className={cn("min-h-screen rounded-none!", hasSidebarNavigation && "md:ml-19")}
+			>
 				<div className="flex min-h-screen flex-col">
 					<header className="sticky top-0 z-20 border-b border-border/70 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/80">
 						<div className="flex items-center justify-between gap-3 px-4 py-3 md:px-6">
 							<div className="flex min-w-0 items-center gap-3">
-								<SidebarTrigger />
 								<div className="min-w-0">
 									<div className="flex flex-wrap items-center gap-2">
 										{tool.label}
