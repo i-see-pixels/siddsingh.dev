@@ -56,7 +56,7 @@ import { CropTool } from "./crop-tool"
 import { exportMockupElement } from "./dom-export"
 import { ColorField, SelectField, type SelectOption, SliderField } from "./fields"
 import { GradientEditor } from "./gradient-editor"
-import { MockupRenderer } from "./mockup-renderer"
+import { MockupRenderer, getCanvasSize, getMetrics } from "./mockup-renderer"
 import { DEFAULT_SCREENSHOT_MOCKUP_STATE, screenshotMockupReducer } from "./reducer"
 import type {
 	AspectRatioOption,
@@ -808,9 +808,51 @@ export function ScreenshotMockupTool({ tool }: { tool: LiveToolEntry }) {
 			}
 		}
 
+		let nextX = dragState.startPositionX + deltaX / previewScale
+		let nextY = dragState.startPositionY + deltaY / previewScale
+
+		if (loadedImage.image) {
+			const metrics = getMetrics(
+				dragState.startState,
+				loadedImage.image.naturalWidth,
+				loadedImage.image.naturalHeight,
+			)
+			const canvasSize = getCanvasSize(
+				dragState.startState,
+				loadedImage.image.naturalWidth,
+				loadedImage.image.naturalHeight,
+			)
+
+			const snapThreshold = 10 / previewScale
+			const snapPointsX = [
+				0, // Center
+				-(canvasSize.width / 2) + metrics.frameWidth / 2, // Left edge
+				canvasSize.width / 2 - metrics.frameWidth / 2, // Right edge
+			]
+			const snapPointsY = [
+				0, // Center
+				-(canvasSize.height / 2) + metrics.frameContentHeight / 2, // Top edge
+				canvasSize.height / 2 - metrics.frameContentHeight / 2, // Bottom edge
+			]
+
+			for (const snapPoint of snapPointsX) {
+				if (Math.abs(nextX - snapPoint) < snapThreshold) {
+					nextX = snapPoint
+					break
+				}
+			}
+
+			for (const snapPoint of snapPointsY) {
+				if (Math.abs(nextY - snapPoint) < snapThreshold) {
+					nextY = snapPoint
+					break
+				}
+			}
+		}
+
 		applyStatePatch({
-			positionX: Math.round(dragState.startPositionX + deltaX / effectivePreviewScale),
-			positionY: Math.round(dragState.startPositionY + deltaY / effectivePreviewScale),
+			positionX: Math.round(nextX),
+			positionY: Math.round(nextY),
 		})
 	}
 
@@ -1473,8 +1515,8 @@ export function ScreenshotMockupTool({ tool }: { tool: LiveToolEntry }) {
 									<SliderField
 										id="rotation"
 										label="Rotation"
-										min={-45}
-										max={45}
+										min={-180}
+										max={180}
 										value={state.rotation}
 										onValueChangeAction={(nextValue) =>
 											patchState({ rotation: nextValue })

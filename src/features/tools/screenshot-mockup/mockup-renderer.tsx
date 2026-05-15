@@ -56,7 +56,7 @@ function rgba(hex: string, opacity: number) {
 	return `rgba(${color.r}, ${color.g}, ${color.b}, ${Math.max(0, Math.min(1, opacity))})`
 }
 
-function getMetrics(
+export function getMetrics(
 	state: ScreenshotMockupState,
 	sourceWidth: number,
 	sourceHeight: number,
@@ -99,7 +99,7 @@ function getMetrics(
 	}
 }
 
-function getCanvasSize(state: ScreenshotMockupState, sourceWidth: number, sourceHeight: number) {
+export function getCanvasSize(state: ScreenshotMockupState, sourceWidth: number, sourceHeight: number) {
 	const metrics = getMetrics(state, sourceWidth, sourceHeight, 100)
 	const baseWidth = metrics.frameWidth + state.paddingX * 2
 	const baseHeight = metrics.frameContentHeight + state.paddingY * 2
