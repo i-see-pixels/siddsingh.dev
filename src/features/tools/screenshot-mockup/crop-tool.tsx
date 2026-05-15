@@ -164,6 +164,42 @@ function resizeCrop(
 	return clampCrop({ x, y, width, height }, imageRect)
 }
 
+function resizeCropWithRatio(
+	handle: CropHandle,
+	startCrop: CropRegion,
+	deltaX: number,
+	deltaY: number,
+	imageRect: { width: number; height: number },
+	ratio: number | null,
+) {
+	const unconstrained = resizeCrop(handle, startCrop, deltaX, deltaY, imageRect)
+
+	if (!ratio) {
+		return unconstrained
+	}
+
+	let { x, y, width, height } = unconstrained
+
+	if (handle === "left" || handle === "right") {
+		height = width / ratio
+		y = startCrop.y + (startCrop.height - height) / 2
+	} else if (handle === "top" || handle === "bottom") {
+		width = height * ratio
+		x = startCrop.x + (startCrop.width - width) / 2
+	} else if (handle !== "move") {
+		const expectedHeightForWidth = width / ratio
+		if (expectedHeightForWidth > height) {
+			height = expectedHeightForWidth
+			if (handle.includes("top")) y = startCrop.y + startCrop.height - height
+		} else {
+			width = height * ratio
+			if (handle.includes("left")) x = startCrop.x + startCrop.width - width
+		}
+	}
+
+	return clampCrop({ x, y, width, height }, imageRect)
+}
+
 function fitCropToRatio(
 	crop: CropRegion,
 	ratio: number | null,
@@ -256,7 +292,7 @@ export function CropTool({ imageSrc, initialRatio, onApplyAction, onCancelAction
 			const deltaX = event.clientX - dragState.startX
 			const deltaY = event.clientY - dragState.startY
 
-			setCrop(resizeCrop(dragState.handle, dragState.startCrop, deltaX, deltaY, imageRect))
+			setCrop(resizeCropWithRatio(dragState.handle, dragState.startCrop, deltaX, deltaY, imageRect, getRatio(selectedRatio)))
 		}
 
 		const handlePointerUp = () => setDragState(null)
