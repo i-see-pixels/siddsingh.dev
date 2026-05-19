@@ -1,12 +1,13 @@
 import type { About, Blog, Home, Newsletter, Person, Social, ToolsHub, Work } from "@/types"
-import { Column, Row, Text } from "@once-ui-system/core"
+import { Row, Text } from "@once-ui-system/core"
+import { bucketURL } from "./site"
 
 const person: Person = {
 	firstName: "Siddhant",
 	lastName: "Singh",
 	name: "Siddhant Singh",
 	role: "Software Engineer",
-	avatar: "/images/avatar.png",
+	avatar: `${bucketURL}/avatar.png`,
 	email: "siddhant06137@gmail.com",
 	location: "Gurugram, India",
 	timeZone: "Asia/Calcutta",

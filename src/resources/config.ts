@@ -12,9 +12,7 @@ import type {
 	StyleConfig,
 } from "@/types"
 import { home, person } from "./content"
-
-// IMPORTANT: Replace with your own domain address - it's used for SEO in meta tags and schema
-const baseURL: string = "https://siddsingh.dev"
+import { baseURL, bucketURL } from "./site"
 
 const routes: RoutesConfig = {
 	"/": true,
@@ -235,6 +233,7 @@ export {
 	routes,
 	protectedRoutes,
 	baseURL,
+	bucketURL,
 	fonts,
 	style,
 	schema,

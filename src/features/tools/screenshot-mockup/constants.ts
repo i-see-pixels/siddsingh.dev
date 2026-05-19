@@ -1,3 +1,4 @@
+import { bucketURL } from "@/resources"
 import type {
 	AspectRatioOption,
 	BrowserFrameStyle,
@@ -7,7 +8,7 @@ import type {
 } from "./types"
 
 export const DEMO_IMAGE = {
-	src: "/images/blog/mcp-client.png",
+	src: `${bucketURL}/blog/mcp-client.png`,
 	name: "Demo screenshot",
 }
 

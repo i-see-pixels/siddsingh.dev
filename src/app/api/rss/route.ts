@@ -1,9 +1,10 @@
-import { baseURL, blog, person } from "@/resources"
-import { getPosts } from "@/utils/utils"
+import { blog, person } from "@/resources/content"
+import { baseURL, bucketURL } from "@/resources/site"
+import { getRssPosts } from "@/utils/rss-posts"
 import { NextResponse } from "next/server"
 
 export async function GET() {
-	const posts = getPosts(["src", "app", "blog", "posts"])
+	const posts = getRssPosts()
 
 	// Sort posts by date (newest first)
 	const sortedPosts = posts.sort((a, b) => {
@@ -25,7 +26,7 @@ export async function GET() {
     <managingEditor>${person.email || "noreply@example.com"} (${person.name})</managingEditor>
     <webMaster>${person.email || "noreply@example.com"} (${person.name})</webMaster>
     <image>
-      <url>${baseURL}${person.avatar || "/images/avatar.png"}</url>
+      <url>${bucketURL}/avatar.png</url>
       <title>${blog.title}</title>
       <link>${baseURL}/blog</link>
     </image>

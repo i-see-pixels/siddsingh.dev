@@ -1,4 +1,6 @@
 // import a pre-defined template for config and content options
+export { baseURL, bucketURL } from "./site"
+
 export {
 	person,
 	social,
@@ -15,7 +17,6 @@ export {
 	mailchimp,
 	routes,
 	protectedRoutes,
-	baseURL,
 	fonts,
 	style,
 	schema,

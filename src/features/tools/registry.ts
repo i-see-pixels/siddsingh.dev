@@ -1,3 +1,4 @@
+import { bucketURL } from "@/resources"
 import type { LiveToolEntry, ToolEntry } from "./types"
 
 const toolEntries: ToolEntry[] = [
@@ -25,7 +26,7 @@ const toolEntries: ToolEntry[] = [
 			intro: "Built for product posts, changelog visuals, launch assets, and portfolio updates when a raw screenshot needs a bit more presence.",
 		},
 		image: {
-			path: "/images/screenshot_mockup.png",
+			path: `${bucketURL}/tools/screenshot_mockup.png`,
 			alt: "Screenshot Mockup Generator",
 		},
 	},
@@ -53,7 +54,7 @@ const toolEntries: ToolEntry[] = [
 			intro: "A lightweight prompt refiner for ChatGPT, Claude, and Gemini users who want clearer, more detailed instructions without the manual rewriting.",
 		},
 		image: {
-			path: "/images/projects/plenz/plenz_screenshot-01.png",
+			path: `${bucketURL}/projects/plenz/plenz_screenshot-01.png`,
 			alt: "plenz - ai prompt refiner",
 		},
 	},

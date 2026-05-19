@@ -1,0 +1,232 @@
+---
+title: "How to create an AI workflow in Codex"
+subtitle: "Turning one-off prompts into a system that gets easier to reuse"
+summary: "A practical guide to creating an AI workflow in Codex with AGENTS.md, skills, MCP, automations, review loops, and internal project context."
+publishedAt: "2026-05-18"
+tags: ["Codex", "AI workflow", "Developer tools"]
+---
+
+**An AI workflow in Codex is a repeatable system for handing work to an agent, giving it durable context, letting it use the right tools, and reviewing the result before it reaches production.** The useful part is not that Codex can write code from a prompt. The useful part is that you can teach Codex how your work should happen, then reuse that pattern every time the same kind of task appears.
+
+A strong Codex workflow is not "ask better prompts." It is a small operating system for your work: instructions, skills, plugins, memory, and automations that compound over time.
+
+## Why does Codex need a workflow?
+
+One-off prompting works for small tasks, but it breaks down when the work has standards. A real project has lint rules, test commands, naming conventions, design preferences, release habits, security constraints, and product taste. If you explain all of that manually every time, the workflow stays fragile.
+
+The better move is to turn recurring context into durable context.
+
+That means:
+
+- project instructions live where Codex can always find them
+- repeated processes become skills
+- external systems connect through MCP or plugins
+- longer work happens in reviewable loops
+- automations handle recurring checks without taking over judgment
+
+This is close to what I wrote about while building a [Python MCP client for multiple servers](/blog/building-a-python-mcp-client-for-multiple-servers): useful AI systems become compositional. The model matters, but the surrounding workflow matters just as much.
+
+## Start with AGENTS.md as the source of truth
+
+The first file I would create is `AGENTS.md`. OpenAI's [AGENTS.md guide](https://developers.openai.com/codex/guides/agents-md) describes it as the place Codex reads before doing work, with global guidance and project-specific instructions layered together.
+
+For a repo, I would keep the first version boring and concrete:
+
+```markdown
+# Repository instructions
+
+## Project shape
+- This is a Next.js app using MDX for blog posts.
+- Blog posts live in `src/app/(site)/blog/posts`.
+- Public images live in `https://utxifjblgzbxujxp.public.blob.vercel-storage.com/siddsingh_dev`.
+
+## Workflow
+- Read nearby files before editing.
+- Keep changes scoped to the requested feature or fix.
+- Use existing components and style patterns before introducing new ones.
+- Run `pnpm build` before considering the task complete.
+
+## Content standards
+- Prefer clear, practical writing.
+- Add internal links when a post relates to existing work.
+- Avoid keyword stuffing, fake claims, and generic AI hype.
+```
+
+This file should not be a novel. The point is to give Codex the few rules that prevent repeated mistakes. If you keep correcting the same behavior, that correction probably belongs in `AGENTS.md`.
+
+For my own projects, I would include links to product context too. A workflow for a prompt tool like [plenz](/blog/how-i-built-plenz-a-prompt-copilot-that-works-across-ai-tools) needs different judgment than a workflow for an installer like [admin-boil CLI](/blog/building-admin-boil-cli-and-designing-the-first-five-minutes).
+
+## Turn repeatable work into skills
+
+Once the same kind of work shows up three or four times, I would stop re-prompting it and make it a skill.
+
+OpenAI's [Codex skills documentation](https://developers.openai.com/codex/skills) defines a skill as a directory with a `SKILL.md` file plus optional scripts, references, assets, and agent instructions. That structure is important because it lets Codex load the workflow only when it is relevant.
+
+For example, a blog-publishing skill might say:
+
+```markdown
+---
+name: blog-post-writer
+description: Use when creating or updating a blog post for the personal site.
+---
+
+# Blog Post Writer
+
+## Workflow
+1. Read existing posts to match structure and voice.
+2. Identify internal links to related posts, project pages, and tools.
+3. Draft with one clear search intent.
+4. Include useful external sources only when they support the reader.
+5. Verify the MDX builds.
+
+## SEO rules
+- Use one descriptive H1 from frontmatter title.
+- Use question-based H2s when natural.
+- Add a Related reading section.
+- Do not force exact-match keywords into every paragraph.
+```
+
+That is much better than pasting a giant prompt every time. It also makes the workflow portable. A good skill becomes a little operating procedure that Codex can apply consistently.
+
+This is the same product lesson I learned while writing about [side projects worth finishing](/blog/how-i-decide-which-side-projects-are-worth-finishing): the most valuable systems reduce decision fatigue. A skill is useful because it removes the need to remember the same process from scratch.
+
+## Add MCP and plugins when Codex needs outside context
+
+The next layer is tool access.
+
+MCP is useful when Codex needs to reach systems outside the repo. OpenAI's [Codex MCP documentation](https://developers.openai.com/codex/mcp) explains that MCP server configuration lives in `config.toml`, and that Codex can connect to local stdio servers or streamable HTTP servers. In plain English: MCP gives Codex a controlled way to use external capabilities.
+
+That matters for workflows like:
+
+- pulling design details from Figma before implementing UI
+- checking docs before upgrading a dependency
+- reading issue context from Linear or GitHub
+- using browser tooling to verify a frontend change
+- inspecting logs or monitoring data during debugging
+
+The mistake is connecting everything at once. I would add tools only when the workflow repeatedly needs them. If a task can be solved by reading the repo and running tests, keep it simple. If Codex keeps needing the same external context, give it a proper tool instead of making it guess.
+
+For example, in an AI workflow for content and product engineering, I would connect:
+
+- official docs access for fast technical verification
+- browser inspection for UI and rendering checks
+- GitHub or Linear when tasks come from issues and pull requests
+- a custom MCP server only when the product has internal data Codex needs often
+
+That is the difference between "AI with tools" and a workflow. The tool list should reflect the job, not a shopping cart of integrations.
+
+## Build the review loop before the automation
+
+The most useful Codex workflows have a visible loop:
+
+1. Give Codex a scoped goal.
+2. Let it inspect the repo.
+3. Ask it to make the smallest complete change.
+4. Let it run verification.
+5. Review the diff and decide what ships.
+
+That loop should be explicit before you automate anything. Otherwise you are just scheduling uncertainty.
+
+For software work, the loop might end with:
+
+```
+Run the smallest relevant validation first.
+If the change affects shared behavior, run the broader build.
+Summarize what changed, what was verified, and what risk remains.
+```
+
+For writing work, the loop might end with:
+
+```
+Check that every internal link resolves.
+Check that headings answer a real search intent.
+Remove sections that repeat the same point.
+Keep external links limited to sources that help the reader.
+```
+
+This is why Codex fits nicely into the kind of builder workflow I wrote about in [What I build after work](/blog/what-i-build-after-work). The agent can take on the repetitive parts, but the human still owns taste, prioritization, and the final call.
+
+## Use automations for recurring checks
+
+After the manual loop works, automations become useful.
+
+The [Codex automations documentation](https://developers.openai.com/codex/app/automations) describes scheduled tasks that can run in the background, use skills, and report findings for review. That is a good fit for workflows where the task repeats and the output should still be inspected.
+
+Good automation candidates:
+
+- weekly content decay checks for old posts
+- daily PR review summaries
+- dependency update scans
+- recurring broken-link checks
+- post-release smoke-test reports
+- "what changed in this directory today?" briefings
+
+I would not start with automations that directly modify important files without review. A better first automation is one that reports:
+
+```
+Every Monday, review the blog posts from the last 90 days.
+Find outdated references, broken links, missing internal links, and obvious opportunities to add a related reading link.
+Return a prioritized list with file paths and suggested edits.
+Do not modify files unless I ask.
+```
+
+That kind of workflow compounds without getting reckless. It creates a steady queue of useful improvements while keeping judgment in the loop.
+
+## Make the workspace improve over time
+
+The strongest idea behind an agentic workspace is that it should improve as you use it. I think that means treating every repeated correction as a design signal.
+
+When Codex gets something wrong, ask where the correction belongs:
+
+- Is it project context? Put it in `AGENTS.md`.
+- Is it a repeatable process? Make or update a skill.
+- Is it missing external context? Add an MCP server or plugin.
+- Is it a recurring task? Turn it into an automation.
+- Is it a quality issue? Add a test, lint rule, checklist, or review step.
+
+That is the real AI workflow in Codex. You are not just prompting an agent. You are shaping the environment around the agent so the next run starts smarter.
+
+## A practical Codex workflow template
+
+Here is the template I would use for a new project:
+
+1. Create a short `AGENTS.md` with project structure, commands, and quality expectations.
+2. Add one skill for the highest-frequency workflow.
+3. Connect one external tool through MCP or a plugin only if the task repeatedly needs it.
+4. Define a review loop with verification commands and diff expectations.
+5. Run the workflow manually until the output is predictable.
+6. Add an automation only after the manual workflow is stable.
+7. Update the instructions whenever you catch yourself repeating the same feedback.
+
+That last step is the compounding step. The workflow gets better because the workspace absorbs what you learn.
+
+## What should you avoid?
+
+The biggest mistake is trying to make Codex autonomous before the workflow is understandable. If the instructions are vague, the tools are noisy, and the verification loop is missing, automation just makes the mess faster.
+
+I would avoid:
+
+- giant `AGENTS.md` files that Codex has to interpret like a policy manual
+- skills that describe outcomes but not the actual workflow
+- connecting tools without a clear use case
+- automating edits before you trust the review loop
+- treating SEO as a pile of keywords instead of useful structure and links
+
+For content specifically, internal links should feel like reader paths. A post about Codex workflows naturally points to [MCP orchestration](/blog/building-a-python-mcp-client-for-multiple-servers), [prompt tooling](/blog/how-i-built-plenz-a-prompt-copilot-that-works-across-ai-tools), [developer experience](/blog/building-admin-boil-cli-and-designing-the-first-five-minutes), [side-project prioritization](/blog/how-i-decide-which-side-projects-are-worth-finishing), and the broader builder context in [what I build after work](/blog/what-i-build-after-work). Those links help SEO because they also help the reader.
+
+## Final thought
+
+Creating an AI workflow in Codex is mostly about making your standards reusable. `AGENTS.md` gives the agent context. Skills give it repeatable procedures. MCP and plugins give it reach. Automations give it cadence. Review loops keep the work grounded.
+
+The goal is not to remove yourself from the process. The goal is to stop spending your attention on setup, repetition, and re-explaining the same rules. That leaves more room for the parts of building that still need taste: what to make, what to cut, and what is worth finishing.
+
+## Related reading
+
+- [Building a Python MCP client for multiple servers](/blog/building-a-python-mcp-client-for-multiple-servers)
+- [How I built plenz, a prompt copilot that works across AI tools](/blog/how-i-built-plenz-a-prompt-copilot-that-works-across-ai-tools)
+- [Building admin-boil CLI and designing the first five minutes](/blog/building-admin-boil-cli-and-designing-the-first-five-minutes)
+- [How I decide which side projects are worth finishing](/blog/how-i-decide-which-side-projects-are-worth-finishing)
+- [What I build after work](/blog/what-i-build-after-work)
+- [See the MCP client project page](/work/mcp-client-multiserver)
+- [See the plenz project page](/work/plenz)
+- [Explore OpenAI's Codex use cases](https://developers.openai.com/codex/use-cases)
