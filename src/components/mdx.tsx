@@ -1,6 +1,7 @@
 import { MDXRemote, type MDXRemoteProps } from "next-mdx-remote/rsc"
 import type React from "react"
 import { type ReactNode, isValidElement } from "react"
+import remarkGfm from "remark-gfm"
 import { slugify as transliterate } from "transliteration"
 
 import {
@@ -122,19 +123,56 @@ function createInlineCode({ children }: { children: ReactNode }) {
 	return <InlineCode>{children}</InlineCode>
 }
 
+function getCodeText(children: ReactNode): string {
+	if (typeof children === "string") {
+		return children
+	}
+
+	if (Array.isArray(children)) {
+		return children.map(getCodeText).join("")
+	}
+
+	return String(children ?? "")
+}
+
+function createPlainCodeBlock(code: string) {
+	return (
+		<pre
+			style={{
+				overflowX: "auto",
+				lineHeight: "1.6",
+				marginTop: "8px",
+				marginBottom: "16px",
+				padding: "16px",
+				borderRadius: "12px",
+				border: "1px solid var(--neutral-alpha-weak)",
+				background: "var(--neutral-alpha-weak)",
+			}}
+		>
+			<code>{code}</code>
+		</pre>
+	)
+}
+
 function createCodeBlock(props: React.ComponentProps<"pre">) {
 	const child = props.children
 
 	// For pre tags that contain code blocks
 	if (
 		isValidElement<{ className?: unknown; children?: ReactNode }>(child) &&
-		typeof child.props?.className === "string"
+		("children" in child.props || typeof child.props?.className === "string")
 	) {
 		const { className, children } = child.props
-		const code = typeof children === "string" ? children : String(children ?? "")
+		const code = getCodeText(children)
 
 		// Extract language from className (format: language-xxx)
-		const language = className.replace("language-", "")
+		const language =
+			typeof className === "string" ? className.replace(/^language-/, "").trim() : ""
+
+		if (!language || ["plain", "plaintext", "text", "txt"].includes(language)) {
+			return createPlainCodeBlock(code)
+		}
+
 		const label = language.charAt(0).toUpperCase() + language.slice(1)
 
 		return (
@@ -177,6 +215,63 @@ function createHR() {
 	)
 }
 
+function createTable(props: React.TableHTMLAttributes<HTMLTableElement>) {
+	return (
+		<div
+			style={{
+				marginTop: "16px",
+				marginBottom: "24px",
+				overflowX: "auto",
+				width: "100%",
+			}}
+		>
+			<table
+				{...props}
+				style={{
+					borderCollapse: "collapse",
+					minWidth: "100%",
+					...props.style,
+				}}
+			/>
+		</div>
+	)
+}
+
+function getTableTextAlign(align: string | undefined): React.CSSProperties["textAlign"] {
+	return align === "center" || align === "right" || align === "justify" ? align : "left"
+}
+
+function createTableHeaderCell(props: React.ThHTMLAttributes<HTMLTableCellElement>) {
+	return (
+		<th
+			{...props}
+			style={{
+				borderBottom: "1px solid var(--neutral-alpha-medium)",
+				fontWeight: 600,
+				padding: "10px 12px",
+				textAlign: getTableTextAlign(props.align),
+				verticalAlign: "top",
+				...props.style,
+			}}
+		/>
+	)
+}
+
+function createTableCell(props: React.TdHTMLAttributes<HTMLTableCellElement>) {
+	return (
+		<td
+			{...props}
+			style={{
+				borderBottom: "1px solid var(--neutral-alpha-weak)",
+				padding: "10px 12px",
+				textAlign: getTableTextAlign(props.align),
+				verticalAlign: "top",
+				...props.style,
+			}}
+		/>
+	)
+}
+
 const components = {
 	p: createParagraph,
 	h1: createHeading("h1"),
@@ -189,6 +284,9 @@ const components = {
 	a: CustomLink,
 	code: createInlineCode,
 	pre: createCodeBlock,
+	table: createTable,
+	th: createTableHeaderCell,
+	td: createTableCell,
 	ol: createList("ol"),
 	ul: createList("ul"),
 	li: createListItem,
@@ -215,12 +313,22 @@ type CustomMDXProps = MDXRemoteProps & {
 	components?: typeof components
 }
 
-export function CustomMDX(props: CustomMDXProps) {
+export function CustomMDX({ components: customComponents, options, ...props }: CustomMDXProps) {
+	const mdxOptions = options?.mdxOptions
+	const remarkPlugins = mdxOptions?.remarkPlugins ?? []
+
 	return (
 		<MDXRemote
-			options={{ blockJS: false }}
 			{...props}
-			components={{ ...components, ...(props.components || {}) }}
+			options={{
+				...options,
+				blockJS: options?.blockJS ?? false,
+				mdxOptions: {
+					...mdxOptions,
+					remarkPlugins: [remarkGfm, ...remarkPlugins],
+				},
+			}}
+			components={{ ...components, ...(customComponents || {}) }}
 		/>
 	)
 }

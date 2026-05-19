@@ -68,43 +68,19 @@ function getMDXData(dir: string) {
 	})
 }
 
+const postsDirectories: Record<string, string> = {
+	"src/app/blog/posts": path.join(process.cwd(), "src", "app", "(site)", "blog", "posts"),
+	"src/app/work/projects": path.join(process.cwd(), "src", "app", "(site)", "work", "projects"),
+}
+
 function resolvePostsDir(customPath: string[]) {
-	const baseDir = process.cwd()
-	const directPath = path.join(baseDir, ...customPath)
+	const postsDir = postsDirectories[customPath.join("/")]
 
-	if (fs.existsSync(directPath)) {
-		return directPath
-	}
-
-	const appIndex = customPath.indexOf("app")
-	if (appIndex === -1) {
+	if (!postsDir) {
 		notFound()
 	}
 
-	const nextSegment = customPath[appIndex + 1]
-	if (nextSegment?.startsWith("(") && nextSegment.endsWith(")")) {
-		notFound()
-	}
-
-	const appDir = path.join(baseDir, ...customPath.slice(0, appIndex + 1))
-	if (!fs.existsSync(appDir)) {
-		notFound()
-	}
-
-	const nestedPath = customPath.slice(appIndex + 1)
-	const routeGroupMatch = fs.readdirSync(appDir, { withFileTypes: true }).find((entry) => {
-		if (!entry.isDirectory() || !entry.name.startsWith("(") || !entry.name.endsWith(")")) {
-			return false
-		}
-
-		return fs.existsSync(path.join(appDir, entry.name, ...nestedPath))
-	})
-
-	if (!routeGroupMatch) {
-		notFound()
-	}
-
-	return path.join(appDir, routeGroupMatch.name, ...nestedPath)
+	return postsDir
 }
 
 export function getPosts(customPath = ["", "", "", ""]) {

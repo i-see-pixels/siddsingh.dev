@@ -1,6 +1,6 @@
 import Image from "next/image"
 
-import { about, home, person } from "@/resources"
+import { about, bucketURL, home, person } from "@/resources"
 import { Avatar, Badge, Button, Column, Heading, RevealFx, Row, Text } from "@once-ui-system/core"
 
 import styles from "./HomeHero.module.scss"
@@ -90,7 +90,7 @@ export function HomeHero() {
 							<Image
 								priority
 								className={styles.heroImage}
-								src="/images/halftone_hero.png"
+								src={`${bucketURL}/halftone_hero.png`}
 								alt={`${person.name} halftone portrait`}
 								width={500}
 								height={832}

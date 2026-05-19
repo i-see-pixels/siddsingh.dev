@@ -1,5 +1,8 @@
+import type { bucketURL } from "@/resources"
 import type { IconName } from "@/resources/icons"
 import type { zones } from "tzdata"
+
+
 
 /**
  * IANA time zone string (e.g., 'Asia/Calcutta', 'Europe/Vienna').
@@ -93,9 +96,9 @@ export interface BasePageConfig {
 export interface Home extends BasePageConfig {
 	/** The image to be displayed in metadata
 	 *
-	 * The image needs to be put inside `/public/images/` directory
+	 * The image needs to be put inside `${bucketURL}/` directory
 	 */
-	image: `/images/${string}` | string
+	image: `${typeof bucketURL}/${string}` | string
 	/** The headline of the home page */
 	headline: React.ReactNode
 	/** Featured badge, which appears above the headline */
