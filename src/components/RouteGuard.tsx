@@ -2,7 +2,7 @@
 
 import NotFound from "@/app/not-found"
 import { protectedRoutes, routes } from "@/resources"
-import { Button, Column, Flex, Heading, PasswordInput, Spinner } from "@once-ui-system/core"
+import { Button, Column, Heading, PasswordInput, Row, Skeleton } from "@once-ui-system/core"
 import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
 
@@ -78,9 +78,26 @@ const RouteGuard: React.FC<RouteGuardProps> = ({ children }) => {
 
 	if (loading) {
 		return (
-			<Flex fillWidth paddingY="128" horizontal="center">
-				<Spinner />
-			</Flex>
+			<Column fillWidth paddingY="128" paddingX="24" horizontal="center" gap="24">
+				<Column maxWidth="s" fillWidth gap="16" horizontal="center" align="center">
+					<Skeleton shape="line" width="s" height="s" />
+					<Skeleton shape="line" width="xl" height="xl" delay="1" />
+					<Skeleton shape="line" width="l" height="m" delay="2" />
+					<Row gap="12" vertical="center">
+						<Skeleton shape="circle" width="s" height="s" delay="3" />
+						<Skeleton shape="line" width="s" height="xs" delay="3" />
+					</Row>
+					<Skeleton
+						shape="block"
+						delay="4"
+						style={{
+							aspectRatio: "16 / 9",
+							display: "block",
+							width: "100%",
+						}}
+					/>
+				</Column>
+			</Column>
 		)
 	}
 
