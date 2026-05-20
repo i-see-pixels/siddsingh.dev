@@ -150,6 +150,10 @@ function sanitizeFilename(value: string) {
 		.replace(/^-+|-+$/g, "")
 }
 
+function shouldUseAnonymousCrossOrigin(src: string) {
+	return /^https?:\/\//i.test(src)
+}
+
 function getSingleSelection<T extends string>(value: T[] | string[] | null | undefined) {
 	if (!value?.length) {
 		return null
@@ -429,6 +433,11 @@ export function ScreenshotMockupTool({ tool }: { tool: LiveToolEntry }) {
 
 		let isActive = true
 		const image = new Image()
+		image.decoding = "async"
+
+		if (shouldUseAnonymousCrossOrigin(state.imageSrc)) {
+			image.crossOrigin = "anonymous"
+		}
 
 		setLoadedImage({
 			image: null,
@@ -480,6 +489,11 @@ export function ScreenshotMockupTool({ tool }: { tool: LiveToolEntry }) {
 
 		let isActive = true
 		const image = new Image()
+		image.decoding = "async"
+
+		if (shouldUseAnonymousCrossOrigin(state.backgroundImageSrc)) {
+			image.crossOrigin = "anonymous"
+		}
 
 		setLoadedBackground({
 			image: null,
@@ -665,9 +679,7 @@ export function ScreenshotMockupTool({ tool }: { tool: LiveToolEntry }) {
 	}
 
 	const handleExport = async (format: ExportFormat, scale: number) => {
-		const element = mockupExportRef.current
-
-		if (!loadedImage.image || !element || isExporting) {
+		if (!loadedImage.image || isExporting) {
 			return
 		}
 
@@ -675,7 +687,9 @@ export function ScreenshotMockupTool({ tool }: { tool: LiveToolEntry }) {
 
 		try {
 			const blob = await exportMockupElement({
-				element,
+				image: loadedImage.image,
+				backgroundImage: loadedBackground.image,
+				state,
 				format,
 				scale,
 				quality: 0.92,
@@ -699,9 +713,7 @@ export function ScreenshotMockupTool({ tool }: { tool: LiveToolEntry }) {
 	}
 
 	const handleCopy = async () => {
-		const element = mockupExportRef.current
-
-		if (!loadedImage.image || !element || isExporting) {
+		if (!loadedImage.image || isExporting) {
 			return
 		}
 
@@ -714,7 +726,9 @@ export function ScreenshotMockupTool({ tool }: { tool: LiveToolEntry }) {
 
 		try {
 			const blob = await exportMockupElement({
-				element,
+				image: loadedImage.image,
+				backgroundImage: loadedBackground.image,
+				state,
 				format: "png",
 				scale: 2,
 			})
