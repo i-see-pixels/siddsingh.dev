@@ -41,6 +41,15 @@ pnpm dev
 - Content and profile data: `src/resources/content.tsx`
 - Environment variables: `.env.example`
 
+## Screenshot Export API
+
+`POST /api/screenshot-mockup/export` exports the screenshot mockup generator from an uploaded image or image URL.
+
+- Auth: `Authorization: Bearer $SCREENSHOT_EXPORT_TOKEN`; falls back to `PAGE_ACCESS_PASSWORD` when unset.
+- Body: JSON with `image`, optional `backgroundImage`, optional `customization`, `format` (`png` or `svg`), and `scale`.
+- Multipart form data is also supported with `image`, optional `backgroundImage`, and `customization` as a JSON string.
+- Use `curl --fail` when writing to `--output` so `401`/error responses do not create image files.
+
 ## Content
 
 - Blog posts: `src/app/blog/posts`
