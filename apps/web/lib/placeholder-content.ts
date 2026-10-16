@@ -22,7 +22,7 @@ export const caseStudies = [
 		type: "Web app",
 		year: "2026",
 		title: "Case study title that says what changed",
-		outcome: "−00% load time",
+		outcome: "-00% load time",
 		stack: ["Next.js", "TypeScript", "Postgres"],
 	},
 	{
@@ -31,7 +31,7 @@ export const caseStudies = [
 		type: "Landing page",
 		year: "2025",
 		title: "Another case study with a measurable result",
-		outcome: "0× signups",
+		outcome: "0x signups",
 		stack: ["React", "Tailwind CSS"],
 	},
 ]
@@ -45,13 +45,13 @@ export const services = [
 			"Auth, payments, dashboards",
 			"Deployment and handover",
 		],
-		terms: "from $0 · 4–8 weeks",
+		terms: "from $0 · 4-8 weeks",
 	},
 	{
 		name: "Landing pages",
 		description: "Fast, polished marketing sites that convert.",
 		includes: ["Design to code", "SEO and analytics", "CMS if needed"],
-		terms: "from $0 · 1–2 weeks",
+		terms: "from $0 · 1-2 weeks",
 	},
 ]
 

@@ -183,7 +183,7 @@ Panel without a visible title: `grid sm:grid-cols-2 gap-x-4 gap-y-2.5` of **Icon
 | `PanelFooter` | `screen-line-top flex justify-center py-4`, a `secondary sm` button ("All work →") |
 
 ### Case study card (Selected work)
-Row-style card: cover image (greyscale → colour) on the left on `sm+`, then client · type · year (mono meta), title, **one outcome metric** in large mono ("−42% load time", "3× signups"), stack tags. Hover `bg-accent-muted`. Links to `/work/[slug]`.
+Row-style card: cover image (greyscale → colour) on the left on `sm+`, then client · type · year (mono meta), title, **one outcome metric** in large mono ("-42% load time", "3× signups"), stack tags. Hover `bg-accent-muted`. Links to `/work/[slug]`.
 
 ### Service card (new)
 Grid of 2–3: IconTile, service name, two-line description, "what you get" list (3 bullets), and **starting price or typical timeline** in mono ("from $X · 2–4 weeks"), if `/work` shows pricing (structure doc decision). Ends with the Hire CTA.
