@@ -10,11 +10,11 @@ export default function WorkPage() {
 				description="Services, selected client projects and how to hire me."
 			/>
 			<Separator />
-			<Services />
+			<Services sheet="01" />
 			<Separator />
-			<SelectedWork />
+			<SelectedWork sheet="02" />
 			<Separator />
-			<Contact />
+			<Contact sheet="03" />
 		</>
 	)
 }

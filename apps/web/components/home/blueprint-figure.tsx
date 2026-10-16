@@ -2,7 +2,7 @@ import { readdirSync } from "node:fs"
 import path from "node:path"
 import { cn } from "@workspace/ui/lib/utils"
 import Link from "next/link"
-import { caseStudies, posts, products, tools } from "@/lib/placeholder-content"
+import { caseStudies, posts, products, tools } from "@/lib/content"
 import { getStack } from "@/lib/stack"
 
 /*
@@ -72,6 +72,11 @@ const T = {
 	slot: 2.2,
 	products: 2.3,
 	callouts: 2.9,
+}
+
+/** "1 post", "7 posts". */
+function count(n: number, one: string, many: string) {
+	return `${n} ${n === 1 ? one : many}`
 }
 
 // Counted from packages/ui at build time, like the footer's stack.
@@ -245,7 +250,7 @@ export function BlueprintFigure() {
 	const callouts: CalloutProps[] = [
 		{
 			title: "Work",
-			detail: `${caseStudies.length} case studies`,
+			detail: count(caseStudies.length, "case study", "case studies"),
 			href: "/work",
 			anchor: iso(work.x + BLOCK.w, work.y, CONTENT_TOP + BLOCK.h),
 			dir: 1,
@@ -254,7 +259,7 @@ export function BlueprintFigure() {
 		},
 		{
 			title: "Tools",
-			detail: `${tools.length} free tools`,
+			detail: count(tools.length, "free tool", "free tools"),
 			href: "/tools",
 			anchor: iso(toolsBlock.x + BLOCK.w, toolsBlock.y, CONTENT_TOP + BLOCK.h),
 			dir: 1,
@@ -263,7 +268,7 @@ export function BlueprintFigure() {
 		},
 		{
 			title: "Blog",
-			detail: `${posts.length} posts`,
+			detail: count(posts.length, "post", "posts"),
 			href: "/blog",
 			anchor: iso(blog.x, blog.y + BLOCK.d, CONTENT_TOP + BLOCK.h),
 			dir: -1,
@@ -288,7 +293,7 @@ export function BlueprintFigure() {
 		},
 		{
 			title: "Products",
-			detail: `${products.length} apps${betaCount ? `, ${betaCount} beta` : ""}`,
+			detail: `${count(products.length, "app", "apps")}${betaCount ? `, ${betaCount} beta` : ""}`,
 			href: "/products",
 			anchor: iso(lastProduct.x + PRODUCT.w, lastProduct.y + PRODUCT.d, LAYER.web),
 			dir: -1,

@@ -1,12 +1,13 @@
 import { Button } from "@workspace/ui/components/button"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@workspace/ui/components/tooltip"
 import { MailIcon } from "lucide-react"
+import Image from "next/image"
 import Link from "next/link"
 import { AvailabilityPill, Joined } from "@/components/badges"
 import { BlueprintFigure } from "@/components/home/blueprint-figure"
 import { Panel } from "@/components/panel"
 import { GitHubIcon, LinkedInIcon, XIcon } from "@/components/social-icons"
-import { pitch } from "@/lib/placeholder-content"
+import { avatarUrl, halftoneUrl, pitch } from "@/lib/content"
 import { siteConfig } from "@/lib/site-config"
 
 export function Hero() {
@@ -49,7 +50,7 @@ export function Hero() {
 					</div>
 					<p
 						aria-hidden
-						className="absolute top-24 right-full mr-6 hidden w-24 -rotate-6 text-right font-handwritten text-base text-brand lg:block"
+						className="absolute bottom-7 right-full mr-6 hidden w-24 -rotate-6 text-right font-handwritten text-base text-brand lg:block"
 					>
 						start here →
 					</p>
@@ -72,9 +73,24 @@ function ProfileRow() {
 			</figure>
 			<div className="flex sm:row-span-2 sm:row-start-1">
 				<div className="mt-auto border-r border-line p-4">
-					{/* PLACEHOLDER avatar: replace with the real photo (greyscale → colour on hover). */}
-					<div className="flex size-28 items-center justify-center rounded-full border border-dashed border-muted-foreground/40 bg-muted font-mono text-xs text-muted-foreground sm:size-36 max-sm:size-24">
-						photo
+					{/* Halftone portrait by default; the photo fades in on hover. */}
+					<div className="group/avatar relative size-24 overflow-hidden rounded-full bg-radial from-gray-300 from-40% to-white sm:size-36 dark:bg-foreground">
+						<Image
+							src={halftoneUrl}
+							alt=""
+							width={399}
+							height={1076}
+							// Crop the full-length cut-out to the head and shoulders.
+							className="absolute top-[25%] left-[14.4%] h-auto w-[65%] max-w-none transition-opacity duration-300 ease-out group-hover/avatar:opacity-0"
+						/>
+						<Image
+							src={avatarUrl}
+							alt={siteConfig.name}
+							width={288}
+							height={288}
+							className="absolute inset-0 size-full object-cover opacity-0 transition-opacity duration-300 ease-out group-hover/avatar:opacity-100"
+						/>
+						<div className="pointer-events-none absolute inset-0 rounded-[inherit] inset-ring-1 inset-ring-foreground/30 dark:inset-ring-foreground/10" />
 					</div>
 				</div>
 			</div>
@@ -115,7 +131,7 @@ const socials = [
 /** Icon buttons beside the name, with a handwritten nudge. */
 function SocialLinks() {
 	return (
-		<div className="flex items-center gap-3">
+		<div className="flex flex-wrap items-center gap-x-3 gap-y-1">
 			<ul className="flex gap-1.5">
 				{socials.map((social) => (
 					<li key={social.label}>
@@ -147,7 +163,8 @@ function SocialLinks() {
 				aria-hidden
 				className="-rotate-6 font-handwritten text-base whitespace-nowrap text-brand"
 			>
-				← follow me
+				<span className="sm:hidden">↑</span>
+				<span className="max-sm:hidden">←</span> follow me
 			</p>
 		</div>
 	)

@@ -14,7 +14,7 @@ import {
 	WrenchIcon,
 } from "lucide-react"
 import Link from "next/link"
-import { AvailabilityPill, IconTile, PulseDot, StatusTag, Tag } from "@/components/badges"
+import { AvailabilityPill, IconTile, Joined, PulseDot, StatusTag, Tag } from "@/components/badges"
 import { LocalTime } from "@/components/home/local-time"
 import {
 	Panel,
@@ -24,15 +24,7 @@ import {
 	PanelHeader,
 	PanelTitle,
 } from "@/components/panel"
-import {
-	caseStudies,
-	experience,
-	posts,
-	products,
-	proof,
-	services,
-	tools,
-} from "@/lib/placeholder-content"
+import { caseStudies, experience, posts, products, proof, services, tools } from "@/lib/content"
 import { availability, siteConfig } from "@/lib/site-config"
 
 export function ProofStrip() {
@@ -98,7 +90,15 @@ export function Overview() {
 
 /** Two-column grid whose 1px gaps draw the cell borders. */
 function CardGrid({ className, ...props }: React.ComponentProps<"ul">) {
-	return <ul className={cn("grid gap-px bg-line sm:grid-cols-2", className)} {...props} />
+	return (
+		<ul
+			className={cn(
+				"grid gap-px bg-line sm:grid-cols-2 sm:[&>li:last-child:nth-child(odd)]:col-span-2",
+				className,
+			)}
+			{...props}
+		/>
+	)
 }
 
 function CardCell({ href, children }: { href: string; children: React.ReactNode }) {
@@ -131,24 +131,43 @@ function ViewAll({ href, children }: { href: string; children: React.ReactNode }
 	)
 }
 
-export function SelectedWork() {
+const workRowClass = "grid gap-3 p-4 sm:grid-cols-[1fr_auto] sm:items-end"
+
+/** A case-study row; links out to the live project when there is one. */
+function WorkRow({ href, children }: { href?: string; children: React.ReactNode }) {
+	if (!href) return <div className={workRowClass}>{children}</div>
+	return (
+		<a
+			href={href}
+			target="_blank"
+			rel="noopener"
+			className={cn(
+				workRowClass,
+				"transition-[background-color] ease-out hover:bg-accent-muted",
+			)}
+		>
+			{children}
+		</a>
+	)
+}
+
+export function SelectedWork({ sheet = "01" }: { sheet?: string }) {
 	return (
 		<Panel id="work">
 			<PanelHeader>
-				<PanelTitle sheet="01" count={caseStudies.length} anchor="work">
+				<PanelTitle sheet={sheet} count={caseStudies.length} anchor="work">
 					Selected work
 				</PanelTitle>
 			</PanelHeader>
 			<ul>
 				{caseStudies.map((study) => (
 					<li key={study.slug} className="screen-line-bottom">
-						<Link
-							href={`/work/${study.slug}`}
-							className="grid gap-3 p-4 transition-[background-color] ease-out hover:bg-accent-muted sm:grid-cols-[1fr_auto] sm:items-end"
-						>
+						<WorkRow href={study.href}>
 							<div className="flex flex-col gap-1">
 								<p className="font-mono text-xs text-muted-foreground">
-									{study.client} · {study.type} · {study.year}
+									<Joined
+										text={`${study.client} · ${study.type} · ${study.year}`}
+									/>
 								</p>
 								<h3 className="text-lg/snug font-medium text-balance">
 									{study.title}
@@ -161,10 +180,12 @@ export function SelectedWork() {
 									))}
 								</ul>
 							</div>
-							<p className="font-mono text-2xl font-medium tracking-tight text-brand tabular-nums">
-								{study.outcome}
-							</p>
-						</Link>
+							{study.outcome && (
+								<p className="font-mono text-2xl font-medium tracking-tight text-brand tabular-nums">
+									{study.outcome}
+								</p>
+							)}
+						</WorkRow>
 					</li>
 				))}
 			</ul>
@@ -173,11 +194,11 @@ export function SelectedWork() {
 	)
 }
 
-export function Services() {
+export function Services({ sheet = "02" }: { sheet?: string }) {
 	return (
 		<Panel id="services">
 			<PanelHeader>
-				<PanelTitle sheet="02" anchor="services">
+				<PanelTitle sheet={sheet} anchor="services">
 					Services
 				</PanelTitle>
 			</PanelHeader>
@@ -204,9 +225,6 @@ export function Services() {
 								</li>
 							))}
 						</ul>
-						<p className="mt-auto font-mono text-sm text-muted-foreground">
-							{service.terms}
-						</p>
 					</li>
 				))}
 			</ul>
@@ -259,11 +277,8 @@ export function Experience() {
 				</PanelTitle>
 			</PanelHeader>
 			<ul>
-				{experience.map((job) => (
-					<li
-						key={job.company}
-						className="screen-line-bottom flex items-center gap-3 p-4"
-					>
+				{experience.slice(0, 2).map((job) => (
+					<li key={job.role} className="screen-line-bottom flex items-center gap-3 p-4">
 						<IconTile>
 							<BriefcaseBusinessIcon />
 						</IconTile>
@@ -294,7 +309,7 @@ export function Writing() {
 				</PanelTitle>
 			</PanelHeader>
 			<CardGrid>
-				{posts.map((post) => (
+				{posts.slice(0, 4).map((post) => (
 					<CardCell key={post.slug} href={`/blog/${post.slug}`}>
 						<h3 className="text-lg/snug font-medium text-balance">{post.title}</h3>
 						<p className="text-sm text-muted-foreground">{post.date}</p>
@@ -333,19 +348,18 @@ export function Tools() {
 	)
 }
 
-export function Contact() {
+export function Contact({ sheet = "07" }: { sheet?: string }) {
 	return (
 		<Panel id="contact">
 			<PanelHeader>
-				<PanelTitle sheet="07" anchor="contact">
+				<PanelTitle sheet={sheet} anchor="contact">
 					Let's build something
 				</PanelTitle>
 			</PanelHeader>
 			<PanelContent className="flex flex-col gap-4">
 				<AvailabilityPill className="self-start" />
-				{/* PLACEHOLDER: response-time promise and timezone. */}
 				<p className="text-muted-foreground">
-					Tell me what you're building. I reply within 24 hours.
+					Tell me what you're building, or grab a 15-minute call.
 				</p>
 				<div className="flex flex-wrap gap-3">
 					<Button
