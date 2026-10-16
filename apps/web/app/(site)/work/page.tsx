@@ -1,7 +1,20 @@
+import { Contact, SelectedWork, Services } from "@/components/home/sections"
+import { PageHeading, Separator } from "@/components/panel"
+
 export default function WorkPage() {
 	return (
-		<main className="p-6">
-			<h1 className="font-medium">Work</h1>
-		</main>
+		<>
+			<PageHeading
+				tagline="Work"
+				title="Freelance work"
+				description="Services, selected client projects and how to hire me."
+			/>
+			<Separator />
+			<Services />
+			<Separator />
+			<SelectedWork />
+			<Separator />
+			<Contact />
+		</>
 	)
 }

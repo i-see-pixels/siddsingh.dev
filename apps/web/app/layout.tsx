@@ -1,4 +1,5 @@
-import { Geist, Geist_Mono } from "next/font/google"
+import { TooltipProvider } from "@workspace/ui/components/tooltip"
+import { Architects_Daughter, Geist, Geist_Mono } from "next/font/google"
 
 import "@workspace/ui/globals.css"
 import { cn } from "@workspace/ui/lib/utils"
@@ -11,6 +12,12 @@ const fontMono = Geist_Mono({
 	variable: "--font-mono",
 })
 
+const fontHandwritten = Architects_Daughter({
+	subsets: ["latin"],
+	weight: "400",
+	variable: "--font-handwritten",
+})
+
 export default function RootLayout({
 	children,
 }: Readonly<{
@@ -20,10 +27,18 @@ export default function RootLayout({
 		<html
 			lang="en"
 			suppressHydrationWarning
-			className={cn("antialiased", fontMono.variable, "font-sans", geist.variable)}
+			className={cn(
+				"antialiased",
+				fontMono.variable,
+				"font-sans",
+				geist.variable,
+				fontHandwritten.variable,
+			)}
 		>
 			<body>
-				<ThemeProvider>{children}</ThemeProvider>
+				<ThemeProvider defaultTheme="light">
+					<TooltipProvider>{children}</TooltipProvider>
+				</ThemeProvider>
 			</body>
 		</html>
 	)

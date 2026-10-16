@@ -1,17 +1,38 @@
-import { Button } from "@workspace/ui/components/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@workspace/ui/components/card"
+import { Hero } from "@/components/home/hero"
+import {
+	Contact,
+	Experience,
+	Overview,
+	Products,
+	ProofStrip,
+	SelectedWork,
+	Services,
+	Tools,
+	Writing,
+} from "@/components/home/sections"
+import { Separator } from "@/components/panel"
 
-export default function Page() {
+// Section order: docs/design.md §7 (page templates).
+export default function HomePage() {
 	return (
-		<main className="p-6">
-			<Card className="max-w-md">
-				<CardHeader>
-					<CardTitle>siddsingh.dev</CardTitle>
-				</CardHeader>
-				<CardContent>
-					<Button>Button</Button>
-				</CardContent>
-			</Card>
-		</main>
+		<>
+			<Hero />
+			<ProofStrip />
+			<Overview />
+			<Separator />
+			<SelectedWork />
+			<Separator />
+			<Services />
+			<Separator />
+			<Products />
+			<Separator />
+			<Experience />
+			<Separator />
+			<Writing />
+			<Separator />
+			<Tools />
+			<Separator />
+			<Contact />
+		</>
 	)
 }
