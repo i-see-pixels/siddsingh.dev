@@ -8,7 +8,7 @@
 	},
 	"files": {
 		"ignoreUnknown": true,
-		"includes": ["**", "!siddsingh-dev", "!packages/ui/src/components", "!**/pnpm-lock.yaml"]
+		"includes": ["**", "!packages/ui/src/components", "!**/pnpm-lock.yaml"]
 	},
 	"formatter": {
 		"enabled": true,
