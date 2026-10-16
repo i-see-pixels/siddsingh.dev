@@ -24,7 +24,7 @@ import {
 	PanelHeader,
 	PanelTitle,
 } from "@/components/panel"
-import { caseStudies, experience, posts, products, proof, services, tools } from "@/lib/content"
+import { caseStudies, experience, products, proof, services, tools } from "@/lib/content"
 import { availability, siteConfig } from "@/lib/site-config"
 
 export function ProofStrip() {
@@ -171,6 +171,12 @@ export function SelectedWork({ sheet = "01" }: { sheet?: string }) {
 								</p>
 								<h3 className="text-lg/snug font-medium text-balance">
 									{study.title}
+									{study.status && (
+										<StatusTag
+											status={study.status}
+											className="ml-2 align-middle"
+										/>
+									)}
 								</h3>
 								<ul className="mt-1 flex flex-wrap gap-1.5">
 									{study.stack.map((item) => (
@@ -300,32 +306,11 @@ export function Experience() {
 	)
 }
 
-export function Writing() {
-	return (
-		<Panel id="writing">
-			<PanelHeader>
-				<PanelTitle sheet="05" count={posts.length} anchor="writing">
-					Writing
-				</PanelTitle>
-			</PanelHeader>
-			<CardGrid>
-				{posts.slice(0, 4).map((post) => (
-					<CardCell key={post.slug} href={`/blog/${post.slug}`}>
-						<h3 className="text-lg/snug font-medium text-balance">{post.title}</h3>
-						<p className="text-sm text-muted-foreground">{post.date}</p>
-					</CardCell>
-				))}
-			</CardGrid>
-			<ViewAll href="/blog">All posts</ViewAll>
-		</Panel>
-	)
-}
-
 export function Tools() {
 	return (
 		<Panel id="tools">
 			<PanelHeader>
-				<PanelTitle sheet="06" count={tools.length} anchor="tools">
+				<PanelTitle sheet="05" count={tools.length} anchor="tools">
 					Free tools
 				</PanelTitle>
 			</PanelHeader>
@@ -348,7 +333,7 @@ export function Tools() {
 	)
 }
 
-export function Contact({ sheet = "07" }: { sheet?: string }) {
+export function Contact({ sheet = "06" }: { sheet?: string }) {
 	return (
 		<Panel id="contact">
 			<PanelHeader>

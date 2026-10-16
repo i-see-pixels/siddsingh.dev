@@ -29,7 +29,7 @@ The visual system for the site. It borrows chanhdai.com's **craft**: the framed 
 | **Section headings** | "Blog⁽¹⁴⁾" | Sheet numbers: `01` label + title, e.g. `01 — Selected work`, plus the count |
 | **Frame details** | Plain line intersections | **Registration marks** (small `+` crosshairs) where panel lines meet the column edges; dimension lines on the figure |
 | **Header actions** | Search, GitHub stars, theme | Search, theme, **availability dot**, and a **"Hire me" button** (the only filled accent button on the site) |
-| **Home content** | Components, blocks, sponsors, testimonials | **Proof → work → services → products → experience → writing → tools → contact** |
+| **Home content** | Components, blocks, sponsors, testimonials | **Proof → work → services → products → experience → tools → contact** |
 | **Annotations** | Caveat font | **Architects Daughter**, in drafting blue |
 | **Footer** | CAD title block | Title block too, plus a **"Hire" field** and a contact CTA row above it |
 | **Brand mark** | Blocky "CD" pixels | **`sidd▪` wordmark**: "sidd" in Geist Mono ending in a drafting-blue cursor block |
@@ -241,7 +241,7 @@ Half-filled circle icon that rotates 180° over 500ms (`motion-safe`), tooltip "
 
 | Page | Sections (in order) |
 |---|---|
-| `/` | Pitch hero → Profile row + Fig. 1 → Proof strip → Overview → `01` Selected work (3 case studies) → `02` Services → `03` Products → `04` Experience (current + one previous) → `05` Writing (latest 4 posts) → `06` Tools (4 featured) → Contact |
+| `/` | Pitch hero → Profile row + Fig. 1 → Proof strip → Overview → `01` Selected work (3 case studies) → `02` Services → `03` Products → `04` Experience (current + one previous) → `05` Tools (4 featured) → Contact |
 | `/about` | Page heading + Download PDF → Overview → Experience (full) → Education → Skills/stack → Contact |
 | `/work` | Page heading + availability → Services → Selected work (all) → Process (4 numbered steps) → Testimonials → Contact |
 | `/work/[slug]` | Heading (client, type, year) → outcome metrics strip → problem → what I did → result → stack → next case study → Contact |

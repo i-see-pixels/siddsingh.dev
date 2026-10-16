@@ -17,7 +17,7 @@ v1 URLs are kept so existing links and search rankings carry over.
 
 | Route | Audience | Content | Reference |
 |---|---|---|---|
-| `/` | Recruiters and clients first | Pitch hero (availability, headline, Hire me / View resume), profile + Fig. 1, proof strip, overview, then: selected work, services, products, experience, writing, tools, contact. Each preview links to its page. Order in [design.md §7](design.md#7-page-templates). | chanhdai craft, hiring-first content |
+| `/` | Recruiters and clients first | Pitch hero (availability, headline, Hire me / View resume), profile + Fig. 1, proof strip, overview, then: selected work, services, products, experience, tools, contact. Each preview links to its page. Order in [design.md §7](design.md#7-page-templates). | chanhdai craft, hiring-first content |
 | `/about` | Recruiters | Resume: summary, experience timeline, education, skills/stack, "Download PDF". | chanhdai Experience/Education sections |
 | `/work` | Freelance clients | "Available for work" status, services, selected client projects table (project / type / client / year), process, testimonials, contact CTA. | Olivier Larose-style project table in chanhdai's frame |
 | `/work/[slug]` | Freelance clients | Case study: problem → what I did → result, with screenshots and stack. | — |
@@ -42,7 +42,7 @@ v1 URLs are kept so existing links and search rankings carry over.
 
 | Content | Format | Notes |
 |---|---|---|
-| Blog posts | MDX in `content/blog/` | Port v1's 7 posts. Frontmatter: title, summary, date, updated, tags, cover. |
+| Blog posts | MDX in `apps/web/content/blog/` | Fresh start: v1's posts are not ported. Each file exports `metadata` (title, summary, date, updated, tags); see `lib/blog.ts`. |
 | Case studies | MDX in `content/work/` | Port v1's 3 project write-ups where they are client work. |
 | Products | Typed TS data (`data/products.ts`) | name, slug, pitch, status, url, icon, metric. |
 | Tools | Typed registry (`data/tools.ts`) | slug, name, category, description, keywords, how-to steps, FAQ; component loaded lazily per tool. |
@@ -102,7 +102,7 @@ Start with the tools that already exist or bring search traffic, then add from t
 
 1. **Design + SEO foundation**: theme tokens, fonts, the framed layout, header, footer, ⌘K shell; site config, metadata builder, JSON-LD helpers, `robots.txt`, `sitemap.xml`, `www` and v1 redirects.
 2. **Home + About**: the pages recruiters see first.
-3. **Blog**: MDX pipeline, port v1 posts, RSS and OG images.
+3. **Blog**: MDX pipeline (done, no posts yet), then RSS and OG images.
 4. **Work**: services page and case studies.
 5. **Tools**: hub, then port screenshot mockup, then new tools one at a time.
 6. **Products**: page and data; the first product app when one is ready.

@@ -8,7 +8,6 @@ import {
 	SelectedWork,
 	Services,
 	Tools,
-	Writing,
 } from "@/components/home/sections"
 import { Separator } from "@/components/panel"
 
@@ -27,8 +26,6 @@ export default function HomePage() {
 			<Products />
 			<Separator />
 			<Experience />
-			<Separator />
-			<Writing />
 			<Separator />
 			<Tools />
 			<Separator />

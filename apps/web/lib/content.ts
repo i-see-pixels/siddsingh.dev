@@ -1,6 +1,6 @@
 // Site content, from Siddhant's resume (Oct 2026), the v1 site and his public
-// profiles. Blog posts and tools move to their own data sources when those
-// sections are built (docs/site-structure.md: content model).
+// profiles. Blog posts live in content/blog (lib/blog.ts); tools move to their
+// own data source when that section is built (docs/site-structure.md: content model).
 
 const blobUrl = "https://utxifjblgzbxujxp.public.blob.vercel-storage.com/siddsingh_dev"
 
@@ -24,11 +24,16 @@ export const proof = [
 
 export type CaseStudy = {
 	slug: string
+	name: string
 	client: string
 	type: string
 	year: string
 	title: string
 	outcome?: string
+	/** Set while the project isn't fully live yet. */
+	status?: "Beta" | "Waitlist"
+	/** Cover screenshot in Vercel Blob, 16:10 (1600×1000). */
+	image: string
 	stack: string[]
 	href?: string
 }
@@ -36,6 +41,8 @@ export type CaseStudy = {
 export const caseStudies: CaseStudy[] = [
 	{
 		slug: "doctors-divine",
+		image: `${blobUrl}/work/doctors-divine.png`,
+		name: "Doctors Divine",
 		client: "Doctors Divine",
 		type: "Healthcare platform",
 		year: "2023, redesigned 2026",
@@ -46,6 +53,8 @@ export const caseStudies: CaseStudy[] = [
 	},
 	{
 		slug: "ai-rca-orchestrator",
+		image: `${blobUrl}/work/ai-rca-orchestrator.png`,
+		name: "RCA agents",
 		client: "Optum",
 		type: "AI agents",
 		year: "2026",
@@ -55,6 +64,8 @@ export const caseStudies: CaseStudy[] = [
 	},
 	{
 		slug: "plenz",
+		image: `${blobUrl}/work/plenz.png`,
+		name: "plenz",
 		client: "Open source",
 		type: "Browser extension",
 		year: "2026",
@@ -65,12 +76,26 @@ export const caseStudies: CaseStudy[] = [
 	},
 	{
 		slug: "admin-boil",
+		image: `${blobUrl}/work/admin-boil.png`,
+		name: "admin-boil",
 		client: "Own product",
 		type: "SaaS dashboard",
 		year: "2025",
 		title: "Admin dashboard installed with one CLI command, with licensing, pricing and docs",
 		stack: ["Next.js", "shadcn/ui", "Drizzle", "PostgreSQL"],
 		href: "https://admin-boil.vercel.app",
+	},
+	{
+		slug: "snapnode",
+		image: `${blobUrl}/work/snapnode.png`,
+		name: "SnapNode",
+		client: "Own product",
+		type: "Browser extension",
+		year: "2026",
+		title: "Chrome extension for crisp, element-level screenshots of any web page",
+		status: "Beta",
+		stack: ["Preact", "TypeScript", "Vite", "Tailwind CSS"],
+		href: "https://github.com/i-see-pixels/snapnode",
 	},
 ]
 
@@ -228,40 +253,6 @@ export const skills = [
 			"Prompt engineering",
 			"RAG",
 		],
-	},
-]
-
-export const posts = [
-	{
-		slug: "best-ai-prompt-refinement-browser-extensions-2026",
-		title: "Best AI prompt refinement browser extensions 2026",
-		date: "20 May 2026",
-	},
-	{
-		slug: "how-to-create-an-ai-workflow-in-codex",
-		title: "How to create an AI workflow in Codex",
-		date: "18 May 2026",
-	},
-	{ slug: "what-i-build-after-work", title: "What I build after work", date: "17 Apr 2026" },
-	{
-		slug: "how-i-decide-which-side-projects-are-worth-finishing",
-		title: "How I decide which side projects are worth finishing",
-		date: "16 Apr 2026",
-	},
-	{
-		slug: "how-i-built-plenz-a-prompt-copilot-that-works-across-ai-tools",
-		title: "How I built plenz, a prompt copilot that works across AI tools",
-		date: "15 Apr 2026",
-	},
-	{
-		slug: "building-admin-boil-cli-and-designing-the-first-five-minutes",
-		title: "Building admin-boil CLI and designing the first five minutes",
-		date: "14 Apr 2026",
-	},
-	{
-		slug: "building-a-python-mcp-client-for-multiple-servers",
-		title: "Building a Python MCP client for multiple servers",
-		date: "13 Apr 2026",
 	},
 ]
 

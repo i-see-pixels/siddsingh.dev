@@ -2,7 +2,8 @@ import { readdirSync } from "node:fs"
 import path from "node:path"
 import { cn } from "@workspace/ui/lib/utils"
 import Link from "next/link"
-import { caseStudies, posts, products, tools } from "@/lib/content"
+import { getPostSlugs } from "@/lib/blog"
+import { caseStudies, products, tools } from "@/lib/content"
 import { getStack } from "@/lib/stack"
 
 /*
@@ -268,7 +269,7 @@ export function BlueprintFigure() {
 		},
 		{
 			title: "Blog",
-			detail: count(posts.length, "post", "posts"),
+			detail: count(getPostSlugs().length, "post", "posts"),
 			href: "/blog",
 			anchor: iso(blog.x, blog.y + BLOCK.d, CONTENT_TOP + BLOCK.h),
 			dir: -1,

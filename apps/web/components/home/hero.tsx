@@ -88,7 +88,7 @@ function ProfileRow() {
 							alt={siteConfig.name}
 							width={288}
 							height={288}
-							className="absolute inset-0 size-full object-cover opacity-0 transition-opacity duration-300 ease-out group-hover/avatar:opacity-100"
+							className="absolute inset-0 size-38 object-cover opacity-0 transition-opacity duration-300 ease-out group-hover/avatar:opacity-100"
 						/>
 						<div className="pointer-events-none absolute inset-0 rounded-[inherit] inset-ring-1 inset-ring-foreground/30 dark:inset-ring-foreground/10" />
 					</div>

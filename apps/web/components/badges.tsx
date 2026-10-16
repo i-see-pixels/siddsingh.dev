@@ -36,8 +36,14 @@ const statusStyles = {
 	Waitlist: "",
 }
 
-export function StatusTag({ status }: { status: keyof typeof statusStyles }) {
-	return <Tag className={statusStyles[status]}>{status}</Tag>
+export function StatusTag({
+	status,
+	className,
+}: {
+	status: keyof typeof statusStyles
+	className?: string
+}) {
+	return <Tag className={cn(statusStyles[status], className)}>{status}</Tag>
 }
 
 /** Green dot that pulses while available. */
