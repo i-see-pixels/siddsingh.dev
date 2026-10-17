@@ -9,6 +9,8 @@ type MockupRendererProps = {
 	state: ScreenshotMockupState
 	imageWidth: number
 	imageHeight: number
+	/** Downscaled copy of the screenshot used on screen; falls back to `state.imageSrc`. */
+	previewSrc?: string | null
 	className?: string
 }
 
@@ -286,7 +288,9 @@ function Frame({
 	opacity = 1,
 	blur = 0,
 	silhouette = false,
+	imageSrc,
 }: {
+	imageSrc: string
 	state: ScreenshotMockupState
 	metrics: Metrics
 	opacity?: number
@@ -341,7 +345,7 @@ function Frame({
 						>
 							{/* biome-ignore lint/performance/noImgElement: blob/data URL, not optimizable */}
 							<img
-								src={state.imageSrc ?? ""}
+								src={imageSrc}
 								alt="Screenshot"
 								className="block size-full object-fill"
 								draggable={false}
@@ -373,8 +377,9 @@ function Frame({
 }
 
 export const MockupRenderer = forwardRef<HTMLDivElement, MockupRendererProps>(
-	({ state, imageWidth, imageHeight, className }, ref) => {
+	({ state, imageWidth, imageHeight, previewSrc, className }, ref) => {
 		const metrics = getMetrics(state, imageWidth, imageHeight)
+		const imageSrc = previewSrc ?? state.imageSrc ?? ""
 		const canvasSize = getCanvasSize(state, imageWidth, imageHeight)
 		const has3D = state.rotateX !== 0 || state.rotateY !== 0
 		const background = getBackgroundStyle(state)
@@ -455,6 +460,7 @@ export const MockupRenderer = forwardRef<HTMLDivElement, MockupRendererProps>(
 										}}
 									>
 										<Frame
+											imageSrc={imageSrc}
 											state={state}
 											metrics={metrics}
 											opacity={opacity}
@@ -474,7 +480,7 @@ export const MockupRenderer = forwardRef<HTMLDivElement, MockupRendererProps>(
 							borderRadius: metrics.outerRadius,
 						}}
 					>
-						<Frame state={state} metrics={metrics} />
+						<Frame imageSrc={imageSrc} state={state} metrics={metrics} />
 					</div>
 				</div>
 			</div>

@@ -1,7 +1,14 @@
 "use client"
 
 import { Button } from "@workspace/ui/components/button"
-import { ArrowLeftIcon, ChevronDownIcon } from "lucide-react"
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@workspace/ui/components/select"
+import { ArrowLeftIcon } from "lucide-react"
 import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import { BrandMark } from "@/components/brand-mark"
@@ -18,21 +25,24 @@ export function WorkspaceHeader() {
 				<BrandMark />
 			</Link>
 			<span aria-hidden className="h-5 w-px bg-line" />
-			<div className="relative min-w-0">
-				<select
-					aria-label="Switch tool"
-					value={slug}
-					onChange={(event) => router.push(`/tools/${event.target.value}/workspace`)}
-					className="h-8 max-w-full min-w-0 appearance-none truncate rounded-lg border border-input bg-background py-1 pr-8 pl-2.5 text-sm font-medium outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-				>
+			<Select
+				items={tools.map((tool) => ({ value: tool.slug, label: tool.name }))}
+				value={slug}
+				onValueChange={(next) => {
+					if (typeof next === "string") router.push(`/tools/${next}/workspace`)
+				}}
+			>
+				<SelectTrigger aria-label="Switch tool" className="min-w-0 font-medium">
+					<SelectValue />
+				</SelectTrigger>
+				<SelectContent align="start">
 					{tools.map((tool) => (
-						<option key={tool.slug} value={tool.slug}>
+						<SelectItem key={tool.slug} value={tool.slug}>
 							{tool.name}
-						</option>
+						</SelectItem>
 					))}
-				</select>
-				<ChevronDownIcon className="pointer-events-none absolute top-1/2 right-2 size-4 -translate-y-1/2 text-muted-foreground" />
-			</div>
+				</SelectContent>
+			</Select>
 			<div className="ml-auto flex items-center gap-1">
 				<Button
 					variant="ghost"

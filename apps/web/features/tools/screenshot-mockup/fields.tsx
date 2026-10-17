@@ -1,8 +1,16 @@
 "use client"
 
+import { Field, FieldContent, FieldDescription, FieldLabel } from "@workspace/ui/components/field"
 import { Input } from "@workspace/ui/components/input"
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@workspace/ui/components/select"
+import { Slider } from "@workspace/ui/components/slider"
 import { useEffect, useRef, useState } from "react"
-import { Field, FieldContent, FieldDescription, FieldLabel, NativeSelect, RangeInput } from "./ui"
 
 export type SelectOption<T extends string> = {
 	value: T
@@ -59,18 +67,24 @@ export function SelectField<T extends string>({
 		<Field>
 			<FieldLabel htmlFor={id}>{label}</FieldLabel>
 			<FieldContent>
-				<NativeSelect
-					id={id}
-					aria-label={label}
+				<Select
+					items={options}
 					value={value}
-					onChange={(event) => onValueChangeAction(event.target.value as T)}
+					onValueChange={(next) => {
+						if (typeof next === "string") onValueChangeAction(next as T)
+					}}
 				>
-					{options.map((option) => (
-						<option key={option.value} value={option.value}>
-							{option.label}
-						</option>
-					))}
-				</NativeSelect>
+					<SelectTrigger id={id} className="w-full" aria-label={label}>
+						<SelectValue placeholder={label} />
+					</SelectTrigger>
+					<SelectContent align="start">
+						{options.map((option) => (
+							<SelectItem key={option.value} value={option.value}>
+								{option.label}
+							</SelectItem>
+						))}
+					</SelectContent>
+				</Select>
 				{description ? <FieldDescription>{description}</FieldDescription> : null}
 			</FieldContent>
 		</Field>
@@ -164,13 +178,15 @@ export function SliderField({
 				/>
 			</div>
 			<FieldContent>
-				<RangeInput
+				<Slider
 					id={id}
 					min={min}
 					max={max}
 					step={step}
 					value={localValue}
-					onChange={(event) => commitValue(Number(event.target.value))}
+					onValueChange={(next) =>
+						commitValue(Array.isArray(next) ? (next[0] ?? min) : next)
+					}
 				/>
 				{description ? <FieldDescription>{description}</FieldDescription> : null}
 			</FieldContent>

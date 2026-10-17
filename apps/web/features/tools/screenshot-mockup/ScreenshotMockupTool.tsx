@@ -1,6 +1,8 @@
 "use client"
 
+import { Badge } from "@workspace/ui/components/badge"
 import { Button } from "@workspace/ui/components/button"
+import { Field, FieldContent, FieldGroup, FieldLabel } from "@workspace/ui/components/field"
 import { Input } from "@workspace/ui/components/input"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@workspace/ui/components/tooltip"
 import { cn } from "@workspace/ui/lib/utils"
@@ -60,15 +62,7 @@ import type {
 	ShadowPreset,
 	StackEffect,
 } from "./types"
-import {
-	Badge,
-	Field,
-	FieldContent,
-	FieldGroup,
-	FieldLabel,
-	Segmented,
-	ToolWorkspaceSection,
-} from "./ui"
+import { Segmented, ToolWorkspaceSection } from "./ui"
 
 type LoadedImageState = {
 	image: HTMLImageElement | null
@@ -104,6 +98,10 @@ type PreviewDragState =
 			startState: ScreenshotMockupState
 			hasHistory: boolean
 	  }
+
+const HISTORY_GROUP_MS = 800
+/** Longest side of the on-screen preview image; the export always uses the original. */
+const PREVIEW_MAX_SIDE = 2400
 
 const ZOOM_LEVELS = [0.75, 1, 1.25, 1.5, 2] as const
 
@@ -207,9 +205,14 @@ export function ScreenshotMockupTool() {
 	const previewOffsetRef = useRef(previewOffset)
 	const previewPanFrameRef = useRef<number | null>(null)
 	const dragStateRef = useRef<PreviewDragState | null>(null)
+	const lastPatchRef = useRef({ key: "", time: 0 })
+	const pendingMoveRef = useRef<Partial<ScreenshotMockupState> | null>(null)
+	const moveFrameRef = useRef<number | null>(null)
+	const [previewSrc, setPreviewSrc] = useState<string | null>(null)
 	const effectivePreviewScale = Math.min(previewScale, previewFitScale)
 
 	const pushHistorySnapshot = (snapshot: ScreenshotMockupState) => {
+		lastPatchRef.current.key = ""
 		historyRef.current = {
 			past: [...historyRef.current.past.slice(-49), snapshot],
 			future: [],
@@ -247,7 +250,16 @@ export function ScreenshotMockupTool() {
 	}
 
 	const patchState = (patch: Partial<ScreenshotMockupState>) => {
-		pushHistory()
+		// A slider drag fires many patches of the same fields: record one undo step per gesture.
+		const key = Object.keys(patch).sort().join(",")
+		const now = performance.now()
+		const last = lastPatchRef.current
+
+		if (key !== last.key || now - last.time > HISTORY_GROUP_MS) {
+			pushHistory()
+		}
+
+		lastPatchRef.current = { key, time: now }
 		startTransition(() => {
 			dispatch({
 				type: "patch",
@@ -415,8 +427,47 @@ export function ScreenshotMockupTool() {
 			if (previewPanFrameRef.current !== null) {
 				cancelAnimationFrame(previewPanFrameRef.current)
 			}
+
+			if (moveFrameRef.current !== null) {
+				cancelAnimationFrame(moveFrameRef.current)
+			}
 		}
 	}, [])
+
+	useEffect(() => {
+		const image = loadedImage.image
+
+		if (!image || Math.max(image.naturalWidth, image.naturalHeight) <= PREVIEW_MAX_SIDE) {
+			setPreviewSrc(null)
+			return
+		}
+
+		// Big screenshots are decoded and composited on every frame of the preview, so show a
+		// downscaled copy there.
+		let objectUrl: string | null = null
+		let isActive = true
+		const ratio = PREVIEW_MAX_SIDE / Math.max(image.naturalWidth, image.naturalHeight)
+		const canvas = document.createElement("canvas")
+		canvas.width = Math.round(image.naturalWidth * ratio)
+		canvas.height = Math.round(image.naturalHeight * ratio)
+		canvas.getContext("2d")?.drawImage(image, 0, 0, canvas.width, canvas.height)
+		canvas.toBlob((blob) => {
+			if (!blob || !isActive) {
+				return
+			}
+
+			objectUrl = URL.createObjectURL(blob)
+			setPreviewSrc(objectUrl)
+		}, "image/png")
+
+		return () => {
+			isActive = false
+
+			if (objectUrl) {
+				URL.revokeObjectURL(objectUrl)
+			}
+		}
+	}, [loadedImage.image])
 
 	useEffect(() => {
 		stateRef.current = state
@@ -869,10 +920,23 @@ export function ScreenshotMockupTool() {
 			}
 		}
 
-		applyStatePatch({
+		// Apply at most one move per frame so fast pointers don't queue renders.
+		pendingMoveRef.current = {
 			positionX: Math.round(nextX),
 			positionY: Math.round(nextY),
-		})
+		}
+
+		if (moveFrameRef.current === null) {
+			moveFrameRef.current = requestAnimationFrame(() => {
+				moveFrameRef.current = null
+				const pending = pendingMoveRef.current
+				pendingMoveRef.current = null
+
+				if (pending) {
+					applyStatePatch(pending)
+				}
+			})
+		}
 	}
 
 	const endPreviewPan = (event?: ReactPointerEvent<HTMLDivElement>) => {
@@ -1052,7 +1116,7 @@ export function ScreenshotMockupTool() {
 								<div
 									ref={previewOffsetLayerRef}
 									className={cn(
-										"will-change-transform",
+										isPanningPreview && "will-change-transform",
 										!isPanningPreview && "transition-transform duration-200",
 									)}
 									style={{
@@ -1061,7 +1125,7 @@ export function ScreenshotMockupTool() {
 								>
 									<div
 										className={cn(
-											"origin-center will-change-transform",
+											"origin-center",
 											!isPanningPreview &&
 												"transition-transform duration-200",
 										)}
@@ -1150,6 +1214,7 @@ export function ScreenshotMockupTool() {
 											<MockupRenderer
 												ref={mockupExportRef}
 												state={state}
+												previewSrc={previewSrc}
 												imageWidth={loadedImage.image.naturalWidth}
 												imageHeight={loadedImage.image.naturalHeight}
 												className={cn(

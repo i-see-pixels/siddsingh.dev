@@ -1,6 +1,13 @@
 "use client"
 
 import { Button } from "@workspace/ui/components/button"
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@workspace/ui/components/select"
 import { CheckIcon, XIcon } from "lucide-react"
 import {
 	type PointerEvent as ReactPointerEvent,
@@ -10,7 +17,6 @@ import {
 	useState,
 } from "react"
 import type { AspectRatioOption } from "./types"
-import { NativeSelect } from "./ui"
 
 type CropRegion = {
 	x: number
@@ -369,18 +375,24 @@ export function CropTool({ imageSrc, initialRatio, onApplyAction, onCancelAction
 	return (
 		<div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/80 p-4 backdrop-blur-sm">
 			<div className="absolute top-4 left-1/2 z-50 flex -translate-x-1/2 items-center gap-2 rounded-xl border border-border/60 bg-background/95 px-3 py-2 shadow-2xl backdrop-blur">
-				<NativeSelect
-					className="w-28"
-					aria-label="Crop ratio"
+				<Select
+					items={cropRatios}
 					value={selectedRatio}
-					onChange={(event) => setSelectedRatio(event.target.value as AspectRatioOption)}
+					onValueChange={(next) => {
+						if (typeof next === "string") setSelectedRatio(next as AspectRatioOption)
+					}}
 				>
-					{cropRatios.map((ratio) => (
-						<option key={ratio.value} value={ratio.value}>
-							{ratio.label}
-						</option>
-					))}
-				</NativeSelect>
+					<SelectTrigger className="w-28" aria-label="Crop ratio">
+						<SelectValue placeholder="Free" />
+					</SelectTrigger>
+					<SelectContent align="center">
+						{cropRatios.map((ratio) => (
+							<SelectItem key={ratio.value} value={ratio.value}>
+								{ratio.label}
+							</SelectItem>
+						))}
+					</SelectContent>
+				</Select>
 				<Button type="button" variant="ghost" size="sm" onClick={onCancelAction}>
 					<XIcon data-icon="inline-start" />
 					Cancel

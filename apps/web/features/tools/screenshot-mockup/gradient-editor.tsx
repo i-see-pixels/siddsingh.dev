@@ -1,12 +1,13 @@
 "use client"
 
+import { Badge } from "@workspace/ui/components/badge"
 import { Button } from "@workspace/ui/components/button"
+import { Field, FieldContent, FieldGroup, FieldLabel } from "@workspace/ui/components/field"
 import { cn } from "@workspace/ui/lib/utils"
 import { PlusIcon, Trash2Icon } from "lucide-react"
 import { type PointerEvent as ReactPointerEvent, useMemo, useRef, useState } from "react"
 import { ColorField, SliderField } from "./fields"
 import type { GradientConfig, GradientStop } from "./types"
-import { Badge, Field, FieldContent, FieldGroup, FieldLabel } from "./ui"
 
 type GradientEditorProps = {
 	config: GradientConfig

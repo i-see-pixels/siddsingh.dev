@@ -1,6 +1,6 @@
 "use client"
 
-import { cn } from "@workspace/ui/lib/utils"
+import { Tabs, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
 import {
 	DownloadIcon,
 	FrameIcon,
@@ -44,32 +44,27 @@ type ControlGroupRailProps = {
 
 export function ControlGroupRail({ activeGroup, onGroupChangeAction }: ControlGroupRailProps) {
 	return (
-		<nav
-			aria-label="Screenshot mockup control groups"
-			className="flex gap-1 overflow-x-auto p-2"
+		<Tabs
+			value={activeGroup}
+			onValueChange={(value) => onGroupChangeAction(value as ControlGroupId)}
+			className="overflow-x-auto p-2"
 		>
-			{controlGroups.map((group) => {
-				const GroupIcon = group.icon
-				const isActive = activeGroup === group.value
+			<TabsList variant="line" aria-label="Screenshot mockup control groups">
+				{controlGroups.map((group) => {
+					const GroupIcon = group.icon
 
-				return (
-					<button
-						key={group.value}
-						type="button"
-						aria-pressed={isActive}
-						onClick={() => onGroupChangeAction(group.value)}
-						className={cn(
-							"flex shrink-0 items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-sm font-medium transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
-							isActive
-								? "border-brand bg-brand-muted text-foreground"
-								: "border-transparent text-muted-foreground hover:bg-muted hover:text-foreground",
-						)}
-					>
-						<GroupIcon className="size-4" />
-						{group.label}
-					</button>
-				)
-			})}
-		</nav>
+					return (
+						<TabsTrigger
+							key={group.value}
+							value={group.value}
+							className="shrink-0 flex-none px-2.5"
+						>
+							<GroupIcon />
+							{group.label}
+						</TabsTrigger>
+					)
+				})}
+			</TabsList>
+		</Tabs>
 	)
 }
