@@ -998,909 +998,934 @@ export function ScreenshotMockupTool() {
 	)
 
 	return (
-		<>
-			<div className="screen-line-bottom flex flex-wrap items-center gap-2 p-3">
-				{toolbar}
-			</div>
-			{/* biome-ignore lint/a11y/noStaticElementInteractions: drag-and-drop target */}
-			<div
-				className="dot-grid relative h-[28rem] overflow-hidden sm:h-[34rem]"
-				onDragEnter={(event) => {
-					event.preventDefault()
-					setIsDragging(true)
-				}}
-				onDragOver={(event) => event.preventDefault()}
-			>
-				{isDragging ? (
-					// biome-ignore lint/a11y/noStaticElementInteractions: drag-and-drop target
-					<div
-						className="absolute inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm"
-						onDragLeave={(event) => {
-							event.preventDefault()
-							setIsDragging(false)
-						}}
-						onDragOver={(event) => event.preventDefault()}
-						onDrop={handleDrop}
-					>
-						<div className="pointer-events-none flex flex-col items-center gap-4 rounded-xl border-2 border-dashed border-primary bg-background p-8 text-center shadow-lg">
-							<div className="flex size-16 items-center justify-center rounded-full bg-primary/10 text-primary">
-								<ImagePlusIcon className="size-8" />
-							</div>
-							<div>
-								<p className="text-lg font-semibold">Drop image here</p>
-								<p className="text-sm text-muted-foreground">PNG, JPG, or WebP</p>
+		<div className="flex flex-1 flex-col lg:h-[calc(100svh-3.5rem)] lg:flex-none lg:flex-row lg:overflow-hidden">
+			<div className="flex min-w-0 flex-col lg:flex-1">
+				<div className="screen-line-bottom flex flex-wrap items-center gap-2 p-3">
+					{toolbar}
+				</div>
+				{/* biome-ignore lint/a11y/noStaticElementInteractions: drag-and-drop target */}
+				<div
+					className="dot-grid relative h-[26rem] overflow-hidden sm:h-[34rem] lg:h-auto lg:min-h-0 lg:flex-1"
+					onDragEnter={(event) => {
+						event.preventDefault()
+						setIsDragging(true)
+					}}
+					onDragOver={(event) => event.preventDefault()}
+				>
+					{isDragging ? (
+						// biome-ignore lint/a11y/noStaticElementInteractions: drag-and-drop target
+						<div
+							className="absolute inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm"
+							onDragLeave={(event) => {
+								event.preventDefault()
+								setIsDragging(false)
+							}}
+							onDragOver={(event) => event.preventDefault()}
+							onDrop={handleDrop}
+						>
+							<div className="pointer-events-none flex flex-col items-center gap-4 rounded-xl border-2 border-dashed border-primary bg-background p-8 text-center shadow-lg">
+								<div className="flex size-16 items-center justify-center rounded-full bg-primary/10 text-primary">
+									<ImagePlusIcon className="size-8" />
+								</div>
+								<div>
+									<p className="text-lg font-semibold">Drop image here</p>
+									<p className="text-sm text-muted-foreground">
+										PNG, JPG, or WebP
+									</p>
+								</div>
 							</div>
 						</div>
-					</div>
-				) : null}
-				{loadedImage.image ? (
-					<div className="flex h-full min-h-0 flex-col items-center">
-						<div
-							ref={previewViewportRef}
-							className={cn(
-								"flex h-full min-h-0 w-full items-center justify-center overflow-hidden px-4 pt-16 pb-8 touch-none",
-								isPanningPreview && "cursor-grabbing",
-							)}
-							onPointerDown={handlePreviewPointerDown}
-							onPointerMove={handlePreviewPointerMove}
-							onPointerUp={endPreviewPan}
-							onPointerCancel={endPreviewPan}
-						>
+					) : null}
+					{loadedImage.image ? (
+						<div className="flex h-full min-h-0 flex-col items-center">
 							<div
-								ref={previewOffsetLayerRef}
+								ref={previewViewportRef}
 								className={cn(
-									"will-change-transform",
-									!isPanningPreview && "transition-transform duration-200",
+									"flex h-full min-h-0 w-full items-center justify-center overflow-hidden px-4 pt-16 pb-8 touch-none",
+									isPanningPreview && "cursor-grabbing",
 								)}
-								style={{
-									transform: `translate3d(${previewOffset.x}px, ${previewOffset.y}px, 0)`,
-								}}
+								onPointerDown={handlePreviewPointerDown}
+								onPointerMove={handlePreviewPointerMove}
+								onPointerUp={endPreviewPan}
+								onPointerCancel={endPreviewPan}
 							>
 								<div
+									ref={previewOffsetLayerRef}
 									className={cn(
-										"origin-center will-change-transform",
+										"will-change-transform",
 										!isPanningPreview && "transition-transform duration-200",
 									)}
-									style={{ transform: `scale(${effectivePreviewScale})` }}
+									style={{
+										transform: `translate3d(${previewOffset.x}px, ${previewOffset.y}px, 0)`,
+									}}
 								>
-									<div className="relative inline-flex shadow-xl">
-										<div
-											className="absolute top-0 left-1/2 z-10 flex items-center gap-1 rounded-full border border-border/70 bg-background/95 p-1 shadow-lg backdrop-blur"
-											style={{
-												transform: `translate(-50%, calc(-100% - ${
-													8 / effectivePreviewScale
-												}px)) scale(${1 / effectivePreviewScale})`,
-												transformOrigin: "bottom center",
-											}}
-										>
-											<Tooltip>
-												<TooltipTrigger
-													render={
-														<Button
-															type="button"
-															variant="ghost"
-															size="icon-sm"
-															onClick={() => setIsCropToolOpen(true)}
-															disabled={!loadedImage.image}
-															aria-label="Crop screenshot"
-														>
-															<CropIcon />
-														</Button>
-													}
-												/>
-												<TooltipContent>Crop screenshot</TooltipContent>
-											</Tooltip>
-											<Tooltip>
-												<TooltipTrigger
-													render={
-														<Button
-															type="button"
-															variant={
-																state.flipX ? "secondary" : "ghost"
-															}
-															size="icon-sm"
-															onClick={() =>
-																patchState({
-																	flipX: !state.flipX,
-																})
-															}
-															aria-label="Flip horizontally"
-														>
-															<FlipHorizontalIcon />
-														</Button>
-													}
-												/>
-												<TooltipContent>Flip horizontally</TooltipContent>
-											</Tooltip>
-											<Tooltip>
-												<TooltipTrigger
-													render={
-														<Button
-															type="button"
-															variant={
-																state.flipY ? "secondary" : "ghost"
-															}
-															size="icon-sm"
-															onClick={() =>
-																patchState({
-																	flipY: !state.flipY,
-																})
-															}
-															aria-label="Flip vertically"
-														>
-															<FlipVerticalIcon />
-														</Button>
-													}
-												/>
-												<TooltipContent>Flip vertically</TooltipContent>
-											</Tooltip>
+									<div
+										className={cn(
+											"origin-center will-change-transform",
+											!isPanningPreview &&
+												"transition-transform duration-200",
+										)}
+										style={{ transform: `scale(${effectivePreviewScale})` }}
+									>
+										<div className="relative inline-flex shadow-xl">
+											<div
+												className="absolute top-0 left-1/2 z-10 flex items-center gap-1 rounded-full border border-border/70 bg-background/95 p-1 shadow-lg backdrop-blur"
+												style={{
+													transform: `translate(-50%, calc(-100% - ${
+														8 / effectivePreviewScale
+													}px)) scale(${1 / effectivePreviewScale})`,
+													transformOrigin: "bottom center",
+												}}
+											>
+												<Tooltip>
+													<TooltipTrigger
+														render={
+															<Button
+																type="button"
+																variant="ghost"
+																size="icon-sm"
+																onClick={() =>
+																	setIsCropToolOpen(true)
+																}
+																disabled={!loadedImage.image}
+																aria-label="Crop screenshot"
+															>
+																<CropIcon />
+															</Button>
+														}
+													/>
+													<TooltipContent>Crop screenshot</TooltipContent>
+												</Tooltip>
+												<Tooltip>
+													<TooltipTrigger
+														render={
+															<Button
+																type="button"
+																variant={
+																	state.flipX
+																		? "secondary"
+																		: "ghost"
+																}
+																size="icon-sm"
+																onClick={() =>
+																	patchState({
+																		flipX: !state.flipX,
+																	})
+																}
+																aria-label="Flip horizontally"
+															>
+																<FlipHorizontalIcon />
+															</Button>
+														}
+													/>
+													<TooltipContent>
+														Flip horizontally
+													</TooltipContent>
+												</Tooltip>
+												<Tooltip>
+													<TooltipTrigger
+														render={
+															<Button
+																type="button"
+																variant={
+																	state.flipY
+																		? "secondary"
+																		: "ghost"
+																}
+																size="icon-sm"
+																onClick={() =>
+																	patchState({
+																		flipY: !state.flipY,
+																	})
+																}
+																aria-label="Flip vertically"
+															>
+																<FlipVerticalIcon />
+															</Button>
+														}
+													/>
+													<TooltipContent>Flip vertically</TooltipContent>
+												</Tooltip>
+											</div>
+											<MockupRenderer
+												ref={mockupExportRef}
+												state={state}
+												imageWidth={loadedImage.image.naturalWidth}
+												imageHeight={loadedImage.image.naturalHeight}
+												className={cn(
+													"h-auto max-w-full touch-none",
+													isPanningPreview
+														? "cursor-grabbing"
+														: "cursor-move",
+												)}
+											/>
 										</div>
-										<MockupRenderer
-											ref={mockupExportRef}
-											state={state}
-											imageWidth={loadedImage.image.naturalWidth}
-											imageHeight={loadedImage.image.naturalHeight}
-											className={cn(
-												"h-auto max-w-full touch-none",
-												isPanningPreview
-													? "cursor-grabbing"
-													: "cursor-move",
-											)}
-										/>
 									</div>
 								</div>
 							</div>
 						</div>
-					</div>
-				) : (
-					<div className="flex h-full w-full items-center justify-center">
-						<div className="flex max-w-lg flex-col items-center gap-4 rounded-2xl border border-dashed border-border bg-background px-8 py-10 text-center shadow-sm">
-							<div className="flex size-12 items-center justify-center rounded-xl border border-border bg-muted text-muted-foreground">
-								{loadedImage.isLoading ? <SparklesIcon /> : <ImagePlusIcon />}
-							</div>
-							<div className="space-y-2">
-								<p className="text-lg font-semibold">
-									{loadedImage.isLoading
-										? "Loading preview..."
-										: "Add a screenshot"}
-								</p>
-								<p className="text-sm leading-relaxed text-muted-foreground">
-									{loadedImage.error}
-								</p>
-							</div>
-							<div className="flex flex-wrap justify-center gap-2">
-								<Button
-									type="button"
-									variant="secondary"
-									onClick={() => fileInputRef.current?.click()}
-								>
-									<UploadIcon data-icon="inline-start" />
-									Upload screenshot
-								</Button>
-								<Button
-									type="button"
-									variant="outline"
-									onClick={() =>
-										replaceImageSource(DEMO_IMAGE.src, DEMO_IMAGE.name, false)
-									}
-								>
-									<SparklesIcon data-icon="inline-start" />
-									Use demo image
-								</Button>
+					) : (
+						<div className="flex h-full w-full items-center justify-center">
+							<div className="flex max-w-lg flex-col items-center gap-4 rounded-2xl border border-dashed border-border bg-background px-8 py-10 text-center shadow-sm">
+								<div className="flex size-12 items-center justify-center rounded-xl border border-border bg-muted text-muted-foreground">
+									{loadedImage.isLoading ? <SparklesIcon /> : <ImagePlusIcon />}
+								</div>
+								<div className="space-y-2">
+									<p className="text-lg font-semibold">
+										{loadedImage.isLoading
+											? "Loading preview..."
+											: "Add a screenshot"}
+									</p>
+									<p className="text-sm leading-relaxed text-muted-foreground">
+										{loadedImage.error}
+									</p>
+								</div>
+								<div className="flex flex-wrap justify-center gap-2">
+									<Button
+										type="button"
+										variant="secondary"
+										onClick={() => fileInputRef.current?.click()}
+									>
+										<UploadIcon data-icon="inline-start" />
+										Upload screenshot
+									</Button>
+									<Button
+										type="button"
+										variant="outline"
+										onClick={() =>
+											replaceImageSource(
+												DEMO_IMAGE.src,
+												DEMO_IMAGE.name,
+												false,
+											)
+										}
+									>
+										<SparklesIcon data-icon="inline-start" />
+										Use demo image
+									</Button>
+								</div>
 							</div>
 						</div>
-					</div>
-				)}
+					)}
+				</div>
 			</div>
-			<div className="screen-line-top screen-line-bottom">{sidebarNavigation}</div>
-			<div className="flex flex-col gap-6 p-4">
-				<input
-					ref={fileInputRef}
-					type="file"
-					accept="image/png,image/jpeg,image/webp"
-					className="hidden"
-					onChange={handleFileChange}
-				/>
-				{activeControlTab === "image" ? (
-					<ToolWorkspaceSection
-						title="Image"
-						description="Drop, upload, or paste a screenshot to start styling."
-					>
-						<FieldGroup>
-							<Field>
-								<FieldContent>
-									{/* biome-ignore lint/a11y/noStaticElementInteractions: drag-and-drop target */}
-									<div
-										className={cn(
-											"flex flex-col gap-4 rounded-xl border border-dashed border-border bg-muted/30 p-4 transition-colors",
-											isDragging && "border-primary bg-primary/5",
-										)}
-										onDragEnter={(event) => {
-											event.preventDefault()
-											setIsDragging(true)
-										}}
-										onDragLeave={(event) => {
-											event.preventDefault()
-											setIsDragging(false)
-										}}
-										onDragOver={(event) => event.preventDefault()}
-										onDrop={handleDrop}
-										onPaste={handlePaste}
-									>
-										<div className="flex items-start gap-3">
-											<div className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-border bg-background text-muted-foreground">
-												<ImagePlusIcon />
-											</div>
-											<div className="min-w-0">
-												<p className="text-sm font-medium">
-													PNG, JPG, and WebP supported
-												</p>
-												<p className="text-xs leading-relaxed text-muted-foreground">
-													Paste with Ctrl/Cmd + V or drag a screenshot
-													straight onto this panel.
-												</p>
-											</div>
-										</div>
-										<div className="flex flex-wrap gap-2">
-											<Button
-												type="button"
-												variant="secondary"
-												size="sm"
-												onClick={() => fileInputRef.current?.click()}
-											>
-												<UploadIcon data-icon="inline-start" />
-												Upload
-											</Button>
-											<Button
-												type="button"
-												variant="outline"
-												size="sm"
-												onClick={() =>
-													replaceImageSource(
-														DEMO_IMAGE.src,
-														DEMO_IMAGE.name,
-														false,
-													)
-												}
-											>
-												<SparklesIcon data-icon="inline-start" />
-												Use demo image
-											</Button>
-										</div>
-										<div className="flex flex-wrap items-center gap-2">
-											<Badge variant="outline">{state.imageName}</Badge>
-											<Badge variant="secondary">Client-side only</Badge>
-										</div>
-									</div>
-								</FieldContent>
-							</Field>
-						</FieldGroup>
-					</ToolWorkspaceSection>
-				) : null}
-
-				{activeControlTab === "background" ? (
-					<ToolWorkspaceSection
-						title="Background"
-						description="Choose a preset, custom gradient, image, solid fill, or transparent export."
-					>
-						<FieldGroup>
-							<Field>
-								<FieldLabel>Background mode</FieldLabel>
-								<FieldContent>
-									<Segmented
-										label="Background mode"
-										value={state.backgroundStyle}
-										options={backgroundOptions}
-										onValueChange={(nextStyle: BackgroundStyle) =>
-											patchState({ backgroundStyle: nextStyle })
-										}
-									/>
-								</FieldContent>
-							</Field>
-
-							<input
-								ref={backgroundInputRef}
-								type="file"
-								accept="image/png,image/jpeg,image/webp"
-								className="hidden"
-								onChange={handleBackgroundFileChange}
-							/>
-
-							{state.backgroundStyle === "preset" ? (
+			<aside className="flex flex-col border-t border-line lg:w-96 lg:shrink-0 lg:overflow-y-auto lg:border-t-0 lg:border-l">
+				<div className="screen-line-bottom">{sidebarNavigation}</div>
+				<div className="flex flex-col gap-6 p-4">
+					<input
+						ref={fileInputRef}
+						type="file"
+						accept="image/png,image/jpeg,image/webp"
+						className="hidden"
+						onChange={handleFileChange}
+					/>
+					{activeControlTab === "image" ? (
+						<ToolWorkspaceSection
+							title="Image"
+							description="Drop, upload, or paste a screenshot to start styling."
+						>
+							<FieldGroup>
 								<Field>
-									<FieldLabel>Gradient preset</FieldLabel>
 									<FieldContent>
-										<div className="grid grid-cols-2 gap-2">
-											{gradientPresets.map((preset) => (
-												<button
-													key={preset.id}
+										{/* biome-ignore lint/a11y/noStaticElementInteractions: drag-and-drop target */}
+										<div
+											className={cn(
+												"flex flex-col gap-4 rounded-xl border border-dashed border-border bg-muted/30 p-4 transition-colors",
+												isDragging && "border-primary bg-primary/5",
+											)}
+											onDragEnter={(event) => {
+												event.preventDefault()
+												setIsDragging(true)
+											}}
+											onDragLeave={(event) => {
+												event.preventDefault()
+												setIsDragging(false)
+											}}
+											onDragOver={(event) => event.preventDefault()}
+											onDrop={handleDrop}
+											onPaste={handlePaste}
+										>
+											<div className="flex items-start gap-3">
+												<div className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-border bg-background text-muted-foreground">
+													<ImagePlusIcon />
+												</div>
+												<div className="min-w-0">
+													<p className="text-sm font-medium">
+														PNG, JPG, and WebP supported
+													</p>
+													<p className="text-xs leading-relaxed text-muted-foreground">
+														Paste with Ctrl/Cmd + V or drag a screenshot
+														straight onto this panel.
+													</p>
+												</div>
+											</div>
+											<div className="flex flex-wrap gap-2">
+												<Button
 													type="button"
-													className={cn(
-														"flex min-h-12 items-end rounded-lg p-2 text-left text-xs font-medium text-white shadow-sm transition",
-														state.gradientPresetId === preset.id
-															? "ring-2 ring-primary/60"
-															: "",
-													)}
-													style={{
-														background: `linear-gradient(${preset.angle}deg, ${preset.start}, ${preset.end})`,
-													}}
+													variant="secondary"
+													size="sm"
+													onClick={() => fileInputRef.current?.click()}
+												>
+													<UploadIcon data-icon="inline-start" />
+													Upload
+												</Button>
+												<Button
+													type="button"
+													variant="outline"
+													size="sm"
 													onClick={() =>
-														patchState({
-															gradientPresetId: preset.id,
-															gradientAngle: preset.angle,
-														})
+														replaceImageSource(
+															DEMO_IMAGE.src,
+															DEMO_IMAGE.name,
+															false,
+														)
 													}
 												>
-													<span className="rounded bg-black/30 px-1.5 py-0.5">
-														{preset.label}
-													</span>
-												</button>
-											))}
+													<SparklesIcon data-icon="inline-start" />
+													Use demo image
+												</Button>
+											</div>
+											<div className="flex flex-wrap items-center gap-2">
+												<Badge variant="outline">{state.imageName}</Badge>
+												<Badge variant="secondary">Client-side only</Badge>
+											</div>
 										</div>
 									</FieldContent>
 								</Field>
-							) : null}
+							</FieldGroup>
+						</ToolWorkspaceSection>
+					) : null}
 
-							{state.backgroundStyle === "custom" ? (
-								<GradientEditor
-									config={{
-										direction: state.gradientAngle,
-										stops: state.customGradientStops,
-									}}
-									onChangeAction={handleCustomGradientChange}
+					{activeControlTab === "background" ? (
+						<ToolWorkspaceSection
+							title="Background"
+							description="Choose a preset, custom gradient, image, solid fill, or transparent export."
+						>
+							<FieldGroup>
+								<Field>
+									<FieldLabel>Background mode</FieldLabel>
+									<FieldContent>
+										<Segmented
+											label="Background mode"
+											value={state.backgroundStyle}
+											options={backgroundOptions}
+											onValueChange={(nextStyle: BackgroundStyle) =>
+												patchState({ backgroundStyle: nextStyle })
+											}
+										/>
+									</FieldContent>
+								</Field>
+
+								<input
+									ref={backgroundInputRef}
+									type="file"
+									accept="image/png,image/jpeg,image/webp"
+									className="hidden"
+									onChange={handleBackgroundFileChange}
 								/>
-							) : null}
 
-							{state.backgroundStyle === "solid" ? (
-								<ColorField
-									id="solid-color"
-									label="Solid background"
-									value={state.solidColor}
-									onChangeAction={(nextValue) =>
-										patchState({ solidColor: nextValue })
+								{state.backgroundStyle === "preset" ? (
+									<Field>
+										<FieldLabel>Gradient preset</FieldLabel>
+										<FieldContent>
+											<div className="grid grid-cols-2 gap-2">
+												{gradientPresets.map((preset) => (
+													<button
+														key={preset.id}
+														type="button"
+														className={cn(
+															"flex min-h-12 items-end rounded-lg p-2 text-left text-xs font-medium text-white shadow-sm transition",
+															state.gradientPresetId === preset.id
+																? "ring-2 ring-primary/60"
+																: "",
+														)}
+														style={{
+															background: `linear-gradient(${preset.angle}deg, ${preset.start}, ${preset.end})`,
+														}}
+														onClick={() =>
+															patchState({
+																gradientPresetId: preset.id,
+																gradientAngle: preset.angle,
+															})
+														}
+													>
+														<span className="rounded bg-black/30 px-1.5 py-0.5">
+															{preset.label}
+														</span>
+													</button>
+												))}
+											</div>
+										</FieldContent>
+									</Field>
+								) : null}
+
+								{state.backgroundStyle === "custom" ? (
+									<GradientEditor
+										config={{
+											direction: state.gradientAngle,
+											stops: state.customGradientStops,
+										}}
+										onChangeAction={handleCustomGradientChange}
+									/>
+								) : null}
+
+								{state.backgroundStyle === "solid" ? (
+									<ColorField
+										id="solid-color"
+										label="Solid background"
+										value={state.solidColor}
+										onChangeAction={(nextValue) =>
+											patchState({ solidColor: nextValue })
+										}
+									/>
+								) : null}
+
+								{state.backgroundStyle === "image" ? (
+									<>
+										<Button
+											type="button"
+											variant="outline"
+											size="sm"
+											onClick={() => backgroundInputRef.current?.click()}
+										>
+											<UploadIcon data-icon="inline-start" />
+											{state.backgroundImageSrc
+												? "Replace background"
+												: "Upload background"}
+										</Button>
+										<div className="grid gap-4 sm:grid-cols-2">
+											<ColorField
+												id="background-tint"
+												label="Tint color"
+												value={state.backgroundTintColor}
+												onChangeAction={(nextValue) =>
+													patchState({
+														backgroundTintColor: nextValue,
+													})
+												}
+											/>
+											<SliderField
+												id="background-tint-opacity"
+												label="Tint opacity"
+												min={0}
+												max={100}
+												value={state.backgroundTintOpacity}
+												onValueChangeAction={(nextValue) =>
+													patchState({
+														backgroundTintOpacity: nextValue,
+													})
+												}
+											/>
+										</div>
+										<SliderField
+											id="background-blur"
+											label="Background blur"
+											min={0}
+											max={32}
+											value={state.backgroundBlur}
+											description={
+												loadedBackground.isLoading
+													? "Loading background..."
+													: undefined
+											}
+											onValueChangeAction={(nextValue) =>
+												patchState({ backgroundBlur: nextValue })
+											}
+										/>
+									</>
+								) : null}
+
+								{state.backgroundStyle === "preset" ? (
+									<SliderField
+										id="gradient-angle"
+										label="Gradient angle"
+										min={0}
+										max={360}
+										value={state.gradientAngle}
+										description="Controls the direction of the gradient wash."
+										onValueChangeAction={(nextValue) =>
+											patchState({ gradientAngle: nextValue })
+										}
+									/>
+								) : null}
+							</FieldGroup>
+						</ToolWorkspaceSection>
+					) : null}
+
+					{activeControlTab === "styling" ? (
+						<ToolWorkspaceSection
+							title="Canvas"
+							description="Tune the crop ratio, spacing, rounded corners, and screenshot placement."
+						>
+							<FieldGroup>
+								<SelectField
+									id="aspect-ratio"
+									label="Canvas ratio"
+									value={state.aspectRatio}
+									options={
+										aspectRatioOptions as SelectOption<AspectRatioOption>[]
+									}
+									onValueChangeAction={(nextValue) =>
+										patchState({ aspectRatio: nextValue })
 									}
 								/>
-							) : null}
+								<SliderField
+									id="padding-x"
+									label="Horizontal padding"
+									min={0}
+									max={220}
+									value={state.paddingX}
+									onValueChangeAction={(nextValue) =>
+										patchState({ paddingX: nextValue })
+									}
+								/>
+								<SliderField
+									id="padding-y"
+									label="Vertical padding"
+									min={0}
+									max={180}
+									value={state.paddingY}
+									onValueChangeAction={(nextValue) =>
+										patchState({ paddingY: nextValue })
+									}
+								/>
+								<SliderField
+									id="corner-radius"
+									label="Corner radius"
+									min={0}
+									max={48}
+									value={state.cornerRadius}
+									onValueChangeAction={(nextValue) =>
+										patchState({ cornerRadius: nextValue })
+									}
+								/>
+							</FieldGroup>
+						</ToolWorkspaceSection>
+					) : null}
 
-							{state.backgroundStyle === "image" ? (
-								<>
+					{activeControlTab === "shadow" ? (
+						<ToolWorkspaceSection
+							title="Shadow"
+							description="Pick a preset or build a custom shadow layer."
+						>
+							<FieldGroup>
+								<SelectField
+									id="shadow-style"
+									label="Shadow preset"
+									value={state.shadowPreset}
+									options={shadowOptions as SelectOption<ShadowPreset>[]}
+									onValueChangeAction={(nextValue) =>
+										patchState({ shadowPreset: nextValue })
+									}
+								/>
+
+								{state.shadowPreset === "custom" ? (
+									<>
+										<div className="grid gap-4 sm:grid-cols-2">
+											<ColorField
+												id="shadow-color"
+												label="Shadow color"
+												value={state.shadowColor}
+												onChangeAction={(nextValue) =>
+													patchState({ shadowColor: nextValue })
+												}
+											/>
+											<SliderField
+												id="shadow-opacity"
+												label="Shadow opacity"
+												min={0}
+												max={100}
+												value={state.shadowOpacity}
+												onValueChangeAction={(nextValue) =>
+													patchState({ shadowOpacity: nextValue })
+												}
+											/>
+										</div>
+										<div className="grid gap-4 sm:grid-cols-2">
+											<SliderField
+												id="shadow-x"
+												label="Shadow X"
+												min={-80}
+												max={80}
+												value={state.shadowOffsetX}
+												onValueChangeAction={(nextValue) =>
+													patchState({ shadowOffsetX: nextValue })
+												}
+											/>
+											<SliderField
+												id="shadow-y"
+												label="Shadow Y"
+												min={-80}
+												max={80}
+												value={state.shadowOffsetY}
+												onValueChangeAction={(nextValue) =>
+													patchState({ shadowOffsetY: nextValue })
+												}
+											/>
+										</div>
+										<SliderField
+											id="shadow-blur"
+											label="Shadow blur"
+											min={0}
+											max={120}
+											value={state.shadowBlur}
+											onValueChangeAction={(nextValue) =>
+												patchState({ shadowBlur: nextValue })
+											}
+										/>
+									</>
+								) : null}
+							</FieldGroup>
+						</ToolWorkspaceSection>
+					) : null}
+
+					{activeControlTab === "border" ? (
+						<ToolWorkspaceSection
+							title="Border"
+							description="Add a border around the rendered window or device."
+						>
+							<FieldGroup>
+								<SliderField
+									id="border-width"
+									label="Border width"
+									min={0}
+									max={16}
+									value={state.borderWidth}
+									onValueChangeAction={(nextValue) =>
+										patchState({ borderWidth: nextValue })
+									}
+								/>
+								<ColorField
+									id="border-color"
+									label="Border color"
+									value={state.borderColor}
+									onChangeAction={(nextValue) =>
+										patchState({ borderColor: nextValue })
+									}
+								/>
+							</FieldGroup>
+						</ToolWorkspaceSection>
+					) : null}
+
+					{activeControlTab === "window" ? (
+						<ToolWorkspaceSection
+							title="Window"
+							description="Choose the frame, theme, and browser address bar."
+						>
+							<FieldGroup>
+								<SelectField
+									id="frame-style"
+									label="Window frame"
+									value={state.frameStyle}
+									options={frameStyleOptions as SelectOption<BrowserFrameStyle>[]}
+									onValueChangeAction={(nextValue) =>
+										patchState({ frameStyle: nextValue })
+									}
+								/>
+
+								<Field>
+									<FieldLabel>Frame theme</FieldLabel>
+									<FieldContent>
+										<Segmented
+											label="Frame theme"
+											value={state.frameDarkMode ? "dark" : "light"}
+											options={[
+												{ value: "dark", label: "Dark" },
+												{ value: "light", label: "Light" },
+											]}
+											onValueChange={(nextTheme) =>
+												patchState({ frameDarkMode: nextTheme === "dark" })
+											}
+										/>
+									</FieldContent>
+								</Field>
+
+								{state.frameStyle === "browser" ? (
+									<Field>
+										<FieldLabel htmlFor="browser-address">
+											Address bar
+										</FieldLabel>
+										<FieldContent>
+											<Input
+												id="browser-address"
+												value={state.address}
+												onChange={(event) =>
+													patchState({ address: event.target.value })
+												}
+											/>
+										</FieldContent>
+									</Field>
+								) : null}
+							</FieldGroup>
+						</ToolWorkspaceSection>
+					) : null}
+
+					{activeControlTab === "styling" ? (
+						<ToolWorkspaceSection
+							title="Transform"
+							description="Rotate, scale, and position the screenshot inside the canvas."
+						>
+							<FieldGroup>
+								<SliderField
+									id="image-scale"
+									label="Image scale"
+									min={40}
+									max={180}
+									value={state.imageScale}
+									onValueChangeAction={(nextValue) =>
+										patchState({ imageScale: nextValue })
+									}
+								/>
+								<div className="grid gap-4 sm:grid-cols-2">
+									<SliderField
+										id="position-x"
+										label="Position X"
+										min={-240}
+										max={240}
+										value={state.positionX}
+										onValueChangeAction={(nextValue) =>
+											patchState({ positionX: nextValue })
+										}
+									/>
+									<SliderField
+										id="position-y"
+										label="Position Y"
+										min={-240}
+										max={240}
+										value={state.positionY}
+										onValueChangeAction={(nextValue) =>
+											patchState({ positionY: nextValue })
+										}
+									/>
+								</div>
+								<SliderField
+									id="rotation"
+									label="Rotation"
+									min={-180}
+									max={180}
+									value={state.rotation}
+									onValueChangeAction={(nextValue) =>
+										patchState({ rotation: nextValue })
+									}
+								/>
+								<div className="grid gap-4 sm:grid-cols-2">
+									<SliderField
+										id="rotate-x"
+										label="3D rotate X"
+										min={-45}
+										max={45}
+										value={state.rotateX}
+										onValueChangeAction={(nextValue) =>
+											patchState({ rotateX: nextValue })
+										}
+									/>
+									<SliderField
+										id="rotate-y"
+										label="3D rotate Y"
+										min={-45}
+										max={45}
+										value={state.rotateY}
+										onValueChangeAction={(nextValue) =>
+											patchState({ rotateY: nextValue })
+										}
+									/>
+								</div>
+								<div className="grid grid-cols-2 gap-2">
 									<Button
 										type="button"
 										variant="outline"
 										size="sm"
-										onClick={() => backgroundInputRef.current?.click()}
+										onClick={() =>
+											patchState({
+												rotation: state.rotation - 5,
+											})
+										}
 									>
-										<UploadIcon data-icon="inline-start" />
-										{state.backgroundImageSrc
-											? "Replace background"
-											: "Upload background"}
+										<RotateCcwIcon data-icon="inline-start" />
+										Left
 									</Button>
-									<div className="grid gap-4 sm:grid-cols-2">
-										<ColorField
-											id="background-tint"
-											label="Tint color"
-											value={state.backgroundTintColor}
-											onChangeAction={(nextValue) =>
-												patchState({
-													backgroundTintColor: nextValue,
-												})
-											}
-										/>
-										<SliderField
-											id="background-tint-opacity"
-											label="Tint opacity"
-											min={0}
-											max={100}
-											value={state.backgroundTintOpacity}
-											onValueChangeAction={(nextValue) =>
-												patchState({
-													backgroundTintOpacity: nextValue,
-												})
-											}
-										/>
-									</div>
-									<SliderField
-										id="background-blur"
-										label="Background blur"
-										min={0}
-										max={32}
-										value={state.backgroundBlur}
-										description={
-											loadedBackground.isLoading
-												? "Loading background..."
-												: undefined
+									<Button
+										type="button"
+										variant="outline"
+										size="sm"
+										onClick={() =>
+											patchState({
+												rotation: state.rotation + 5,
+											})
 										}
-										onValueChangeAction={(nextValue) =>
-											patchState({ backgroundBlur: nextValue })
-										}
-									/>
-								</>
-							) : null}
+									>
+										<RotateCwIcon data-icon="inline-start" />
+										Right
+									</Button>
+								</div>
+							</FieldGroup>
+						</ToolWorkspaceSection>
+					) : null}
 
-							{state.backgroundStyle === "preset" ? (
-								<SliderField
-									id="gradient-angle"
-									label="Gradient angle"
-									min={0}
-									max={360}
-									value={state.gradientAngle}
-									description="Controls the direction of the gradient wash."
-									onValueChangeAction={(nextValue) =>
-										patchState({ gradientAngle: nextValue })
-									}
-								/>
-							) : null}
-						</FieldGroup>
-					</ToolWorkspaceSection>
-				) : null}
-
-				{activeControlTab === "styling" ? (
-					<ToolWorkspaceSection
-						title="Canvas"
-						description="Tune the crop ratio, spacing, rounded corners, and screenshot placement."
-					>
-						<FieldGroup>
-							<SelectField
-								id="aspect-ratio"
-								label="Canvas ratio"
-								value={state.aspectRatio}
-								options={aspectRatioOptions as SelectOption<AspectRatioOption>[]}
-								onValueChangeAction={(nextValue) =>
-									patchState({ aspectRatio: nextValue })
-								}
-							/>
-							<SliderField
-								id="padding-x"
-								label="Horizontal padding"
-								min={0}
-								max={220}
-								value={state.paddingX}
-								onValueChangeAction={(nextValue) =>
-									patchState({ paddingX: nextValue })
-								}
-							/>
-							<SliderField
-								id="padding-y"
-								label="Vertical padding"
-								min={0}
-								max={180}
-								value={state.paddingY}
-								onValueChangeAction={(nextValue) =>
-									patchState({ paddingY: nextValue })
-								}
-							/>
-							<SliderField
-								id="corner-radius"
-								label="Corner radius"
-								min={0}
-								max={48}
-								value={state.cornerRadius}
-								onValueChangeAction={(nextValue) =>
-									patchState({ cornerRadius: nextValue })
-								}
-							/>
-						</FieldGroup>
-					</ToolWorkspaceSection>
-				) : null}
-
-				{activeControlTab === "shadow" ? (
-					<ToolWorkspaceSection
-						title="Shadow"
-						description="Pick a preset or build a custom shadow layer."
-					>
-						<FieldGroup>
-							<SelectField
-								id="shadow-style"
-								label="Shadow preset"
-								value={state.shadowPreset}
-								options={shadowOptions as SelectOption<ShadowPreset>[]}
-								onValueChangeAction={(nextValue) =>
-									patchState({ shadowPreset: nextValue })
-								}
-							/>
-
-							{state.shadowPreset === "custom" ? (
-								<>
-									<div className="grid gap-4 sm:grid-cols-2">
-										<ColorField
-											id="shadow-color"
-											label="Shadow color"
-											value={state.shadowColor}
-											onChangeAction={(nextValue) =>
-												patchState({ shadowColor: nextValue })
-											}
-										/>
-										<SliderField
-											id="shadow-opacity"
-											label="Shadow opacity"
-											min={0}
-											max={100}
-											value={state.shadowOpacity}
-											onValueChangeAction={(nextValue) =>
-												patchState({ shadowOpacity: nextValue })
-											}
-										/>
-									</div>
-									<div className="grid gap-4 sm:grid-cols-2">
-										<SliderField
-											id="shadow-x"
-											label="Shadow X"
-											min={-80}
-											max={80}
-											value={state.shadowOffsetX}
-											onValueChangeAction={(nextValue) =>
-												patchState({ shadowOffsetX: nextValue })
-											}
-										/>
-										<SliderField
-											id="shadow-y"
-											label="Shadow Y"
-											min={-80}
-											max={80}
-											value={state.shadowOffsetY}
-											onValueChangeAction={(nextValue) =>
-												patchState({ shadowOffsetY: nextValue })
-											}
-										/>
-									</div>
-									<SliderField
-										id="shadow-blur"
-										label="Shadow blur"
-										min={0}
-										max={120}
-										value={state.shadowBlur}
-										onValueChangeAction={(nextValue) =>
-											patchState({ shadowBlur: nextValue })
-										}
-									/>
-								</>
-							) : null}
-						</FieldGroup>
-					</ToolWorkspaceSection>
-				) : null}
-
-				{activeControlTab === "border" ? (
-					<ToolWorkspaceSection
-						title="Border"
-						description="Add a border around the rendered window or device."
-					>
-						<FieldGroup>
-							<SliderField
-								id="border-width"
-								label="Border width"
-								min={0}
-								max={16}
-								value={state.borderWidth}
-								onValueChangeAction={(nextValue) =>
-									patchState({ borderWidth: nextValue })
-								}
-							/>
-							<ColorField
-								id="border-color"
-								label="Border color"
-								value={state.borderColor}
-								onChangeAction={(nextValue) =>
-									patchState({ borderColor: nextValue })
-								}
-							/>
-						</FieldGroup>
-					</ToolWorkspaceSection>
-				) : null}
-
-				{activeControlTab === "window" ? (
-					<ToolWorkspaceSection
-						title="Window"
-						description="Choose the frame, theme, and browser address bar."
-					>
-						<FieldGroup>
-							<SelectField
-								id="frame-style"
-								label="Window frame"
-								value={state.frameStyle}
-								options={frameStyleOptions as SelectOption<BrowserFrameStyle>[]}
-								onValueChangeAction={(nextValue) =>
-									patchState({ frameStyle: nextValue })
-								}
-							/>
-
-							<Field>
-								<FieldLabel>Frame theme</FieldLabel>
-								<FieldContent>
-									<Segmented
-										label="Frame theme"
-										value={state.frameDarkMode ? "dark" : "light"}
-										options={[
-											{ value: "dark", label: "Dark" },
-											{ value: "light", label: "Light" },
-										]}
-										onValueChange={(nextTheme) =>
-											patchState({ frameDarkMode: nextTheme === "dark" })
-										}
-									/>
-								</FieldContent>
-							</Field>
-
-							{state.frameStyle === "browser" ? (
-								<Field>
-									<FieldLabel htmlFor="browser-address">Address bar</FieldLabel>
-									<FieldContent>
-										<Input
-											id="browser-address"
-											value={state.address}
-											onChange={(event) =>
-												patchState({ address: event.target.value })
-											}
-										/>
-									</FieldContent>
-								</Field>
-							) : null}
-						</FieldGroup>
-					</ToolWorkspaceSection>
-				) : null}
-
-				{activeControlTab === "styling" ? (
-					<ToolWorkspaceSection
-						title="Transform"
-						description="Rotate, scale, and position the screenshot inside the canvas."
-					>
-						<FieldGroup>
-							<SliderField
-								id="image-scale"
-								label="Image scale"
-								min={40}
-								max={180}
-								value={state.imageScale}
-								onValueChangeAction={(nextValue) =>
-									patchState({ imageScale: nextValue })
-								}
-							/>
-							<div className="grid gap-4 sm:grid-cols-2">
-								<SliderField
-									id="position-x"
-									label="Position X"
-									min={-240}
-									max={240}
-									value={state.positionX}
-									onValueChangeAction={(nextValue) =>
-										patchState({ positionX: nextValue })
-									}
-								/>
-								<SliderField
-									id="position-y"
-									label="Position Y"
-									min={-240}
-									max={240}
-									value={state.positionY}
-									onValueChangeAction={(nextValue) =>
-										patchState({ positionY: nextValue })
-									}
-								/>
-							</div>
-							<SliderField
-								id="rotation"
-								label="Rotation"
-								min={-180}
-								max={180}
-								value={state.rotation}
-								onValueChangeAction={(nextValue) =>
-									patchState({ rotation: nextValue })
-								}
-							/>
-							<div className="grid gap-4 sm:grid-cols-2">
-								<SliderField
-									id="rotate-x"
-									label="3D rotate X"
-									min={-45}
-									max={45}
-									value={state.rotateX}
-									onValueChangeAction={(nextValue) =>
-										patchState({ rotateX: nextValue })
-									}
-								/>
-								<SliderField
-									id="rotate-y"
-									label="3D rotate Y"
-									min={-45}
-									max={45}
-									value={state.rotateY}
-									onValueChangeAction={(nextValue) =>
-										patchState({ rotateY: nextValue })
-									}
-								/>
-							</div>
-							<div className="grid grid-cols-2 gap-2">
+					{activeControlTab === "window" ? (
+						<ToolWorkspaceSection
+							title="Stack"
+							description="Layer duplicate windows behind the main screenshot."
+						>
+							<FieldGroup>
 								<Button
 									type="button"
-									variant="outline"
+									variant={state.stackEnabled ? "secondary" : "outline"}
 									size="sm"
 									onClick={() =>
-										patchState({
-											rotation: state.rotation - 5,
-										})
+										patchState({ stackEnabled: !state.stackEnabled })
 									}
 								>
-									<RotateCcwIcon data-icon="inline-start" />
-									Left
+									<LayersIcon data-icon="inline-start" />
+									{state.stackEnabled ? "Stack enabled" : "Enable stack"}
+								</Button>
+								<div className="grid gap-4 sm:grid-cols-2">
+									<SliderField
+										id="stack-count"
+										label="Layer count"
+										min={2}
+										max={6}
+										value={state.stackCount}
+										onValueChangeAction={(nextValue) =>
+											patchState({ stackCount: nextValue })
+										}
+									/>
+									<SelectField
+										id="stack-effect"
+										label="Layer effect"
+										value={state.stackEffect}
+										options={
+											[
+												{ value: "default", label: "Default" },
+												{ value: "silhouette", label: "Silhouette" },
+											] as SelectOption<StackEffect>[]
+										}
+										onValueChangeAction={(nextValue) =>
+											patchState({ stackEffect: nextValue })
+										}
+									/>
+								</div>
+								<div className="grid gap-4 sm:grid-cols-2">
+									<SliderField
+										id="stack-offset-x"
+										label="Offset X"
+										min={-80}
+										max={80}
+										value={state.stackOffsetX}
+										onValueChangeAction={(nextValue) =>
+											patchState({ stackOffsetX: nextValue })
+										}
+									/>
+									<SliderField
+										id="stack-offset-y"
+										label="Offset Y"
+										min={-80}
+										max={80}
+										value={state.stackOffsetY}
+										onValueChangeAction={(nextValue) =>
+											patchState({ stackOffsetY: nextValue })
+										}
+									/>
+								</div>
+								<div className="grid gap-4 sm:grid-cols-2">
+									<SliderField
+										id="stack-scale"
+										label="Layer scale"
+										min={70}
+										max={100}
+										value={state.stackScale}
+										onValueChangeAction={(nextValue) =>
+											patchState({ stackScale: nextValue })
+										}
+									/>
+									<SliderField
+										id="stack-opacity"
+										label="Layer opacity"
+										min={0}
+										max={100}
+										value={state.stackOpacity}
+										onValueChangeAction={(nextValue) =>
+											patchState({ stackOpacity: nextValue })
+										}
+									/>
+								</div>
+								<SliderField
+									id="stack-blur"
+									label="Layer blur"
+									min={0}
+									max={24}
+									value={state.stackBlur}
+									onValueChangeAction={(nextValue) =>
+										patchState({ stackBlur: nextValue })
+									}
+								/>
+							</FieldGroup>
+						</ToolWorkspaceSection>
+					) : null}
+
+					{activeControlTab === "export" ? (
+						<ToolWorkspaceSection
+							title="Export"
+							description="Use PNG for transparency. JPG fills transparent backgrounds with a light canvas."
+						>
+							<div className="grid gap-2 sm:grid-cols-2">
+								<Button
+									type="button"
+									variant="secondary"
+									size="sm"
+									onClick={handleCopy}
+									disabled={!loadedImage.image || isExporting}
+									className="col-span-2"
+								>
+									<CopyIcon data-icon="inline-start" />
+									Copy PNG
 								</Button>
 								<Button
 									type="button"
 									variant="outline"
 									size="sm"
-									onClick={() =>
-										patchState({
-											rotation: state.rotation + 5,
-										})
-									}
+									onClick={() => void handleExport("png", 1)}
+									disabled={!loadedImage.image || isExporting}
 								>
-									<RotateCwIcon data-icon="inline-start" />
-									Right
+									<DownloadIcon data-icon="inline-start" />
+									PNG 1x
+								</Button>
+								<Button
+									type="button"
+									variant="outline"
+									size="sm"
+									onClick={() => void handleExport("png", 2)}
+									disabled={!loadedImage.image || isExporting}
+								>
+									<DownloadIcon data-icon="inline-start" />
+									PNG 2x
+								</Button>
+								<Button
+									type="button"
+									variant="outline"
+									size="sm"
+									onClick={() => void handleExport("jpg", 1)}
+									disabled={!loadedImage.image || isExporting}
+								>
+									<DownloadIcon data-icon="inline-start" />
+									JPG 1x
+								</Button>
+								<Button
+									type="button"
+									variant="outline"
+									size="sm"
+									onClick={() => void handleExport("jpg", 2)}
+									disabled={!loadedImage.image || isExporting}
+								>
+									<DownloadIcon data-icon="inline-start" />
+									JPG 2x
 								</Button>
 							</div>
-						</FieldGroup>
-					</ToolWorkspaceSection>
-				) : null}
-
-				{activeControlTab === "window" ? (
-					<ToolWorkspaceSection
-						title="Stack"
-						description="Layer duplicate windows behind the main screenshot."
-					>
-						<FieldGroup>
-							<Button
-								type="button"
-								variant={state.stackEnabled ? "secondary" : "outline"}
-								size="sm"
-								onClick={() => patchState({ stackEnabled: !state.stackEnabled })}
-							>
-								<LayersIcon data-icon="inline-start" />
-								{state.stackEnabled ? "Stack enabled" : "Enable stack"}
-							</Button>
-							<div className="grid gap-4 sm:grid-cols-2">
-								<SliderField
-									id="stack-count"
-									label="Layer count"
-									min={2}
-									max={6}
-									value={state.stackCount}
-									onValueChangeAction={(nextValue) =>
-										patchState({ stackCount: nextValue })
-									}
-								/>
-								<SelectField
-									id="stack-effect"
-									label="Layer effect"
-									value={state.stackEffect}
-									options={
-										[
-											{ value: "default", label: "Default" },
-											{ value: "silhouette", label: "Silhouette" },
-										] as SelectOption<StackEffect>[]
-									}
-									onValueChangeAction={(nextValue) =>
-										patchState({ stackEffect: nextValue })
-									}
-								/>
-							</div>
-							<div className="grid gap-4 sm:grid-cols-2">
-								<SliderField
-									id="stack-offset-x"
-									label="Offset X"
-									min={-80}
-									max={80}
-									value={state.stackOffsetX}
-									onValueChangeAction={(nextValue) =>
-										patchState({ stackOffsetX: nextValue })
-									}
-								/>
-								<SliderField
-									id="stack-offset-y"
-									label="Offset Y"
-									min={-80}
-									max={80}
-									value={state.stackOffsetY}
-									onValueChangeAction={(nextValue) =>
-										patchState({ stackOffsetY: nextValue })
-									}
-								/>
-							</div>
-							<div className="grid gap-4 sm:grid-cols-2">
-								<SliderField
-									id="stack-scale"
-									label="Layer scale"
-									min={70}
-									max={100}
-									value={state.stackScale}
-									onValueChangeAction={(nextValue) =>
-										patchState({ stackScale: nextValue })
-									}
-								/>
-								<SliderField
-									id="stack-opacity"
-									label="Layer opacity"
-									min={0}
-									max={100}
-									value={state.stackOpacity}
-									onValueChangeAction={(nextValue) =>
-										patchState({ stackOpacity: nextValue })
-									}
-								/>
-							</div>
-							<SliderField
-								id="stack-blur"
-								label="Layer blur"
-								min={0}
-								max={24}
-								value={state.stackBlur}
-								onValueChangeAction={(nextValue) =>
-									patchState({ stackBlur: nextValue })
-								}
-							/>
-						</FieldGroup>
-					</ToolWorkspaceSection>
-				) : null}
-
-				{activeControlTab === "export" ? (
-					<ToolWorkspaceSection
-						title="Export"
-						description="Use PNG for transparency. JPG fills transparent backgrounds with a light canvas."
-					>
-						<div className="grid gap-2 sm:grid-cols-2">
-							<Button
-								type="button"
-								variant="secondary"
-								size="sm"
-								onClick={handleCopy}
-								disabled={!loadedImage.image || isExporting}
-								className="col-span-2"
-							>
-								<CopyIcon data-icon="inline-start" />
-								Copy PNG
-							</Button>
-							<Button
-								type="button"
-								variant="outline"
-								size="sm"
-								onClick={() => void handleExport("png", 1)}
-								disabled={!loadedImage.image || isExporting}
-							>
-								<DownloadIcon data-icon="inline-start" />
-								PNG 1x
-							</Button>
-							<Button
-								type="button"
-								variant="outline"
-								size="sm"
-								onClick={() => void handleExport("png", 2)}
-								disabled={!loadedImage.image || isExporting}
-							>
-								<DownloadIcon data-icon="inline-start" />
-								PNG 2x
-							</Button>
-							<Button
-								type="button"
-								variant="outline"
-								size="sm"
-								onClick={() => void handleExport("jpg", 1)}
-								disabled={!loadedImage.image || isExporting}
-							>
-								<DownloadIcon data-icon="inline-start" />
-								JPG 1x
-							</Button>
-							<Button
-								type="button"
-								variant="outline"
-								size="sm"
-								onClick={() => void handleExport("jpg", 2)}
-								disabled={!loadedImage.image || isExporting}
-							>
-								<DownloadIcon data-icon="inline-start" />
-								JPG 2x
-							</Button>
-						</div>
-					</ToolWorkspaceSection>
-				) : null}
-			</div>
-			<div className="screen-line-top p-4">{sidebarFooter}</div>
+						</ToolWorkspaceSection>
+					) : null}
+				</div>
+				<div className="screen-line-top p-4">{sidebarFooter}</div>
+			</aside>
 			<div
 				aria-live="polite"
 				className="pointer-events-none fixed inset-x-0 bottom-20 z-50 flex justify-center px-4 sm:bottom-6"
@@ -1926,6 +1951,6 @@ export function ScreenshotMockupTool() {
 					onCancelAction={() => setIsCropToolOpen(false)}
 				/>
 			) : null}
-		</>
+		</div>
 	)
 }

@@ -1,11 +1,10 @@
 import { Button } from "@workspace/ui/components/button"
-import { ArrowLeftIcon, MailIcon } from "lucide-react"
+import { ArrowLeftIcon, ArrowRightIcon, MailIcon } from "lucide-react"
 import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { Tag } from "@/components/badges"
 import { Panel, PanelContent, PanelHeader, PanelTitle, Separator } from "@/components/panel"
-import { ScreenshotMockup } from "@/features/tools/screenshot-mockup"
 import { tools } from "@/lib/content"
 import { siteConfig } from "@/lib/site-config"
 
@@ -57,16 +56,19 @@ export default async function ToolPage({ params }: Props) {
 				</div>
 			</div>
 			<Panel marks={false} className="screen-line-top-none">
-				{/* Tool UI slot: each tool lives in features/tools/<slug> and loads lazily. */}
-				{tool.slug === "screenshot-mockup" ? (
-					<ScreenshotMockup />
-				) : (
-					<div className="dot-grid flex min-h-72 flex-col items-center justify-center gap-2 p-8 text-center">
-						<p className="font-mono text-xs text-muted-foreground uppercase">
-							Coming soon
-						</p>
-					</div>
-				)}
+				<div className="dot-grid flex min-h-60 flex-col items-center justify-center gap-4 p-8 text-center">
+					<p className="max-w-sm text-balance text-muted-foreground">
+						The editor opens full screen. Your files stay in your browser.
+					</p>
+					<Button
+						nativeButton={false}
+						render={<Link href={`/tools/${tool.slug}/workspace`} />}
+						className="gap-2"
+					>
+						Open {tool.name.toLowerCase()}
+						<ArrowRightIcon />
+					</Button>
+				</div>
 			</Panel>
 			<Separator />
 			<Panel id="how-it-works">
