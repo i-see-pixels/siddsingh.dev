@@ -41,14 +41,14 @@ export type CaseStudy = {
 export const caseStudies: CaseStudy[] = [
 	{
 		slug: "doctors-divine",
-		image: `${blobUrl}/work/doctors-divine.png`,
+		image: `${blobUrl}/work/doctorsdivine_tile.png`,
 		name: "Doctors Divine",
 		client: "Doctors Divine",
 		type: "Healthcare platform",
 		year: "2023, redesigned 2026",
 		title: "Hospital platform with doctor discovery, online booking and patient dashboards",
 		outcome: "1K visitors / mo",
-		stack: ["Next.js 15", "React 19", "Supabase", "TypeScript"],
+		stack: ["Next.js 16", "React 19", "Supabase", "TypeScript"],
 		href: "https://www.doctorsdivine.com/",
 	},
 	{
@@ -61,29 +61,6 @@ export const caseStudies: CaseStudy[] = [
 		title: "Multi-agent root-cause analysis that writes incident reports before tickets are opened",
 		outcome: "$500K–700K / yr",
 		stack: ["FastAPI", "Google ADK", "GKE", "Celery"],
-	},
-	{
-		slug: "plenz",
-		image: `${blobUrl}/work/plenz.png`,
-		name: "plenz",
-		client: "Open source",
-		type: "Browser extension",
-		year: "2026",
-		title: "Real-time prompt refinement across ChatGPT, Claude and Gemini",
-		outcome: "200+ installs",
-		stack: ["TypeScript", "Vite", "Next.js", "Firebase"],
-		href: "https://plenz.siddsingh.dev",
-	},
-	{
-		slug: "admin-boil",
-		image: `${blobUrl}/work/admin-boil.png`,
-		name: "admin-boil",
-		client: "Own product",
-		type: "SaaS dashboard",
-		year: "2025",
-		title: "Admin dashboard installed with one CLI command, with licensing, pricing and docs",
-		stack: ["Next.js", "shadcn/ui", "Drizzle", "PostgreSQL"],
-		href: "https://admin-boil.vercel.app",
 	},
 	{
 		slug: "snapnode",
@@ -144,18 +121,22 @@ export const products = [
 		name: "plenz",
 		pitch: "Open-source extension that rewrites weak AI prompts before you send them.",
 		status: "Live" as const,
+		metric: "200+ installs",
+		stack: ["TypeScript", "Vite", "Next.js", "Firebase"],
 		href: "https://plenz.siddsingh.dev",
 	},
 	{
 		name: "admin-boil",
 		pitch: "Admin dashboard you install with one CLI command, for Next.js and more.",
 		status: "Live" as const,
+		stack: ["Next.js", "shadcn/ui", "Drizzle", "PostgreSQL"],
 		href: "https://admin-boil.vercel.app",
 	},
 	{
 		name: "SnapNode",
 		pitch: "Chrome extension for crisp, element-level screenshots of any web page.",
 		status: "Beta" as const,
+		stack: ["Preact", "TypeScript", "Vite", "Tailwind CSS"],
 		href: "https://github.com/i-see-pixels/snapnode",
 	},
 ]
@@ -262,5 +243,24 @@ export const tools = [
 		name: "Screenshot mockup",
 		description: "Turn raw screenshots into polished product visuals, exported as PNG or JPG.",
 		category: "Images",
+		steps: [
+			"Drop in a screenshot, or paste one from your clipboard.",
+			"Pick a background, padding, corner radius and shadow.",
+			"Export as PNG or JPG.",
+		],
+		faq: [
+			{
+				question: "Is my screenshot uploaded anywhere?",
+				answer: "No. The editing happens in your browser, so your image stays on your device.",
+			},
+			{
+				question: "What can I export?",
+				answer: "PNG or JPG, at the size you set on the canvas.",
+			},
+			{
+				question: "Does it cost anything?",
+				answer: "No. It's free, with no sign-up and no watermark.",
+			},
+		],
 	},
 ]
