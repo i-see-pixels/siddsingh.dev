@@ -37,6 +37,7 @@ import {
 	useRef,
 	useState,
 } from "react"
+import { flushSync } from "react-dom"
 import {
 	aspectRatioOptions,
 	backgroundOptions,
@@ -205,6 +206,8 @@ export function ScreenshotMockupTool() {
 	const previewOffsetRef = useRef(previewOffset)
 	const previewPanFrameRef = useRef<number | null>(null)
 	const dragStateRef = useRef<PreviewDragState | null>(null)
+	const exportRef = useRef<HTMLDivElement | null>(null)
+	const [isExportMounted, setIsExportMounted] = useState(false)
 	const lastPatchRef = useRef({ key: "", time: 0 })
 	const pendingMoveRef = useRef<Partial<ScreenshotMockupState> | null>(null)
 	const moveFrameRef = useRef<number | null>(null)
@@ -734,6 +737,32 @@ export function ScreenshotMockupTool() {
 		notify("Crop applied.")
 	}
 
+	/**
+	 * Rasterizes the mockup with html-to-image. The on-screen preview uses a downscaled image and
+	 * sits inside scaled wrappers, so a full-size copy is mounted off-screen for the capture.
+	 */
+	const renderExport = async (format: ExportFormat, scale: number, quality?: number) => {
+		flushSync(() => setIsExportMounted(true))
+
+		try {
+			const element = exportRef.current
+
+			if (!element) {
+				throw new Error("Export element is not mounted.")
+			}
+
+			await Promise.all(
+				Array.from(element.querySelectorAll("img")).map((img) =>
+					img.decode().catch(() => {}),
+				),
+			)
+
+			return await exportMockupElement({ element, format, scale, quality })
+		} finally {
+			setIsExportMounted(false)
+		}
+	}
+
 	const handleExport = async (format: ExportFormat, scale: number) => {
 		if (!loadedImage.image || isExporting) {
 			return
@@ -742,14 +771,7 @@ export function ScreenshotMockupTool() {
 		setIsExporting(true)
 
 		try {
-			const blob = await exportMockupElement({
-				image: loadedImage.image,
-				backgroundImage: loadedBackground.image,
-				state,
-				format,
-				scale,
-				quality: 0.92,
-			})
+			const blob = await renderExport(format, scale, 0.92)
 			const link = document.createElement("a")
 			const objectUrl = URL.createObjectURL(blob)
 			const fileBase = sanitizeFilename(state.imageName || "screenshot-mockup")
@@ -781,13 +803,7 @@ export function ScreenshotMockupTool() {
 		setIsExporting(true)
 
 		try {
-			const blob = await exportMockupElement({
-				image: loadedImage.image,
-				backgroundImage: loadedBackground.image,
-				state,
-				format: "png",
-				scale: 2,
-			})
+			const blob = await renderExport("png", 2)
 			await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })])
 			notify("Copied PNG to clipboard.")
 		} catch (error) {
@@ -2008,6 +2024,16 @@ export function ScreenshotMockupTool() {
 					</p>
 				) : null}
 			</div>
+			{isExportMounted && loadedImage.image ? (
+				<div aria-hidden className="pointer-events-none fixed top-0 -left-[100000px]">
+					<MockupRenderer
+						ref={exportRef}
+						state={state}
+						imageWidth={loadedImage.image.naturalWidth}
+						imageHeight={loadedImage.image.naturalHeight}
+					/>
+				</div>
+			) : null}
 			{isCropToolOpen && state.imageSrc ? (
 				<CropTool
 					imageSrc={state.imageSrc}

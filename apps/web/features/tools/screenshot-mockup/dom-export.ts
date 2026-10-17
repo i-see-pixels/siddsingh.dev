@@ -1,20 +1,39 @@
-import { renderMockupCanvas } from "./canvas"
-import type { ExportFormat, ScreenshotMockupState } from "./types"
+import { toPng } from "html-to-image"
+
+import type { ExportFormat } from "./types"
 
 type ExportMockupElementArgs = {
-	image: HTMLImageElement | HTMLCanvasElement
-	backgroundImage?: HTMLImageElement | HTMLCanvasElement | null
-	state: ScreenshotMockupState
+	element: HTMLElement
 	format: ExportFormat
 	scale: number
 	quality?: number
 }
 
-function canvasToBlob(
-	canvas: HTMLCanvasElement,
-	type: "image/png" | "image/jpeg",
-	quality?: number,
-) {
+async function dataUrlToBlob(dataUrl: string) {
+	const response = await fetch(dataUrl)
+
+	return response.blob()
+}
+
+async function pngDataUrlToJpegBlob(dataUrl: string, quality = 0.92) {
+	const image = new Image()
+	image.src = dataUrl
+	await image.decode()
+
+	const canvas = document.createElement("canvas")
+	const context = canvas.getContext("2d")
+
+	canvas.width = image.naturalWidth
+	canvas.height = image.naturalHeight
+
+	if (!context) {
+		throw new Error("Canvas 2D context is not available.")
+	}
+
+	context.fillStyle = "#ffffff"
+	context.fillRect(0, 0, canvas.width, canvas.height)
+	context.drawImage(image, 0, 0)
+
 	return new Promise<Blob>((resolve, reject) => {
 		canvas.toBlob(
 			(blob) => {
@@ -25,34 +44,37 @@ function canvasToBlob(
 
 				resolve(blob)
 			},
-			type,
+			"image/jpeg",
 			quality,
 		)
 	})
 }
 
+async function renderElementToPngDataUrl(element: HTMLElement, scale: number) {
+	return toPng(element, {
+		// cacheBust appends a query string, which breaks blob: and data: image URLs.
+		cacheBust: false,
+		pixelRatio: scale,
+		skipFonts: true,
+		filter: (node) => {
+			const style = window.getComputedStyle(node as Element)
+
+			return style.display !== "none" && style.opacity !== "0"
+		},
+	})
+}
+
 export async function exportMockupElement({
-	image,
-	backgroundImage,
-	state,
+	element,
 	format,
 	scale,
 	quality,
 }: ExportMockupElementArgs) {
-	const canvas = document.createElement("canvas")
-
-	renderMockupCanvas({
-		canvas,
-		image,
-		backgroundImage,
-		state,
-		scale,
-		format,
-	})
+	const dataUrl = await renderElementToPngDataUrl(element, scale)
 
 	if (format === "jpg") {
-		return canvasToBlob(canvas, "image/jpeg", quality)
+		return pngDataUrlToJpegBlob(dataUrl, quality)
 	}
 
-	return canvasToBlob(canvas, "image/png")
+	return dataUrlToBlob(dataUrl)
 }
