@@ -1,5 +1,5 @@
 import { Button } from "@workspace/ui/components/button"
-import { ArrowLeftIcon, MailIcon } from "lucide-react"
+import { ArrowLeftIcon, ArrowRightIcon, MailIcon } from "lucide-react"
 import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
@@ -56,12 +56,18 @@ export default async function ToolPage({ params }: Props) {
 				</div>
 			</div>
 			<Panel marks={false} className="screen-line-top-none">
-				{/* Tool UI slot: each tool's component loads here once it is ported. */}
-				<div className="dot-grid flex min-h-72 flex-col items-center justify-center gap-2 p-8 text-center">
-					<p className="font-mono text-xs text-muted-foreground uppercase">Coming soon</p>
+				<div className="dot-grid flex min-h-60 flex-col items-center justify-center gap-4 p-8 text-center">
 					<p className="max-w-sm text-balance text-muted-foreground">
-						The editor is being moved over from the old site. It will appear here.
+						The editor opens full screen. Your files stay in your browser.
 					</p>
+					<Button
+						nativeButton={false}
+						render={<Link href={`/tools/${tool.slug}/workspace`} />}
+						className="gap-2"
+					>
+						Open {tool.name.toLowerCase()}
+						<ArrowRightIcon />
+					</Button>
 				</div>
 			</Panel>
 			<Separator />
