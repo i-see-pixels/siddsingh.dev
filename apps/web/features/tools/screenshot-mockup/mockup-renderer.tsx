@@ -424,6 +424,7 @@ export const MockupRenderer = forwardRef<HTMLDivElement, MockupRendererProps>(
 					/>
 				) : null}
 				<div
+					data-mockup-layer="true"
 					className="absolute"
 					style={{
 						left: `calc(50% + ${state.positionX}px)`,

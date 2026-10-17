@@ -936,7 +936,8 @@ export function ScreenshotMockupTool() {
 			}
 		}
 
-		// Apply at most one move per frame so fast pointers don't queue renders.
+		// While dragging, move the layer in the DOM (one write per frame) and commit
+		// to state once on release: a state patch per frame re-renders every control.
 		pendingMoveRef.current = {
 			positionX: Math.round(nextX),
 			positionY: Math.round(nextY),
@@ -946,10 +947,13 @@ export function ScreenshotMockupTool() {
 			moveFrameRef.current = requestAnimationFrame(() => {
 				moveFrameRef.current = null
 				const pending = pendingMoveRef.current
-				pendingMoveRef.current = null
+				const layer = mockupExportRef.current?.querySelector<HTMLElement>(
+					"[data-mockup-layer]",
+				)
 
-				if (pending) {
-					applyStatePatch(pending)
+				if (pending && layer) {
+					layer.style.left = `calc(50% + ${pending.positionX}px)`
+					layer.style.top = `calc(50% + ${pending.positionY}px)`
 				}
 			})
 		}
@@ -960,6 +964,16 @@ export function ScreenshotMockupTool() {
 			event.currentTarget.releasePointerCapture(event.pointerId)
 		}
 
+		if (moveFrameRef.current !== null) {
+			cancelAnimationFrame(moveFrameRef.current)
+			moveFrameRef.current = null
+		}
+
+		if (dragStateRef.current?.mode === "move" && pendingMoveRef.current) {
+			applyStatePatch(pendingMoveRef.current)
+		}
+
+		pendingMoveRef.current = null
 		dragStateRef.current = null
 		if (previewOffsetRef.current !== previewOffset) {
 			setPreviewOffset(previewOffsetRef.current)
