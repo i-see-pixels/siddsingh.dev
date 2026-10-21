@@ -45,10 +45,10 @@ export function SiteFooter() {
 					</div>
 					<Button
 						nativeButton={false}
-						render={<Link href="/work#contact" />}
+						render={<a href={siteConfig.projectMailto} />}
 						className="bg-brand text-brand-foreground hover:bg-brand/90"
 					>
-						Hire me
+						Start a project
 					</Button>
 				</div>
 				<div className="screen-line-top screen-line-bottom">
@@ -62,13 +62,15 @@ export function SiteFooter() {
 				</div>
 				<dl className="grid grid-cols-2 gap-px bg-line font-mono md:grid-cols-4">
 					<Field label="Hire">
-						<Link
+						<a
 							className="inline-flex items-center gap-2 link-underline"
-							href="/work#contact"
+							href={siteConfig.callUrl}
+							target="_blank"
+							rel="noopener"
 						>
 							{availability.open && <PulseDot />}
 							{availability.open ? "Available" : "Booked"}
-						</Link>
+						</a>
 					</Field>
 					<Field label="Built by">{siteConfig.name}</Field>
 					<Field label="Build">

@@ -28,7 +28,7 @@ The visual system for the site. It borrows chanhdai.com's **craft**: the framed 
 | **Hero** | Name + avatar + isometric logo | **Value proposition first**: headline, availability, two CTAs, then the blueprint figure of your world |
 | **Section headings** | "Blog⁽¹⁴⁾" | Sheet numbers: `01` label + title, e.g. `01 — Selected work`, plus the count |
 | **Frame details** | Plain line intersections | **Registration marks** (small `+` crosshairs) where panel lines meet the column edges; dimension lines on the figure |
-| **Header actions** | Search, GitHub stars, theme | Search, theme, **availability dot**, and a **"Hire me" button** (the only filled accent button on the site) |
+| **Header actions** | Search, GitHub stars, theme | Search, theme, **availability dot**, and a **"Book a call" button** (cal.com; "Join the waitlist" when booked) (the only filled accent button on the site) |
 | **Home content** | Components, blocks, sponsors, testimonials | **Proof → work → services → products → experience → tools → contact** |
 | **Annotations** | Caveat font | **Architects Daughter**, in drafting blue |
 | **Footer** | CAD title block | Title block too, plus a **"Hire" field** and a contact CTA row above it |
@@ -139,7 +139,7 @@ Utilities in `packages/ui/src/styles/globals.css` (adapted from chanhdai):
 ### Header
 - `sticky top-0 z-50 bg-background px-2`; bar `h-14 border-x screen-line-top screen-line-bottom md:max-w-3xl pl-4 pr-2`.
 - Left: **`sidd▪` wordmark** (`text-xl`), links home.
-- Spacer, then on the right: nav (`Work · Products · Blog · Tools · About`) → `|` → search trigger (ghost: icon + `Ctrl` `K`) → `|` → theme toggle → **Hire me** (`size-sm`, `bg-brand text-brand-foreground`, with a `--success` dot when available).
+- Spacer, then on the right: nav (`Work · Products · Blog · Tools · About`) → `|` → search trigger (ghost: icon + `Ctrl` `K`) → `|` → theme toggle → **Book a call** (`size-sm`, `bg-brand text-brand-foreground`, with a `--success` dot when available).
 - Vertical separators: `h-5`, `--line`.
 - `< sm`: nav and search move to the bottom nav; the logo, theme toggle and Hire me stay.
 
@@ -153,7 +153,7 @@ Two stacked parts inside the frame:
    - Availability pill: `rounded-full bg-brand-muted text-brand font-mono text-xs` with a pulsing `--success` dot. Text: "Available for freelance · Open to full-time roles". Driven by one config value; hidden when unavailable.
    - Headline (h1): what you do and for whom, in one sentence (copy TBD; e.g. "I build fast, polished web products for teams and founders.").
    - One-line support text (muted).
-   - CTAs: **Hire me for a project** (brand, filled) → `/work#contact`; **View resume** (outline) → `/about`; small text link "or book a 20-min call".
+   - CTAs: **Book a 15-min call** (brand, filled) → cal.com link; **See my work** (outline) → `/work`; small text link "or email me" → prefilled mailto.
    - Annotation in the left gutter on `lg+`: "← start here" in Architects Daughter.
 2. **Profile row + Fig. 1**
    - Grid: avatar (bottom left, overlapping the figure edge) | name line with **social icon buttons** (GitHub, LinkedIn, email; outline `icon-sm`, tooltips) and a handwritten "← follow me" in `--brand` | mono flip sentence.
@@ -212,7 +212,7 @@ Quote cards with name, role, company and avatar. Use a serif face for quotes onl
 - Page heading: tagline → title between screen lines (`text-4xl`) → optional description; `pt-12` of empty frame above.
 
 ### Footer (title block)
-1. Contact CTA row: "Have a project in mind?" + **Hire me** button + email.
+1. Contact CTA row: "Have a project in mind?" + **Start a project** button (mailto) + email.
 2. `stripe-divider h-12` band.
 3. Title row: `siddsingh.dev` (mono) left, one-line description right.
 4. Field grid `grid-cols-2 md:grid-cols-4 gap-px bg-line`: **Hire** (availability + link), Built by, Build (SHA → commit, "(local)" outside production), Date, Stack, Typeface, Source, For agents (`llms.txt`), Inspired by (`01 chanhdai.com`, `02 Josh W. Comeau`, `03 Marc Lou`…).

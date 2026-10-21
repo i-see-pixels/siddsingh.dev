@@ -31,11 +31,11 @@ export function SiteHeader() {
 					<Button
 						size="sm"
 						nativeButton={false}
-						render={<Link href="/work#contact" />}
+						render={<a href={siteConfig.callUrl} target="_blank" rel="noopener" />}
 						className="ml-2 gap-2 bg-brand text-brand-foreground hover:bg-brand/90"
 					>
 						{availability.open && <PulseDot className="[&>span]:bg-brand-foreground" />}
-						Hire me
+						{availability.open ? "Book a call" : "Join the waitlist"}
 					</Button>
 				</div>
 			</div>

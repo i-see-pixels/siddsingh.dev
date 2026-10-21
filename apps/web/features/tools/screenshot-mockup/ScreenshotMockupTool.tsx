@@ -947,9 +947,8 @@ export function ScreenshotMockupTool() {
 			moveFrameRef.current = requestAnimationFrame(() => {
 				moveFrameRef.current = null
 				const pending = pendingMoveRef.current
-				const layer = mockupExportRef.current?.querySelector<HTMLElement>(
-					"[data-mockup-layer]",
-				)
+				const layer =
+					mockupExportRef.current?.querySelector<HTMLElement>("[data-mockup-layer]")
 
 				if (pending && layer) {
 					layer.style.left = `calc(50% + ${pending.positionX}px)`
@@ -1304,7 +1303,7 @@ export function ScreenshotMockupTool() {
 					)}
 				</div>
 			</div>
-			<aside className="flex flex-col border-t border-line lg:w-96 lg:shrink-0 lg:overflow-y-auto lg:border-t-0 lg:border-l">
+			<aside className="flex flex-col border-t border-line lg:w-96 lg:shrink-0 lg:overflow-x-hidden lg:overflow-y-auto lg:border-t-0 lg:border-l">
 				<div className="screen-line-bottom">{sidebarNavigation}</div>
 				<div className="flex flex-col gap-6 p-4">
 					<input

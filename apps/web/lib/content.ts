@@ -263,4 +263,129 @@ export const tools = [
 			},
 		],
 	},
+	{
+		slug: "llm-token-cost",
+		name: "LLM token & cost calculator",
+		description: "Count tokens in a prompt and compare the cost across Claude, GPT and Gemini models.",
+		category: "AI",
+		steps: [
+			"Paste your prompt, document or code.",
+			"Set the expected output length and how many requests you will make.",
+			"Compare tokens, context window fit and cost for each model.",
+		],
+		faq: [
+			{
+				question: "How accurate are the token counts?",
+				answer: "OpenAI counts use OpenAI's published tokenizer and should be very close. Anthropic and Google do not publish theirs, so those counts are estimates marked with ≈.",
+			},
+			{
+				question: "Are the prices up to date?",
+				answer: "They are starting values and can go stale. Every price is editable, and you should check the provider's pricing page before budgeting.",
+			},
+			{
+				question: "Is my prompt sent anywhere?",
+				answer: "No. Counting happens in your browser, so your text never leaves your device.",
+			},
+		],
+	},
+	{
+		slug: "prompt-playground",
+		name: "Prompt template playground",
+		description: "Write prompts with {{variables}}, fill them in and copy plain text or API-ready messages.",
+		category: "AI",
+		steps: [
+			"Write a system and user prompt with {{variables}} where the content changes.",
+			"Fill in a value for each variable the tool detects.",
+			"Copy the result as plain text, Anthropic messages or OpenAI messages.",
+		],
+		faq: [
+			{
+				question: "Does it call a model?",
+				answer: "No. It builds the final prompt and request body so you can paste them into your own code or API client.",
+			},
+			{
+				question: "What happens to a variable I leave empty?",
+				answer: "It stays as a {{placeholder}} in the output, and the tool lists which ones are still missing.",
+			},
+			{
+				question: "Is my prompt stored?",
+				answer: "No. Everything stays in your browser tab and is gone when you close it.",
+			},
+		],
+	},
+	{
+		slug: "tool-schema-converter",
+		name: "Tool schema converter",
+		description: "Convert a JSON Schema into an Anthropic tool or OpenAI function definition, and back.",
+		category: "AI",
+		steps: [
+			"Paste a JSON Schema, an Anthropic tool or an OpenAI function.",
+			"Pick the format you need. The tool detects what you pasted.",
+			"Copy the converted definition and fix anything the checks flag.",
+		],
+		faq: [
+			{
+				question: "Which formats are supported?",
+				answer: "Plain JSON Schema, Anthropic tools, OpenAI Chat Completions functions and OpenAI Responses functions.",
+			},
+			{
+				question: "What does strict mode do?",
+				answer: "For OpenAI it lists every property as required and forbids extra properties, which strict function calling needs.",
+			},
+			{
+				question: "Is my schema uploaded?",
+				answer: "No. The conversion runs in your browser.",
+			},
+		],
+	},
+	{
+		slug: "diff-checker",
+		name: "Diff checker",
+		description: "Compare two pieces of text or code side by side, by line, word or character.",
+		category: "Developer",
+		steps: [
+			"Paste the original text on the left and the changed text on the right.",
+			"Choose lines, words or characters, and a split or unified view.",
+			"Copy the result as a unified patch.",
+		],
+		faq: [
+			{
+				question: "Can I ignore whitespace or case?",
+				answer: "Yes. Both options are on the toolbar.",
+			},
+			{
+				question: "Is my text uploaded?",
+				answer: "No. The comparison runs in your browser, so code and secrets stay on your device.",
+			},
+			{
+				question: "What is the copied patch?",
+				answer: "A standard unified diff, the same format git diff produces, that you can apply with patch or git apply.",
+			},
+		],
+	},
+	{
+		slug: "mermaid-previewer",
+		name: "Mermaid diagram previewer",
+		description: "Write Mermaid code, preview the diagram live and export it as SVG or PNG.",
+		category: "Developer",
+		steps: [
+			"Write or paste Mermaid code, or start from an example.",
+			"Watch the diagram update as you type, and fix any error shown below the code.",
+			"Export as SVG or PNG.",
+		],
+		faq: [
+			{
+				question: "Which diagrams can I draw?",
+				answer: "Flowcharts, sequence, ER, state, Gantt, class diagrams and the other types Mermaid supports.",
+			},
+			{
+				question: "Is my diagram uploaded?",
+				answer: "No. Rendering happens in your browser.",
+			},
+			{
+				question: "Why does the preview follow my light or dark theme?",
+				answer: "The diagram is drawn with the matching Mermaid theme, so it reads well on the page. PNG exports use a solid background.",
+			},
+		],
+	},
 ]

@@ -20,11 +20,11 @@ export function WorkspaceHeader() {
 	const { slug } = useParams<{ slug: string }>()
 
 	return (
-		<header className="screen-line-bottom sticky top-0 z-50 flex h-14 shrink-0 items-center gap-2 bg-background px-3">
-			<Link href="/" aria-label="siddsingh.dev home" className="mr-1 text-xl">
+		<header className="screen-line-bottom sticky top-0 z-50 flex h-14 shrink-0 items-center gap-2 bg-background px-2 sm:px-3">
+			<Link href="/" aria-label="siddsingh.dev home" className="text-xl sm:mr-1">
 				<BrandMark />
 			</Link>
-			<span aria-hidden className="h-5 w-px bg-line" />
+			<span aria-hidden className="h-5 w-px bg-line max-sm:hidden" />
 			<Select
 				items={tools.map((tool) => ({ value: tool.slug, label: tool.name }))}
 				value={slug}
@@ -32,10 +32,16 @@ export function WorkspaceHeader() {
 					if (typeof next === "string") router.push(`/tools/${next}/workspace`)
 				}}
 			>
-				<SelectTrigger aria-label="Switch tool" className="min-w-0 font-medium">
+				<SelectTrigger
+					aria-label="Switch tool"
+					className="min-w-0 flex-1 font-medium sm:w-60 sm:flex-none"
+				>
 					<SelectValue />
 				</SelectTrigger>
-				<SelectContent align="start">
+				<SelectContent
+					align="start"
+					className="w-auto min-w-(--anchor-width) whitespace-nowrap"
+				>
 					{tools.map((tool) => (
 						<SelectItem key={tool.slug} value={tool.slug}>
 							{tool.name}
@@ -52,7 +58,7 @@ export function WorkspaceHeader() {
 				>
 					<ArrowLeftIcon data-icon="inline-start" />
 					<span className="hidden sm:inline">About this tool</span>
-					<span className="sm:hidden">Back</span>
+					<span className="sr-only sm:hidden">Back to tool page</span>
 				</Button>
 				<ThemeToggle />
 			</div>

@@ -25,7 +25,7 @@ v1 URLs are kept so existing links and search rankings carry over.
 | `/blog` | Readers | Searchable post grid with cover images, plus tags. | chanhdai /blog, joshwcomeau |
 | `/blog/[slug]` | Readers | Article page: table of contents, code blocks, interactive embeds, related posts, newsletter/subscribe CTA. | joshwcomeau |
 | `/tools` | Search traffic | Tools hub: categories, search, card grid. | it-tools |
-| `/tools/[slug]` | Search traffic | One tool per page with its own metadata and OG image, a short "how it works", and a soft CTA ("built by Sidd — hire me / see products"). | joshwcomeau gradient generator |
+| `/tools/[slug]` | Search traffic | One tool per page with its own metadata and OG image, a short "how it works", and a soft CTA ("built by Sidd — start a project / see products"). | joshwcomeau gradient generator |
 
 **System routes:** `/rss.xml` (redirect v1's `/api/rss`), `/sitemap.xml`, `/robots.txt`, `/llms.txt`, Markdown versions of pages, dynamic OG images per page, a custom 404. Details in [SEO and AEO](#seo-and-aeo).
 

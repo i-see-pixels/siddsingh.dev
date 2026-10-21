@@ -21,7 +21,13 @@
 		"rules": {
 			"preset": "recommended",
 			"style": { "noUselessElse": "off" },
-			"correctness": { "useExhaustiveDependencies": "off" }
+			"correctness": { "useExhaustiveDependencies": "off" },
+			"a11y": {
+				"noLabelWithoutControl": {
+					"level": "error",
+					"options": { "inputComponents": ["Input", "Textarea"] }
+				}
+			}
 		}
 	},
 	"javascript": {

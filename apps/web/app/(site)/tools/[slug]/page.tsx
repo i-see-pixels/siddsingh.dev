@@ -115,11 +115,11 @@ export default async function ToolPage({ params }: Props) {
 					</div>
 					<Button
 						nativeButton={false}
-						render={<a href={`mailto:${siteConfig.email}`} />}
+						render={<a href={siteConfig.projectMailto} />}
 						className="gap-2 self-start bg-brand text-brand-foreground hover:bg-brand/90"
 					>
 						<MailIcon />
-						Hire me
+						Start a project
 					</Button>
 				</PanelContent>
 			</Panel>

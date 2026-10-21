@@ -6,6 +6,7 @@ export const siteConfig = {
 	sourceCode: "https://github.com/i-see-pixels/siddsingh.dev",
 	email: "siddhant06137@gmail.com",
 	callUrl: "https://cal.com/sidd-singh/15min",
+	projectMailto: "mailto:siddhant06137@gmail.com?subject=Project%20enquiry",
 	x: "https://x.com/creatorsidd",
 	linkedin: "https://www.linkedin.com/in/sidd-singh/",
 	location: "Gurugram, India",

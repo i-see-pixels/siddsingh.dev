@@ -26,26 +26,24 @@ export function Hero() {
 						<Button
 							size="lg"
 							nativeButton={false}
-							render={<Link href="/work#contact" />}
+							render={<a href={siteConfig.callUrl} target="_blank" rel="noopener" />}
 							className="bg-brand px-4 text-brand-foreground hover:bg-brand/90"
 						>
-							Hire me for a project
+							Book a 15-min call
 						</Button>
 						<Button
 							size="lg"
 							variant="outline"
 							nativeButton={false}
-							render={<Link href="/about" />}
+							render={<Link href="/work" />}
 						>
-							View resume
+							See my work
 						</Button>
 						<a
-							href={siteConfig.callUrl}
-							target="_blank"
-							rel="noopener"
+							href={siteConfig.projectMailto}
 							className="text-sm text-muted-foreground link-underline"
 						>
-							or book a 15-min call
+							or email me
 						</a>
 					</div>
 					<p
