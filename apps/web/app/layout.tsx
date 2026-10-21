@@ -1,9 +1,25 @@
 import { TooltipProvider } from "@workspace/ui/components/tooltip"
+import type { Metadata } from "next"
 import { Architects_Daughter, Geist, Geist_Mono } from "next/font/google"
 
 import "@workspace/ui/globals.css"
 import { cn } from "@workspace/ui/lib/utils"
 import { ThemeProvider } from "@/components/theme-provider"
+import { siteConfig } from "@/lib/site-config"
+
+export const metadata: Metadata = {
+	// Resolves relative canonical and Open Graph URLs below this layout.
+	metadataBase: new URL(siteConfig.url),
+	title: { default: siteConfig.name, template: `%s · ${siteConfig.name}` },
+	description: siteConfig.description,
+	authors: [{ name: siteConfig.name, url: siteConfig.url }],
+	creator: siteConfig.name,
+	openGraph: { type: "website", siteName: siteConfig.name, locale: "en_GB" },
+	twitter: { card: "summary_large_image", creator: "@creatorsidd" },
+	alternates: {
+		types: { "application/rss+xml": [{ url: "/blog/rss.xml", title: "Blog" }] },
+	},
+}
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" })
 

@@ -1,12 +1,9 @@
-import createMDX from "@next/mdx"
 import type { NextConfig } from "next"
 
 const nextConfig: NextConfig = {
-	transpilePackages: ["@workspace/ui"],
-	// Blog posts are MDX files in content/blog, imported by app/(site)/blog.
-	pageExtensions: ["ts", "tsx", "md", "mdx"],
+	transpilePackages: ["@workspace/ui", "@workspace/db"],
 	images: {
-		// Vercel Blob storage carried over from v1 (avatar, project screenshots).
+		// Vercel Blob storage carried over from v1 (avatar, project screenshots, blog uploads).
 		remotePatterns: [
 			{
 				protocol: "https",
@@ -17,4 +14,4 @@ const nextConfig: NextConfig = {
 	},
 }
 
-export default createMDX()(nextConfig)
+export default nextConfig

@@ -51,7 +51,13 @@ export function ResizableSplit({ left, right }: { left: ReactNode; right: ReactN
 			className="flex flex-1 flex-col lg:grid lg:h-[calc(100svh-3.5rem)] lg:flex-none lg:grid-cols-[var(--split)_0.5rem_minmax(0,1fr)]"
 			style={{ "--split": `${percent}%` } as CSSProperties}
 		>
-			<div className="h-80 min-h-0 min-w-0 overflow-hidden max-lg:border-b max-lg:border-line lg:h-auto">
+			{/*
+			 * Each pane is `relative` so it contains its absolutely positioned
+			 * descendants (an `sr-only` heading, a badge). Without a positioned
+			 * ancestor they are placed against the page instead, escape the pane's
+			 * overflow clipping and stretch the page into empty scroll space.
+			 */}
+			<div className="relative h-80 min-h-0 min-w-0 overflow-hidden max-lg:border-b max-lg:border-line lg:h-auto">
 				{left}
 			</div>
 			{/* biome-ignore lint/a11y/useSemanticElements: a focusable window splitter, which <hr> cannot be */}
@@ -75,7 +81,9 @@ export function ResizableSplit({ left, right }: { left: ReactNode; right: ReactN
 			>
 				<span className="absolute top-1/2 left-1/2 h-8 w-0.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-muted-foreground/40 transition-colors group-hover:bg-brand group-focus-visible:bg-brand" />
 			</div>
-			<div className="h-[70svh] min-h-0 min-w-0 overflow-hidden lg:h-auto">{right}</div>
+			<div className="relative h-[70svh] min-h-0 min-w-0 overflow-hidden lg:h-auto">
+				{right}
+			</div>
 		</div>
 	)
 }

@@ -44,7 +44,8 @@ export function CommandMenu({
 	React.useEffect(() => {
 		if (!hotkey) return
 		function onKeyDown(event: KeyboardEvent) {
-			if (event.key.toLowerCase() === "k" && (event.metaKey || event.ctrlKey)) {
+			// Autofill dispatches keydown events without a key.
+			if (event.key?.toLowerCase() === "k" && (event.metaKey || event.ctrlKey)) {
 				event.preventDefault()
 				setOpen((value) => !value)
 			}

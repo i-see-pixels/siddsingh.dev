@@ -2,7 +2,7 @@ import { readdirSync } from "node:fs"
 import path from "node:path"
 import { cn } from "@workspace/ui/lib/utils"
 import Link from "next/link"
-import { getPostSlugs } from "@/lib/blog"
+import { getPosts } from "@/lib/blog"
 import { caseStudies, products, tools } from "@/lib/content"
 import { getStack } from "@/lib/stack"
 
@@ -243,7 +243,8 @@ function Callout({
 	)
 }
 
-export function BlueprintFigure() {
+export async function BlueprintFigure() {
+	const postCount = (await getPosts()).length
 	const next = getStack().find((entry) => entry.startsWith("next@")) ?? "next"
 	const betaCount = products.filter((product) => product.status === "Beta").length
 	const lastProduct = productBlocks[productBlocks.length - 1] ?? { x: 0, y: 0 }
@@ -269,7 +270,7 @@ export function BlueprintFigure() {
 		},
 		{
 			title: "Blog",
-			detail: count(getPostSlugs().length, "post", "posts"),
+			detail: count(postCount, "post", "posts"),
 			href: "/blog",
 			anchor: iso(blog.x, blog.y + BLOCK.d, CONTENT_TOP + BLOCK.h),
 			dir: -1,

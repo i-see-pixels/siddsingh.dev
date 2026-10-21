@@ -44,7 +44,8 @@ function ThemeHotkey() {
 				return
 			}
 
-			if (event.key.toLowerCase() !== "d") {
+			// Autofill (e.g. Chrome's password manager) dispatches keydown events without a key.
+			if (event.key?.toLowerCase() !== "d") {
 				return
 			}
 

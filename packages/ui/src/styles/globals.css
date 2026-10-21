@@ -370,3 +370,84 @@
 		@apply scroll-mt-18;
 	}
 }
+
+/* Syntax highlighting for blog code blocks (highlight.js classes from rehype-highlight). */
+.hljs-comment,
+.hljs-quote {
+	color: oklch(0.55 0.03 256);
+	font-style: italic;
+}
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-literal,
+.hljs-doctag {
+	color: oklch(0.55 0.22 300);
+}
+.hljs-string,
+.hljs-regexp,
+.hljs-addition {
+	color: oklch(0.52 0.14 150);
+}
+.hljs-number,
+.hljs-attr,
+.hljs-attribute,
+.hljs-variable,
+.hljs-template-variable,
+.hljs-symbol {
+	color: oklch(0.58 0.17 50);
+}
+.hljs-title,
+.hljs-section,
+.hljs-name,
+.hljs-built_in,
+.hljs-function {
+	color: oklch(0.52 0.2 262);
+}
+.hljs-type {
+	color: oklch(0.55 0.13 200);
+}
+.hljs-deletion {
+	color: oklch(0.55 0.22 25);
+}
+.hljs-emphasis {
+	font-style: italic;
+}
+.hljs-strong {
+	font-weight: 600;
+}
+.dark .hljs-comment,
+.dark .hljs-quote {
+	color: oklch(0.7 0.03 256);
+}
+.dark .hljs-keyword,
+.dark .hljs-selector-tag,
+.dark .hljs-literal,
+.dark .hljs-doctag {
+	color: oklch(0.78 0.14 300);
+}
+.dark .hljs-string,
+.dark .hljs-regexp,
+.dark .hljs-addition {
+	color: oklch(0.8 0.15 150);
+}
+.dark .hljs-number,
+.dark .hljs-attr,
+.dark .hljs-attribute,
+.dark .hljs-variable,
+.dark .hljs-template-variable,
+.dark .hljs-symbol {
+	color: oklch(0.82 0.14 70);
+}
+.dark .hljs-title,
+.dark .hljs-section,
+.dark .hljs-name,
+.dark .hljs-built_in,
+.dark .hljs-function {
+	color: oklch(0.78 0.13 254);
+}
+.dark .hljs-type {
+	color: oklch(0.8 0.1 200);
+}
+.dark .hljs-deletion {
+	color: oklch(0.75 0.15 25);
+}

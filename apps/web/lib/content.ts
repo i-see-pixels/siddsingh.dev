@@ -1,8 +1,8 @@
 // Site content, from Siddhant's resume (Oct 2026), the v1 site and his public
-// profiles. Blog posts live in content/blog (lib/blog.ts); tools move to their
+// profiles. Blog posts live in the database (lib/blog.ts); tools move to their
 // own data source when that section is built (docs/site-structure.md: content model).
 
-const blobUrl = "https://utxifjblgzbxujxp.public.blob.vercel-storage.com/siddsingh_dev"
+export const blobUrl = "https://utxifjblgzbxujxp.public.blob.vercel-storage.com/siddsingh_dev"
 
 export const avatarUrl = `${blobUrl}/avatar.png`
 // Full-length halftone cut-out (399×1076, transparent background).
@@ -53,18 +53,18 @@ export const caseStudies: CaseStudy[] = [
 	},
 	{
 		slug: "ai-rca-orchestrator",
-		image: `${blobUrl}/work/ai-rca-orchestrator.png`,
+		image: `${blobUrl}/work/rca_agent_tile.png`,
 		name: "RCA agents",
 		client: "Optum",
 		type: "AI agents",
 		year: "2026",
 		title: "Multi-agent root-cause analysis that writes incident reports before tickets are opened",
-		outcome: "$500K–700K / yr",
+		outcome: "$500K-700K / yr",
 		stack: ["FastAPI", "Google ADK", "GKE", "Celery"],
 	},
 	{
 		slug: "snapnode",
-		image: `${blobUrl}/work/snapnode.png`,
+		image: `${blobUrl}/work/snapnode_tile.png`,
 		name: "SnapNode",
 		client: "Own product",
 		type: "Browser extension",
@@ -266,7 +266,8 @@ export const tools = [
 	{
 		slug: "llm-token-cost",
 		name: "LLM token & cost calculator",
-		description: "Count tokens in a prompt and compare the cost across Claude, GPT and Gemini models.",
+		description:
+			"Count tokens in a prompt and compare the cost across Claude, GPT and Gemini models.",
 		category: "AI",
 		steps: [
 			"Paste your prompt, document or code.",
@@ -291,7 +292,8 @@ export const tools = [
 	{
 		slug: "prompt-playground",
 		name: "Prompt template playground",
-		description: "Write prompts with {{variables}}, fill them in and copy plain text or API-ready messages.",
+		description:
+			"Write prompts with {{variables}}, fill them in and copy plain text or API-ready messages.",
 		category: "AI",
 		steps: [
 			"Write a system and user prompt with {{variables}} where the content changes.",
@@ -316,7 +318,8 @@ export const tools = [
 	{
 		slug: "tool-schema-converter",
 		name: "Tool schema converter",
-		description: "Convert a JSON Schema into an Anthropic tool or OpenAI function definition, and back.",
+		description:
+			"Convert a JSON Schema into an Anthropic tool or OpenAI function definition, and back.",
 		category: "AI",
 		steps: [
 			"Paste a JSON Schema, an Anthropic tool or an OpenAI function.",

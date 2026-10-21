@@ -1,19 +1,26 @@
 import { cn } from "@workspace/ui/lib/utils"
 import { ArrowRightIcon, PenToolIcon } from "lucide-react"
+import type { Metadata } from "next"
 import Link from "next/link"
 import { IconTile, Tag } from "@/components/badges"
+import { CoverImage } from "@/components/cover-image"
 import { PageHeading, Panel, PanelHeader, PanelTitle } from "@/components/panel"
 import { formatDate, getPosts, type Post } from "@/lib/blog"
+
+const description = "Notes on what I build and learn: AI agents, web platforms and side projects."
+
+export const metadata: Metadata = {
+	title: "Blog",
+	description,
+	alternates: { canonical: "/blog" },
+	openGraph: { url: "/blog", title: "Blog", description },
+}
 
 export default async function BlogPage() {
 	const posts = await getPosts()
 	return (
 		<>
-			<PageHeading
-				tagline="Blog"
-				title="Writing"
-				description="Notes on what I build and learn: AI agents, web platforms and side projects."
-			/>
+			<PageHeading tagline="Blog" title="Writing" description={description} />
 			<Panel id="posts">
 				<PanelHeader>
 					<PanelTitle sheet="01" count={posts.length} anchor="posts">
@@ -24,9 +31,9 @@ export default async function BlogPage() {
 					<EmptyState />
 				) : (
 					<ol>
-						{posts.map((post) => (
+						{posts.map((post, index) => (
 							<li key={post.slug} className="screen-line-bottom">
-								<PostRow post={post} />
+								<PostRow post={post} first={index === 0} />
 							</li>
 						))}
 					</ol>
@@ -36,7 +43,7 @@ export default async function BlogPage() {
 	)
 }
 
-function PostRow({ post }: { post: Post }) {
+function PostRow({ post, first }: { post: Post; first: boolean }) {
 	return (
 		<Link
 			href={`/blog/${post.slug}`}
@@ -45,16 +52,30 @@ function PostRow({ post }: { post: Post }) {
 				"transition-[background-color] ease-out hover:bg-accent-muted",
 			)}
 		>
-			<time
-				dateTime={post.date}
-				className="font-mono text-sm text-muted-foreground tabular-nums"
-			>
-				{formatDate(post.date)}
-			</time>
+			{post.cover && (
+				<CoverImage
+					cover={post.cover}
+					sizes="(min-width: 768px) 736px, 100vw"
+					// The newest post's banner is usually the first thing on screen.
+					preload={first}
+					className="mb-3 rounded-lg border sm:col-span-3"
+				/>
+			)}
+			<div className="flex flex-col gap-1">
+				<time
+					dateTime={post.date}
+					className="font-mono text-sm text-muted-foreground tabular-nums"
+				>
+					{formatDate(post.date)}
+				</time>
+				<span className="font-mono text-xs text-muted-foreground">
+					{post.readingMinutes} min read
+				</span>
+			</div>
 			<div className="flex flex-col gap-1">
 				<h2 className="text-lg/snug font-medium text-balance">{post.title}</h2>
 				<p className="text-sm text-muted-foreground">{post.summary}</p>
-				{post.tags && post.tags.length > 0 && (
+				{post.tags.length > 0 && (
 					<div className="mt-1 flex flex-wrap gap-1.5">
 						{post.tags.map((tag) => (
 							<Tag key={tag}>{tag}</Tag>

@@ -11,12 +11,13 @@ import {
 import { CopyIcon, LayoutGridIcon } from "lucide-react"
 import { useTheme } from "next-themes"
 import { useEffect, useId, useRef, useState } from "react"
+import { ResizableSplit } from "@/components/resizable-split"
 import { CodeEditor } from "../code-editor"
-import { ResizableSplit } from "../resizable-split"
 import { ErrorCard, FileTab, headerButton, PaneHeader, StatusBar } from "../tool-chrome"
 import { CanvasHint, diagramKind, ExportPill, PreviewLabel, ZoomPill } from "./chrome"
 import { naturalSize, PanZoom, type PanZoomHandle } from "./pan-zoom"
 import { samples } from "./samples"
+import { codeFromHash } from "./share"
 import { mermaidConfig } from "./theme"
 
 type RenderState =
@@ -41,6 +42,15 @@ export function MermaidPreviewerTool() {
 	const panZoomRef = useRef<PanZoomHandle>(null)
 	const baseId = useId().replace(/:/g, "")
 	const counter = useRef(0)
+
+	// A diagram sent from a blog post arrives in the URL fragment.
+	useEffect(() => {
+		const shared = codeFromHash(window.location.hash)
+		if (shared === null) return
+		setCode(shared)
+		setExample(null)
+		setFitKey((key) => key + 1)
+	}, [])
 
 	// Re-render shortly after typing stops, and when the colour theme changes.
 	useEffect(() => {
