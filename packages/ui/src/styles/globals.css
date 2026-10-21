@@ -179,6 +179,14 @@
  * Frame system (docs/design.md §4). Line, stripe and grid utilities adapted
  * from chanhdai.com (MIT). Lines sit on the element's own top/bottom row,
  * behind content; drop one with `-none` where two would meet.
+ *
+ * Rules and bands reach the screen edges from inside the content column by
+ * painting a border-image 100vw past each side of the element. That outset is
+ * ink overflow: it is drawn, but never adds to anything's scrollable area, and
+ * a scrolling pane simply clips it at its edges. (The original 200vw-wide
+ * pseudo-element did count, so every overflow-auto pane around one scrolled
+ * sideways by a screen's width.) `--screen-line-color` and
+ * `--screen-line-image` let the variants restyle the same rule.
  */
 @utility screen-line-top {
 	position: relative;
@@ -186,17 +194,21 @@
 		content: "";
 		position: absolute;
 		top: 0;
-		left: -100vw;
+		left: 0;
 		z-index: -1;
-		width: 200vw;
+		width: 100%;
 		height: 1px;
-		background-color: var(--line);
+		border-image: var(
+				--screen-line-image,
+				linear-gradient(var(--screen-line-color, var(--line)) 0 0)
+			)
+			fill 0 / 0 / 0 100vw;
 	}
 }
 
 @utility screen-line-top-* {
 	&::before {
-		background-color: --value(--color-*, [color]);
+		--screen-line-color: --value(--color-*, [color]);
 	}
 }
 
@@ -206,17 +218,21 @@
 		content: "";
 		position: absolute;
 		bottom: 0;
-		left: -100vw;
+		left: 0;
 		z-index: -1;
-		width: 200vw;
+		width: 100%;
 		height: 1px;
-		background-color: var(--line);
+		border-image: var(
+				--screen-line-image,
+				linear-gradient(var(--screen-line-color, var(--line)) 0 0)
+			)
+			fill 0 / 0 / 0 100vw;
 	}
 }
 
 @utility screen-line-bottom-* {
 	&::after {
-		background-color: --value(--color-*, [color]);
+		--screen-line-color: --value(--color-*, [color]);
 	}
 }
 
@@ -232,19 +248,26 @@
 	}
 }
 
+/* 4px dashes with 2px gaps. */
 @utility screen-dashed-line-top {
 	@apply screen-line-top;
 	&::before {
-		background: linear-gradient(to right, var(--line) 4px, transparent 2px) repeat-x;
-		background-size: 6px 1px;
+		--screen-line-image: repeating-linear-gradient(
+			to right,
+			var(--line) 0 4px,
+			transparent 4px 6px
+		);
 	}
 }
 
 @utility screen-dashed-line-bottom {
 	@apply screen-line-bottom;
 	&::after {
-		background: linear-gradient(to right, var(--line) 4px, transparent 2px) repeat-x;
-		background-size: 6px 1px;
+		--screen-line-image: repeating-linear-gradient(
+			to right,
+			var(--line) 0 4px,
+			transparent 4px 6px
+		);
 	}
 }
 
@@ -260,18 +283,25 @@
 	background-size: 10px 10px;
 }
 
-/* Hatched band whose stripes run the full screen width. */
+/*
+ * Hatched band whose stripes run the full screen width, painted as ink overflow
+ * like the screen lines. Same stripes as diagonal-stripes: its 10px tiles put
+ * one 1px stripe every 7.07px (10 / √2) across the 315° direction.
+ */
 @utility stripe-divider {
 	position: relative;
 	height: --spacing(8);
 	&::before {
 		content: "";
 		position: absolute;
-		left: -100vw;
+		inset: 0;
 		z-index: -1;
-		width: 200vw;
-		height: 100%;
-		@apply diagonal-stripes;
+		border-image: repeating-linear-gradient(
+				315deg,
+				color-mix(in oklab, var(--line) 56%, transparent) 0 1px,
+				transparent 1px 7.071px
+			)
+			fill 0 / 0 / 0 100vw;
 	}
 }
 
