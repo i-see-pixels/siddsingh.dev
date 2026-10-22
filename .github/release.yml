@@ -1,0 +1,16 @@
+# Groups the notes GitHub generates for each release by PR label.
+changelog:
+  exclude:
+    labels: [skip-release, skip-changelog]
+    authors: [dependabot]
+  categories:
+    - title: Breaking changes
+      labels: [release:major, breaking]
+    - title: Features
+      labels: [release:minor, feature, enhancement]
+    - title: Fixes
+      labels: [bug, fix]
+    - title: Dependencies
+      labels: [dependencies]
+    - title: Other changes
+      labels: ["*"]

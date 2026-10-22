@@ -1,0 +1,63 @@
+name: Release
+
+# When a pull request is merged into main: bump the version, tag it and publish
+# a GitHub release with generated notes. See .github/scripts/bump-version.mjs
+# for how the bump (major, minor or patch) is chosen. Label a PR
+# "skip-release" to merge it without a release.
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+# One release at a time, in merge order; never cancel one halfway.
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    if: >-
+      github.event.pull_request.merged == true &&
+      !contains(github.event.pull_request.labels.*.name, 'skip-release')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      # The tip of main, which may already include later merges.
+      - uses: actions/checkout@v5
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - name: Bump version
+        id: bump
+        env:
+          # Passed through env, never inlined into the script: titles are user input.
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_LABELS: ${{ toJSON(github.event.pull_request.labels.*.name) }}
+        run: echo "version=$(node .github/scripts/bump-version.mjs)" >> "$GITHUB_OUTPUT"
+
+      # Pushes made with GITHUB_TOKEN don't start other workflows, so this
+      # commit can't trigger CI or another release.
+      - name: Commit and tag
+        env:
+          VERSION: ${{ steps.bump.outputs.version }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "chore(release): v$VERSION [skip ci]"
+          git tag -a "v$VERSION" -m "v$VERSION"
+          git push --atomic origin HEAD:main "refs/tags/v$VERSION"
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.bump.outputs.version }}
+        run: gh release create "v$VERSION" --title "v$VERSION" --generate-notes --verify-tag

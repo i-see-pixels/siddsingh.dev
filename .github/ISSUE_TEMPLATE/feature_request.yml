@@ -1,0 +1,40 @@
+name: Feature or tool idea
+description: Suggest an improvement, a new tool, or something that would make forking easier.
+title: "feat: "
+labels: [enhancement]
+body:
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Kind
+      options:
+        - New tool
+        - Improvement to an existing tool
+        - Blog or editor
+        - Making it easier to fork and customise
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this solve?
+      description: Who needs it, and what do they do today instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What do you have in mind?
+      description: How it would work. Sketches, links to similar tools and examples welcome.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: contribute
+    attributes:
+      label: Contributing
+      options:
+        - label: I'd like to build this myself (see CONTRIBUTING.md)
