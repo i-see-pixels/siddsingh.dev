@@ -204,7 +204,7 @@ The site is built for Vercel. Set the same environment variables in the project 
 
 ## CI and releases
 
-Work happens on **`dev`**, the default branch. **`main`** is production: it changes only through a release pull request from `dev`, and Vercel deploys it. [`docs/branching.md`](docs/branching.md) covers the full flow and the recommended branch protection rules.
+Work happens on **`dev`**, the default branch. **`main`** is production: it changes only through a release pull request from `dev`, and Vercel deploys it. [`docs/branching.md`](docs/branching.md) explains the flow, how a release works and how the branches are protected.
 
 GitHub Actions in `.github/` check every change and version the project:
 
@@ -218,13 +218,7 @@ GitHub Actions in `.github/` check every change and version the project:
 
 **How the version is bumped.** A `release:major`, `release:minor` or `release:patch` label on the PR wins. Otherwise the title decides: `feat!:` (or any `type!:`) is major, `feat:` is minor, and everything else is a patch. Label a PR `skip-release` to merge it without a release. Release notes are grouped by label (see [`.github/release.yml`](.github/release.yml)).
 
-**One-time setup on GitHub:**
-
-1. Add a `DATABASE_URL` repository secret (Settings → Secrets and variables → Actions) so CI can run the build. The build prerenders published posts, so it needs a database. Use a separate Neon branch, not production. Without the secret, CI still lints and typechecks and skips the build.
-2. Create the labels `release:major`, `release:minor`, `release:patch`, `skip-release` and `dependencies`.
-3. Make `dev` the default branch, and add the rulesets and release app described in [`docs/branching.md`](docs/branching.md). The release workflow needs that app to push its version commit to a protected `main`.
-4. Make `Lint and typecheck`, `Build`, `Conventional title` and `Analyze (javascript-typescript)` required checks for `main`.
-5. Turn on **Private vulnerability reporting** (Settings → Code security), which [SECURITY.md](SECURITY.md) points reporters to. Leave CodeQL's "default setup" off there, because `codeql.yml` is the advanced setup and the two can't run together.
+**On your fork:** the workflows run as they are. For automatic releases, branch protection and the CI build, follow [Setting this up on your fork](docs/branching.md#setting-this-up-on-your-fork). It covers the `DATABASE_URL` secret, labels, the release app, rulesets and security settings.
 
 Deployment itself is handled by Vercel's Git integration: every push to `main` deploys to production, and every push to `dev` and every PR gets a preview URL.
 
