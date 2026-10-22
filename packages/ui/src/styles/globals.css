@@ -198,10 +198,8 @@
 		z-index: -1;
 		width: 100%;
 		height: 1px;
-		border-image: var(
-				--screen-line-image,
-				linear-gradient(var(--screen-line-color, var(--line)) 0 0)
-			)
+		border-image:
+			var(--screen-line-image, linear-gradient(var(--screen-line-color, var(--line)) 0 0))
 			fill 0 / 0 / 0 100vw;
 	}
 }
@@ -222,10 +220,8 @@
 		z-index: -1;
 		width: 100%;
 		height: 1px;
-		border-image: var(
-				--screen-line-image,
-				linear-gradient(var(--screen-line-color, var(--line)) 0 0)
-			)
+		border-image:
+			var(--screen-line-image, linear-gradient(var(--screen-line-color, var(--line)) 0 0))
 			fill 0 / 0 / 0 100vw;
 	}
 }
@@ -296,7 +292,8 @@
 		position: absolute;
 		inset: 0;
 		z-index: -1;
-		border-image: repeating-linear-gradient(
+		border-image:
+			repeating-linear-gradient(
 				315deg,
 				color-mix(in oklab, var(--line) 56%, transparent) 0 1px,
 				transparent 1px 7.071px
