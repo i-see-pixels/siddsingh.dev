@@ -1,9 +1,17 @@
 name: Release
 
-# When a pull request is merged into main: bump the version, tag it and publish
-# a GitHub release with generated notes. See .github/scripts/bump-version.mjs
-# for how the bump (major, minor or patch) is chosen. Label a PR
-# "skip-release" to merge it without a release.
+# Day-to-day work lands on `dev` (the default branch). A release is a pull
+# request from `dev` into `main`. When one is merged, this workflow bumps the
+# version on `main`, tags it, publishes a GitHub release with generated notes,
+# then merges `main` back into `dev` so the two never drift apart.
+#
+# See .github/scripts/bump-version.mjs for how the bump (major, minor or patch)
+# is chosen. Label a PR "skip-release" to merge it without a release.
+#
+# `main` is protected, so the default GITHUB_TOKEN can't push to it. Add a
+# GitHub App's id and private key as the RELEASE_APP_ID and
+# RELEASE_APP_PRIVATE_KEY secrets and let that app bypass the branch rules.
+# Without them, the workflow falls back to GITHUB_TOKEN.
 
 on:
   pull_request:
@@ -25,14 +33,25 @@ jobs:
       !contains(github.event.pull_request.labels.*.name, 'skip-release')
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      HAS_APP: ${{ secrets.RELEASE_APP_ID != '' }}
     steps:
+      - name: Get the release app's token
+        id: app-token
+        if: env.HAS_APP == 'true'
+        uses: actions/create-github-app-token@v3
+        with:
+          app-id: ${{ secrets.RELEASE_APP_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+
       # The tip of main, which may already include later merges.
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with:
           ref: main
           fetch-depth: 0
+          token: ${{ steps.app-token.outputs.token || github.token }}
 
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
 
@@ -44,8 +63,7 @@ jobs:
           PR_LABELS: ${{ toJSON(github.event.pull_request.labels.*.name) }}
         run: echo "version=$(node .github/scripts/bump-version.mjs)" >> "$GITHUB_OUTPUT"
 
-      # Pushes made with GITHUB_TOKEN don't start other workflows, so this
-      # commit can't trigger CI or another release.
+      # "[skip ci]" stops these commits from starting CI or another release.
       - name: Commit and tag
         env:
           VERSION: ${{ steps.bump.outputs.version }}
@@ -61,3 +79,17 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ steps.bump.outputs.version }}
         run: gh release create "v$VERSION" --title "v$VERSION" --generate-notes --verify-tag
+
+      # Brings the version commit (and the release merge) back to dev, so the
+      # next dev → main pull request starts from main's tip.
+      - name: Merge main back into dev
+        env:
+          VERSION: ${{ steps.bump.outputs.version }}
+        run: |
+          git fetch origin dev
+          git switch -c dev origin/dev
+          if ! git merge --no-ff main -m "chore(release): merge v$VERSION back into dev [skip ci]"; then
+            echo "::error::main could not be merged into dev automatically. Merge it by hand: git switch dev && git merge origin/main"
+            exit 1
+          fi
+          git push origin dev

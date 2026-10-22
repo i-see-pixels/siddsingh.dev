@@ -7,7 +7,8 @@ import { CoverImage } from "@/components/cover-image"
 import { PageHeading, Panel, PanelHeader, PanelTitle } from "@/components/panel"
 import { formatDate, getPosts, type Post } from "@/lib/blog"
 
-const description = "Notes on what I build and learn: AI agents, web platforms and side projects."
+const description =
+	"Notes on what I build and what breaks along the way: AI agents, web platforms and side projects I swear I'll finish."
 
 export const metadata: Metadata = {
 	title: "Blog",
@@ -94,9 +95,10 @@ function EmptyState() {
 			<IconTile>
 				<PenToolIcon />
 			</IconTile>
-			<p className="font-medium">No posts yet</p>
+			<p className="font-medium">Zero posts. Very minimalist.</p>
 			<p className="max-w-sm text-sm text-balance text-muted-foreground">
-				A fresh start. The first post is on the drafting table.
+				The first one is on the drafting table, right next to the side project I'm
+				definitely finishing this weekend.
 			</p>
 		</div>
 	)

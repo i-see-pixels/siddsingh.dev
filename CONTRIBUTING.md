@@ -60,7 +60,7 @@ Edit `packages/db/src/schema.ts`, then generate a migration and commit it with y
 pnpm db:generate
 ```
 
-Never edit a migration that is already on `main`; add a new one.
+Never edit a migration that is already on `dev` or `main`; add a new one.
 
 ### Adding a tool
 
@@ -68,7 +68,7 @@ Create `apps/web/features/tools/<slug>/`, register the component in `features/to
 
 ## Pull requests
 
-1. Branch from `main` and keep each PR to one change.
+1. Branch from `dev`, the default branch, and open your PR against it. Keep each PR to one change. `main` is production and only takes release PRs from `dev` (see [docs/branching.md](docs/branching.md)).
 2. Make sure these pass locally:
 
    ```bash
@@ -79,7 +79,7 @@ Create `apps/web/features/tools/<slug>/`, register the component in `features/to
    pnpm typecheck
    ```
 
-3. Give the PR a [Conventional Commit](https://www.conventionalcommits.org) title. CI enforces it, and the release workflow reads it to choose the version bump:
+3. Give the PR a [Conventional Commit](https://www.conventionalcommits.org) title. CI enforces it, release notes list it, and on a release PR it chooses the version bump:
 
    | Title | Release |
    | --- | --- |
