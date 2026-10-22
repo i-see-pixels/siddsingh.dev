@@ -36,7 +36,7 @@ jobs:
       matrix:
         language: [javascript-typescript, actions]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       # Both languages are analysed from source, so nothing needs building.
       - uses: github/codeql-action/init@v3
