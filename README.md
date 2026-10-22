@@ -204,14 +204,16 @@ The site is built for Vercel. Set the same environment variables in the project 
 
 ## CI and releases
 
+Work happens on **`dev`**, the default branch. **`main`** is production: it changes only through a release pull request from `dev`, and Vercel deploys it. [`docs/branching.md`](docs/branching.md) covers the full flow and the recommended branch protection rules.
+
 GitHub Actions in `.github/` check every change and version the project:
 
 | Workflow | Runs on | What it does |
 | --- | --- | --- |
-| [`ci.yml`](.github/workflows/ci.yml) | Every PR, pushes to `main` | Biome lint and format check, typecheck, then a production build |
+| [`ci.yml`](.github/workflows/ci.yml) | Every PR, pushes to `dev` and `main` | Biome lint and format check, typecheck, then a production build |
 | [`pr-title.yml`](.github/workflows/pr-title.yml) | PRs | Requires a [Conventional Commit](https://www.conventionalcommits.org) title, which decides the version bump |
-| [`release.yml`](.github/workflows/release.yml) | PR merged into `main` | Bumps the version in `package.json`, tags `vX.Y.Z` and publishes a GitHub release with generated notes |
-| [`codeql.yml`](.github/workflows/codeql.yml) | PRs, pushes to `main`, weekly | CodeQL security scan of the TypeScript and the workflows |
+| [`release.yml`](.github/workflows/release.yml) | Release PR merged into `main` | Bumps the version in `package.json`, tags `vX.Y.Z`, publishes a GitHub release with generated notes, and merges `main` back into `dev` |
+| [`codeql.yml`](.github/workflows/codeql.yml) | PRs, pushes to `dev` and `main`, weekly | CodeQL security scan of the TypeScript and the workflows |
 | [`dependabot.yml`](.github/dependabot.yml) | Weekly / monthly | Grouped dependency and GitHub Actions updates |
 
 **How the version is bumped.** A `release:major`, `release:minor` or `release:patch` label on the PR wins. Otherwise the title decides: `feat!:` (or any `type!:`) is major, `feat:` is minor, and everything else is a patch. Label a PR `skip-release` to merge it without a release. Release notes are grouped by label (see [`.github/release.yml`](.github/release.yml)).
@@ -220,11 +222,11 @@ GitHub Actions in `.github/` check every change and version the project:
 
 1. Add a `DATABASE_URL` repository secret (Settings → Secrets and variables → Actions) so CI can run the build. The build prerenders published posts, so it needs a database. Use a separate Neon branch, not production. Without the secret, CI still lints and typechecks and skips the build.
 2. Create the labels `release:major`, `release:minor`, `release:patch`, `skip-release` and `dependencies`.
-3. If `main` is a protected branch, let the release workflow push its version commit: allow GitHub Actions to bypass the rule, or switch the workflow to a GitHub App token.
-4. Optionally, make `CI / Lint and typecheck`, `CI / Build` and `PR title / Conventional title` required status checks for `main`.
+3. Make `dev` the default branch, and add the rulesets and release app described in [`docs/branching.md`](docs/branching.md). The release workflow needs that app to push its version commit to a protected `main`.
+4. Make `Lint and typecheck`, `Build`, `Conventional title` and `Analyze (javascript-typescript)` required checks for `main`.
 5. Turn on **Private vulnerability reporting** (Settings → Code security), which [SECURITY.md](SECURITY.md) points reporters to. Leave CodeQL's "default setup" off there, because `codeql.yml` is the advanced setup and the two can't run together.
 
-Deployment itself is handled by Vercel's Git integration: every push to `main` deploys, and every PR gets a preview URL.
+Deployment itself is handled by Vercel's Git integration: every push to `main` deploys to production, and every push to `dev` and every PR gets a preview URL.
 
 ## Contributing
 
