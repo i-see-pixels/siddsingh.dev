@@ -10,7 +10,7 @@ Thanks for helping out. This is a personal site, but its tools, blog engine and 
 
 ## Local setup
 
-You need Node 20.9 or newer and pnpm (the version is pinned in `package.json`; `corepack enable` picks it up).
+You need Node 24 and pnpm (the version is pinned in `package.json`; `corepack enable` picks it up).
 
 ```bash
 pnpm install

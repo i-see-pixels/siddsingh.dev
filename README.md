@@ -85,7 +85,7 @@ docs/                    design spec and site structure
 
 ## Getting started
 
-You need Node 20.9 or newer, pnpm, and a [Neon](https://neon.tech) project with Auth turned on.
+You need Node 24, pnpm, and a [Neon](https://neon.tech) project with Auth turned on.
 
 ```bash
 pnpm install
