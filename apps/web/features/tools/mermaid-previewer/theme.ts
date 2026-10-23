@@ -57,6 +57,10 @@ export function mermaidConfig(dark: boolean): MermaidConfig {
 	return {
 		startOnLoad: false,
 		securityLevel: "strict",
+		// On a syntax error Mermaid otherwise draws its own error graphic straight
+		// into <body>, outside React, where it stays after the code is fixed or
+		// cleared. Callers show the error themselves.
+		suppressErrorRendering: true,
 		theme: "base",
 		fontFamily: FONT,
 		// HTML labels use foreignObject, which taints the canvas used for PNG export.
