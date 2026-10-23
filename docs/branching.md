@@ -23,7 +23,7 @@ feature branch ──PR──▶ dev ──release PR──▶ main ──▶ Ve
    - publishes a GitHub release with notes grouped by label ([`.github/release.yml`](../.github/release.yml))
    - merges `main` back into `dev`, so the next release PR starts level
 
-Its commits carry `[skip ci]`, so they don't start CI or another release. Vercel deploys the merge to production.
+Its commits carry `[skip ci]`, so they don't start CI or another release, and the `ignoreCommand` in [`apps/web/vercel.json`](../apps/web/vercel.json) skips Vercel builds for any commit starting with `chore(release):`. Vercel deploys the merge to production.
 
 ## Protection on this repository
 
