@@ -17,11 +17,6 @@ const nextConfig: NextConfig = {
 	// The first matching rule wins, so the catch-all goes last.
 	redirects() {
 		return [
-			{
-				source: "/work/mcp-client-multiserver",
-				destination: "/blog/building-a-python-mcp-client-for-multiple-servers",
-				permanent: true,
-			},
 			{ source: "/work/admin-boil-cli", destination: "/products", permanent: true },
 			{ source: "/work/plenz", destination: "/products", permanent: true },
 			{ source: "/work/:slug", destination: "/work", permanent: true },
