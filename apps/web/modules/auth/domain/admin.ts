@@ -37,7 +37,7 @@ export class InvalidCredentialsError extends DomainError {
 
 export class EmailNotVerifiedError extends DomainError {
 	constructor() {
-		super("Verify the admin email address first, using the link Neon Auth sent to it.")
+		super("Verify this email address first, with the code or link Neon Auth sent to it.")
 	}
 }
 

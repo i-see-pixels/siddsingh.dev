@@ -135,6 +135,13 @@ export function SiteFooter() {
 							</a>
 						</span>
 					))}
+					<span aria-hidden className="h-4 w-px bg-line" />
+					<Link
+						href="/privacy"
+						className="font-mono text-xs transition-[color] hover:text-foreground"
+					>
+						Privacy
+					</Link>
 				</div>
 			</div>
 			<div className="h-(--fade-bottom-height) md:h-12" />

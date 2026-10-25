@@ -1,0 +1,4 @@
+{
+	"$schema": "https://openapi.vercel.sh/vercel.json",
+	"ignoreCommand": "case \"$VERCEL_GIT_COMMIT_MESSAGE\" in \"chore(release):\"*) echo \"Release commit, skipping the build.\"; exit 0 ;; esac; exit 1"
+}
