@@ -4,6 +4,7 @@ import { Architects_Daughter, Geist, Geist_Mono } from "next/font/google"
 
 import "@workspace/ui/globals.css"
 import { cn } from "@workspace/ui/lib/utils"
+import { Analytics } from "@/components/analytics"
 import { ThemeProvider } from "@/components/theme-provider"
 import { siteConfig } from "@/lib/site-config"
 
@@ -34,6 +35,8 @@ const fontHandwritten = Architects_Daughter({
 	variable: "--font-handwritten",
 })
 
+const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
+
 export default function RootLayout({
 	children,
 }: Readonly<{
@@ -56,6 +59,8 @@ export default function RootLayout({
 					<TooltipProvider>{children}</TooltipProvider>
 				</ThemeProvider>
 			</body>
+			{/* Unset locally, so dev traffic stays out of the reports. */}
+			{gaId && <Analytics gaId={gaId} />}
 		</html>
 	)
 }

@@ -11,6 +11,7 @@
 	},
 	"dependencies": {
 		"@neondatabase/auth": "0.6.0-beta",
+		"@next/third-parties": "16.4.2",
 		"@vercel/blob": "^2.8.2",
 		"@workspace/db": "workspace:*",
 		"@workspace/ui": "workspace:*",
