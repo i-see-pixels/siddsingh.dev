@@ -192,7 +192,7 @@ export function PanZoom({
 									}
 								: undefined
 						}
-						// Mermaid runs with securityLevel "strict", which sanitises the SVG it returns.
+						// The caller passes Mermaid output cleaned by sanitizeSvg.
 						// biome-ignore lint/security/noDangerouslySetInnerHtml: sanitised mermaid output
 						dangerouslySetInnerHTML={{ __html: svg }}
 					/>

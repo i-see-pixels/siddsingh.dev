@@ -17,6 +17,7 @@ import { ErrorCard, FileTab, headerButton, PaneHeader, StatusBar } from "../tool
 import { CanvasHint, diagramKind, ExportPill, PreviewLabel, ZoomPill } from "./chrome"
 import { naturalSize, PanZoom, type PanZoomHandle } from "./pan-zoom"
 import { samples } from "./samples"
+import { sanitizeSvg } from "./sanitize"
 import { codeFromHash } from "./share"
 import { mermaidConfig } from "./theme"
 
@@ -64,7 +65,7 @@ export function MermaidPreviewerTool() {
 			mermaid.initialize(mermaidConfig(resolvedTheme === "dark"))
 			try {
 				const { svg } = await mermaid.render(`${baseId}-${counter.current++}`, code)
-				if (!cancelled) setState({ status: "ready", svg })
+				if (!cancelled) setState({ status: "ready", svg: sanitizeSvg(svg) })
 			} catch (error) {
 				if (cancelled) return
 				const message =

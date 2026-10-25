@@ -5,6 +5,7 @@ import { Maximize2Icon } from "lucide-react"
 import Link from "next/link"
 import { useTheme } from "next-themes"
 import { useEffect, useId, useRef, useState } from "react"
+import { sanitizeSvg } from "@/features/tools/mermaid-previewer/sanitize"
 import { mermaidWorkspaceHref } from "@/features/tools/mermaid-previewer/share"
 import { mermaidConfig } from "@/features/tools/mermaid-previewer/theme"
 
@@ -28,7 +29,7 @@ export function MermaidDiagram({ code }: { code: string }) {
 				const { default: mermaid } = await import("mermaid")
 				mermaid.initialize(mermaidConfig(resolvedTheme === "dark"))
 				const { svg } = await mermaid.render(`${baseId}-${counter.current++}`, code)
-				if (!cancelled) setState({ status: "ready", svg })
+				if (!cancelled) setState({ status: "ready", svg: sanitizeSvg(svg) })
 			} catch {
 				if (!cancelled) setState({ status: "error" })
 			}
@@ -54,7 +55,7 @@ export function MermaidDiagram({ code }: { code: string }) {
 					role="img"
 					aria-label="Diagram"
 					className="flex justify-center overflow-x-auto p-6 [&>svg]:h-auto [&>svg]:max-w-full"
-					// Mermaid runs with securityLevel "strict", which sanitises the SVG it returns.
+					// Mermaid output, cleaned by sanitizeSvg.
 					// biome-ignore lint/security/noDangerouslySetInnerHtml: sanitised Mermaid output.
 					dangerouslySetInnerHTML={{ __html: state.svg }}
 				/>
