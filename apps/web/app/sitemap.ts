@@ -17,6 +17,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 			priority: 0.8,
 			lastModified: item.href === "/blog" ? lastPost : undefined,
 		})),
+		{ url: url("/privacy"), changeFrequency: "yearly", priority: 0.2 },
 		...tools.map((tool) => ({ url: url(`/tools/${tool.slug}`), priority: 0.6 })),
 		...posts.map((post) => ({
 			url: url(`/blog/${post.slug}`),

@@ -57,10 +57,11 @@ export default function RootLayout({
 			<body>
 				<ThemeProvider defaultTheme="light">
 					<TooltipProvider>{children}</TooltipProvider>
+					{/* Inside <body>: the cookie banner is an element, not just scripts.
+					    Unset locally, so dev traffic stays out of the reports. */}
+					{gaId && <Analytics gaId={gaId} />}
 				</ThemeProvider>
 			</body>
-			{/* Unset locally, so dev traffic stays out of the reports. */}
-			{gaId && <Analytics gaId={gaId} />}
 		</html>
 	)
 }
