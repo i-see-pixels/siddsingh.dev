@@ -68,6 +68,3 @@ export function SplitLayout({ children }: { children: ReactNode }) {
 		</div>
 	)
 }
-
-export const monoTextarea =
-	"min-h-0 flex-1 resize-none rounded-none border-0 bg-transparent p-3 font-mono text-sm leading-relaxed focus-visible:ring-0 dark:bg-transparent"

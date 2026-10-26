@@ -1,11 +1,12 @@
 "use client"
 
 import { Input } from "@workspace/ui/components/input"
-import { Textarea } from "@workspace/ui/components/textarea"
 import { cn } from "@workspace/ui/lib/utils"
 import { countTokens } from "gpt-tokenizer/encoding/o200k_base"
 import { useDeferredValue, useMemo, useState } from "react"
-import { monoTextarea, Pane, SplitLayout } from "../tool-ui"
+import { CodeEditor } from "../editor/code-editor"
+import { prose } from "../editor/languages/text"
+import { Pane, SplitLayout } from "../tool-ui"
 import { models, pricesCheckedOn, tokenizerRatio } from "./models"
 
 const SAMPLE = `You are a helpful assistant. Summarise the following support ticket in two sentences and suggest the next action.
@@ -48,13 +49,12 @@ export function LlmTokenCostTool() {
 	return (
 		<SplitLayout>
 			<Pane title="Prompt">
-				<Textarea
-					aria-label="Prompt text"
-					className={monoTextarea}
+				<CodeEditor
+					label="Prompt text"
+					language={prose}
 					value={text}
-					onChange={(event) => setText(event.target.value)}
+					onChange={setText}
 					placeholder="Paste a prompt, document or code here"
-					spellCheck={false}
 				/>
 				<div className="screen-line-top grid grid-cols-2 gap-3 p-3">
 					<label className="flex flex-col gap-1 text-xs text-muted-foreground">

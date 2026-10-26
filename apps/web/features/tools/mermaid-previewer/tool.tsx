@@ -12,9 +12,10 @@ import { CopyIcon, LayoutGridIcon, RotateCcwIcon } from "lucide-react"
 import { useTheme } from "next-themes"
 import { useEffect, useId, useRef, useState } from "react"
 import { ResizableSplit } from "@/components/resizable-split"
+import { CodeEditor } from "../editor/code-editor"
+import { mermaid } from "../editor/languages/mermaid"
 import { ErrorCard, FileTab, headerButton, PaneHeader, StatusBar } from "../tool-chrome"
 import { CanvasHint, diagramKind, ExportPill, PreviewLabel, ZoomPill } from "./chrome"
-import { MermaidEditor } from "./editor"
 import { naturalSize, PanZoom, type PanZoomHandle } from "./pan-zoom"
 import { samples } from "./samples"
 import { sanitizeSvg } from "./sanitize"
@@ -242,10 +243,11 @@ export function MermaidPreviewerTool() {
 							</Button>
 						</div>
 					</PaneHeader>
-					<MermaidEditor
+					<CodeEditor
 						label="Mermaid diagram code"
 						placeholder="Write or paste Mermaid code"
 						value={code}
+						language={mermaid}
 						docKey={example ?? "shared"}
 						errorLine={errorLine}
 						onChange={setCode}
