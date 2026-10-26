@@ -8,13 +8,13 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@workspace/ui/components/select"
-import { CopyIcon, LayoutGridIcon } from "lucide-react"
+import { CopyIcon, LayoutGridIcon, RotateCcwIcon } from "lucide-react"
 import { useTheme } from "next-themes"
 import { useEffect, useId, useRef, useState } from "react"
 import { ResizableSplit } from "@/components/resizable-split"
-import { CodeEditor } from "../code-editor"
 import { ErrorCard, FileTab, headerButton, PaneHeader, StatusBar } from "../tool-chrome"
 import { CanvasHint, diagramKind, ExportPill, PreviewLabel, ZoomPill } from "./chrome"
+import { MermaidEditor } from "./editor"
 import { naturalSize, PanZoom, type PanZoomHandle } from "./pan-zoom"
 import { samples } from "./samples"
 import { sanitizeSvg } from "./sanitize"
@@ -26,6 +26,39 @@ type RenderState =
 	| { status: "ready"; svg: string }
 	| { status: "error"; message: string; svg?: string }
 
+const STORAGE_KEY = "mermaid-previewer:drafts"
+
+/** Edits to each example, keyed by example name, plus the example last open. */
+type Saved = { active?: string; drafts: Record<string, string> }
+
+function loadSaved(): Saved {
+	try {
+		const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "null")
+		if (saved && typeof saved.drafts === "object") return saved
+	} catch {}
+	return { drafts: {} }
+}
+
+function storeSaved(saved: Saved) {
+	try {
+		localStorage.setItem(STORAGE_KEY, JSON.stringify(saved))
+	} catch {}
+}
+
+/** Open the shared diagram from the URL fragment, else the example last worked on. */
+function initialDiagram() {
+	const saved = loadSaved()
+	const shared = codeFromHash(window.location.hash)
+	if (shared !== null) return { saved, shared, example: null, code: shared }
+	const sample = samples.find((item) => item.name === saved.active) ?? samples[0]
+	return {
+		saved,
+		shared,
+		example: sample?.name ?? null,
+		code: (sample && saved.drafts[sample.name]) ?? sample?.code ?? "",
+	}
+}
+
 function download(href: string, filename: string) {
 	const link = document.createElement("a")
 	link.href = href
@@ -34,8 +67,10 @@ function download(href: string, filename: string) {
 }
 
 export function MermaidPreviewerTool() {
-	const [code, setCode] = useState(samples[0]?.code ?? "")
-	const [example, setExample] = useState<string | null>(samples[0]?.name ?? null)
+	const [initial] = useState(initialDiagram)
+	const [code, setCode] = useState(initial.code)
+	const [example, setExample] = useState<string | null>(initial.example)
+	const saved = useRef(initial.saved)
 	const [fitKey, setFitKey] = useState(0)
 	const [scale, setScale] = useState(1)
 	const [state, setState] = useState<RenderState>({ status: "idle" })
@@ -44,14 +79,20 @@ export function MermaidPreviewerTool() {
 	const baseId = useId().replace(/:/g, "")
 	const counter = useRef(0)
 
-	// A diagram sent from a blog post arrives in the URL fragment.
+	// The code each example resets to; a shared diagram resets to what was shared.
+	const original =
+		example === null
+			? (initial.shared ?? "")
+			: samples.find((item) => item.name === example)?.code
+
+	// Keep each example's edits in this browser. A shared diagram lives in the URL instead.
 	useEffect(() => {
-		const shared = codeFromHash(window.location.hash)
-		if (shared === null) return
-		setCode(shared)
-		setExample(null)
-		setFitKey((key) => key + 1)
-	}, [])
+		if (example === null) return
+		const { drafts } = saved.current
+		if (code === original) delete drafts[example]
+		else drafts[example] = code
+		storeSaved({ active: example, drafts })
+	}, [code, example, original])
 
 	// Re-render shortly after typing stops, and when the colour theme changes.
 	useEffect(() => {
@@ -147,8 +188,11 @@ export function MermaidPreviewerTool() {
 								onValueChange={(next) => {
 									const sample = samples.find((item) => item.name === next)
 									if (!sample) return
+									// Leaving a shared diagram: drop it from the URL so a reload keeps this example.
+									if (example === null)
+										history.replaceState(null, "", window.location.pathname)
 									setExample(sample.name)
-									setCode(sample.code)
+									setCode(saved.current.drafts[sample.name] ?? sample.code)
 									setFitKey((key) => key + 1)
 								}}
 							>
@@ -171,6 +215,25 @@ export function MermaidPreviewerTool() {
 								size="sm"
 								variant="outline"
 								className={headerButton}
+								disabled={original === undefined || code === original}
+								title={
+									example === null
+										? "Revert to the shared diagram"
+										: "Revert to the example code"
+								}
+								onClick={() => {
+									if (original === undefined) return
+									setCode(original)
+									setFitKey((key) => key + 1)
+								}}
+							>
+								<RotateCcwIcon />
+								Reset
+							</Button>
+							<Button
+								size="sm"
+								variant="outline"
+								className={headerButton}
 								disabled={!code}
 								onClick={() => navigator.clipboard.writeText(code).catch(() => {})}
 							>
@@ -179,15 +242,13 @@ export function MermaidPreviewerTool() {
 							</Button>
 						</div>
 					</PaneHeader>
-					<CodeEditor
+					<MermaidEditor
 						label="Mermaid diagram code"
 						placeholder="Write or paste Mermaid code"
 						value={code}
+						docKey={example ?? "shared"}
 						errorLine={errorLine}
-						onChange={(value) => {
-							setCode(value)
-							setExample(null)
-						}}
+						onChange={setCode}
 					/>
 					{state.status === "error" && (
 						<ErrorCard title="Couldn't render this diagram" message={state.message} />
