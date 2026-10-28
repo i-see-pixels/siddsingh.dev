@@ -34,6 +34,7 @@ export async function GET() {
 		"Each tool runs in the browser. Links can pre-fill a tool through the URL fragment, which is never sent to a server.",
 		"",
 		`- [JSON formatter & validator](${url("/tools/json-formatter/workspace")}): open with \`#json=<base64url of the JSON or YAML>\`, and add \`&mode=yaml\` for YAML output. Secrets in the input are flagged and can be redacted.`,
+		`- [JWT decoder & security check](${url("/tools/jwt-decoder/workspace")}): open with \`#token=<header>.<payload>\` (leave the signature off so the link can't be used to sign in). It decodes the token and audits it for common security mistakes.`,
 		"",
 	]
 

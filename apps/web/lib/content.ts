@@ -421,4 +421,34 @@ export const tools = [
 			},
 		],
 	},
+	{
+		slug: "jwt-decoder",
+		name: "JWT decoder & security check",
+		description:
+			"Decode a JWT, read its claims in plain English, verify its signature and check it for common security mistakes.",
+		category: "Developer",
+		steps: [
+			"Paste a token. The header, payload and signature are split and decoded.",
+			"Read the audit: it flags unsigned tokens, weak secrets, missing expiry and risky headers.",
+			"Verify the signature with your secret or public key, or share a link with the signature removed.",
+		],
+		faq: [
+			{
+				question: "Is my token sent anywhere?",
+				answer: "No. Decoding, verification and the audit run in your browser. Open DevTools → Network and paste to check: the only request is the public list of known secrets, which never includes your token.",
+			},
+			{
+				question: "Why does the share link drop the signature?",
+				answer: "A full token works as a login until it expires. Without the signature, the link shows what's inside but can't be used.",
+			},
+			{
+				question: "How does the weak-secret check work?",
+				answer: "For HMAC tokens, it tries about 104,000 publicly known JWT secrets from SecLists in your browser. A match means anyone can forge tokens. No match doesn't prove the secret is strong.",
+			},
+			{
+				question: "Can it decode encrypted tokens (JWE)?",
+				answer: "It shows the header. The payload needs the private key, which this tool doesn't ask for.",
+			},
+		],
+	},
 ]
