@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest"
-import { countLargeNumbers, depthOf, formatValue, parseInput } from "./format"
+import {
+	countLargeNumbers,
+	depthOf,
+	formatValue,
+	parseInput,
+} from "@/features/tools/json-formatter/format"
 
 describe("parseInput", () => {
 	it("reads JSON", () => {

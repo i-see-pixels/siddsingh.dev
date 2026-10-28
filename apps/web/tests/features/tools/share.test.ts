@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { codeFromHash, mermaidWorkspaceHref } from "./mermaid-previewer/share"
-import { fromBase64Url, readFragment, toBase64Url } from "./share"
+import { codeFromHash, mermaidWorkspaceHref } from "@/features/tools/mermaid-previewer/share"
+import { fromBase64Url, readFragment, toBase64Url } from "@/features/tools/share"
 
 describe("share links", () => {
 	it("round-trips UTF-8 text through base64url", () => {

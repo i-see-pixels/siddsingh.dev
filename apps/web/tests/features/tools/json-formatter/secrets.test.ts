@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest"
-import { defaultEnabledRules, isSecretKey, redact, scanSecrets, secretRules } from "./secrets"
+import {
+	defaultEnabledRules,
+	isSecretKey,
+	redact,
+	scanSecrets,
+	secretRules,
+} from "@/features/tools/json-formatter/secrets"
 
 const allRules = new Set(secretRules.map((rule) => rule.id))
 const defaults = new Set(defaultEnabledRules)

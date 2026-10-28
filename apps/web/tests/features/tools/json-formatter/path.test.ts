@@ -2,7 +2,7 @@ import { json } from "@codemirror/lang-json"
 import { ensureSyntaxTree } from "@codemirror/language"
 import { EditorState } from "@codemirror/state"
 import { describe, expect, it } from "vitest"
-import { formatPath, pathAt } from "./path"
+import { formatPath, pathAt } from "@/features/tools/json-formatter/path"
 
 function stateOf(doc: string) {
 	const state = EditorState.create({ doc, extensions: json() })
