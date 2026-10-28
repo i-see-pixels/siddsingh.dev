@@ -27,6 +27,7 @@ import {
 	lineNumbers,
 } from "@codemirror/view"
 import { tags as t } from "@lezer/highlight"
+import { inlineMarks } from "./marks"
 
 /** One colour per token kind, shared by every language so all the tools read alike. */
 const highlight = HighlightStyle.define([
@@ -170,6 +171,7 @@ export const editorCore = [
 	highlightSelectionMatches(),
 	syntaxHighlighting(highlight),
 	errorLineField,
+	inlineMarks,
 	keymap.of([
 		...closeBracketsKeymap,
 		...completionKeymap,

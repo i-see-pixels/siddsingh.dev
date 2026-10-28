@@ -29,6 +29,12 @@ export async function GET() {
 		`- [About](${url("/about")})`,
 		`- [RSS feed](${url("/blog/rss.xml")})`,
 		"",
+		"## Tools",
+		"",
+		"Each tool runs in the browser. Links can pre-fill a tool through the URL fragment, which is never sent to a server.",
+		"",
+		`- [JSON formatter & validator](${url("/tools/json-formatter/workspace")}): open with \`#json=<base64url of the JSON or YAML>\`, and add \`&mode=yaml\` for YAML output. Secrets in the input are flagged and can be redacted.`,
+		"",
 	]
 
 	return new Response(lines.join("\n"), {

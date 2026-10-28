@@ -1,5 +1,6 @@
 import type { ComponentType } from "react"
 import { DiffChecker } from "./diff-checker"
+import { JsonFormatter } from "./json-formatter"
 import { LlmTokenCost } from "./llm-token-cost"
 import { MermaidPreviewer } from "./mermaid-previewer"
 import { PromptPlayground } from "./prompt-playground"
@@ -14,4 +15,5 @@ export const toolComponents: Record<string, ComponentType> = {
 	"tool-schema-converter": ToolSchemaConverter,
 	"diff-checker": DiffChecker,
 	"mermaid-previewer": MermaidPreviewer,
+	"json-formatter": JsonFormatter,
 }

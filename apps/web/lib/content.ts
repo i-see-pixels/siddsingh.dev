@@ -391,4 +391,34 @@ export const tools = [
 			},
 		],
 	},
+	{
+		slug: "json-formatter",
+		name: "JSON formatter & validator",
+		description:
+			"Format, validate and minify JSON, convert it to YAML, and redact any secrets before you share it.",
+		category: "Developer",
+		steps: [
+			"Paste JSON or YAML. Errors are marked on the line they happen.",
+			"Pick formatted, minified or YAML output, and click any value to copy its path.",
+			"Redact any keys or passwords the tool finds, then copy, download or share.",
+		],
+		faq: [
+			{
+				question: "Is my JSON sent anywhere?",
+				answer: "No. Formatting and the secret scan run in your browser. Open DevTools → Network and paste to check: no requests are made.",
+			},
+			{
+				question: "What secrets does it look for?",
+				answer: "Private keys, cloud and API keys (AWS, GitHub, OpenAI, Anthropic, Stripe, Slack, Google), JWTs and passwords in connection strings by default. You can also turn on checks for values under keys like password or token, card numbers, emails and random-looking strings.",
+			},
+			{
+				question: "What does a share link contain?",
+				answer: "The redacted JSON, inside the part of the link after #, which browsers never send to a server. Secrets are always removed from share links.",
+			},
+			{
+				question: "Can it convert YAML to JSON?",
+				answer: "Yes. Paste YAML and the formatted and minified tabs give you JSON.",
+			},
+		],
+	},
 ]

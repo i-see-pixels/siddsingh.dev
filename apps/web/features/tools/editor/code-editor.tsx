@@ -4,9 +4,10 @@ import { indentUnit } from "@codemirror/language"
 import { Compartment, EditorState, type Extension } from "@codemirror/state"
 import { EditorView, placeholder as placeholderText } from "@codemirror/view"
 import { cn } from "@workspace/ui/lib/utils"
-import { useEffect, useMemo, useRef, useState } from "react"
+import { type RefObject, useEffect, useMemo, useRef, useState } from "react"
 import { editorCore, setErrorLine } from "./core"
 import { plainText } from "./languages/text"
+import { type InlineMark, setMarks } from "./marks"
 import type { EditorLanguage } from "./types"
 
 /**
@@ -23,8 +24,10 @@ export function CodeEditor({
 	docKey,
 	placeholder,
 	errorLine,
+	marks,
 	invalid,
 	readOnly,
+	editorRef,
 	className,
 }: {
 	value: string
@@ -38,8 +41,15 @@ export function CodeEditor({
 	placeholder?: string
 	/** 1-based line to mark as the error. */
 	errorLine?: number
+	/**
+	 * Highlighted ranges with optional hover cards, and the text they were computed from.
+	 * They're applied only while the editor still holds that text.
+	 */
+	marks?: { doc: string; items: InlineMark[] }
 	invalid?: boolean
 	readOnly?: boolean
+	/** The live view, for tools that make precise edits (one undoable change per action). */
+	editorRef?: RefObject<EditorView | null>
 	className?: string
 }) {
 	const hostRef = useRef<HTMLDivElement>(null)
@@ -87,9 +97,11 @@ export function CodeEditor({
 		if (!hostRef.current) return
 		const view = new EditorView({ parent: hostRef.current, state: createState(value) })
 		viewRef.current = view
+		if (editorRef) editorRef.current = view
 		return () => {
 			view.destroy()
 			viewRef.current = null
+			if (editorRef) editorRef.current = null
 		}
 	}, [])
 
@@ -112,6 +124,15 @@ export function CodeEditor({
 	useEffect(() => {
 		viewRef.current?.dispatch({ effects: setErrorLine.of(errorLine) })
 	}, [errorLine])
+
+	// Runs after the value effect above, so a new document and its marks land together.
+	useEffect(() => {
+		const view = viewRef.current
+		if (!view) return
+		if (!marks) view.dispatch({ effects: setMarks.of([]) })
+		else if (view.state.doc.toString() === marks.doc)
+			view.dispatch({ effects: setMarks.of(marks.items) })
+	}, [marks])
 
 	return (
 		<div

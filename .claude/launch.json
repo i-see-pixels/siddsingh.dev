@@ -3,7 +3,7 @@
 	"configurations": [
 		{
 			"name": "web",
-			"runtimeExecutable": "C:\\Users\\ADMIN\\AppData\\Local\\pnpm\\bin\\pnpm.cmd",
+			"runtimeExecutable": "pnpm",
 			"runtimeArgs": ["--filter", "web", "dev"],
 			"port": 3000
 		}
