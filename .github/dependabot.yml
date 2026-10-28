@@ -1,29 +1,29 @@
 version: 2
 
 updates:
-  # pnpm workspaces are covered by the npm ecosystem.
-  - package-ecosystem: npm
-    directory: /
-    schedule:
-      interval: weekly
-      day: monday
-    open-pull-requests-limit: 5
-    labels: [dependencies, skip-release]
-    commit-message:
-      prefix: chore
-      include: scope
-    groups:
-      # Minor and patch updates arrive as one PR; majors stay separate for review.
-      minor-and-patch:
-        update-types: [minor, patch]
+    # pnpm workspaces are covered by the npm ecosystem.
+    - package-ecosystem: npm
+      directory: /
+      schedule:
+          interval: weekly
+          day: monday
+      open-pull-requests-limit: 5
+      labels: [dependencies, skip-release]
+      commit-message:
+          prefix: chore
+          include: scope
+      groups:
+          # Minor and patch updates arrive as one PR; majors stay separate for review.
+          minor-and-patch:
+              update-types: [minor, patch]
 
-  - package-ecosystem: github-actions
-    directory: /
-    schedule:
-      interval: monthly
-    labels: [dependencies, skip-release]
-    commit-message:
-      prefix: ci
-    groups:
-      actions:
-        patterns: ["*"]
+    - package-ecosystem: github-actions
+      directory: /
+      schedule:
+          interval: monthly
+      labels: [dependencies, skip-release]
+      commit-message:
+          prefix: ci
+      groups:
+          actions:
+              patterns: ["*"]
