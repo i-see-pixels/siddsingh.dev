@@ -1,10 +1,25 @@
 import { describe, expect, it } from "vitest"
+import { analyze } from "@/features/tools/json-formatter/analyze"
 import {
 	countLargeNumbers,
 	depthOf,
 	formatValue,
+	minifyJson,
 	parseInput,
 } from "@/features/tools/json-formatter/format"
+
+describe("analyze", () => {
+	it("reports input too deep to format instead of throwing", () => {
+		const text = `${"[".repeat(200_000)}${"]".repeat(200_000)}`
+		const result = analyze(text, {
+			mode: "formatted",
+			indent: "2",
+			sortKeys: false,
+			enabledRules: [],
+		})
+		expect(result.status).toBe("error")
+	})
+})
 
 describe("parseInput", () => {
 	it("reads JSON", () => {
@@ -75,6 +90,20 @@ describe("helpers", () => {
 		expect(
 			countLargeNumbers('{"id": 12345678901234567, "s": "12345678901234567", "n": 1.5}'),
 		).toBe(1)
+	})
+
+	it("doesn't count long fractions or exponents", () => {
+		expect(countLargeNumbers('{"pi": 3.14159265358979323846, "e": 1e-12345678901234567}')).toBe(
+			0,
+		)
+		expect(countLargeNumbers("[-12345678901234567]")).toBe(1)
+	})
+
+	it("minifies JSON text without reparsing it", () => {
+		expect(
+			minifyJson('{\n  "id": 12345678901234567890,\n  "s": "a  b",\n  "a": 1, "a": 2\n}'),
+		).toBe('{"id":12345678901234567890,"s":"a  b","a":1,"a":2}')
+		expect(minifyJson('{ "q": "say \\" hi " }')).toBe('{"q":"say \\" hi "}')
 	})
 
 	it("measures depth", () => {

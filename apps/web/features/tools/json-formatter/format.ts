@@ -88,13 +88,21 @@ export function formatValue(
 	return JSON.stringify(data, null, options.indent === "tab" ? "\t" : Number(options.indent))
 }
 
-/** Integer literals past 15 digits, which `JSON.parse` may round. Strings are skipped. */
+/** Integer literals past 15 digits, which `JSON.parse` may round. Strings, fractions and exponents are skipped. */
 export function countLargeNumbers(text: string) {
 	let count = 0
-	for (const match of text.matchAll(/"(?:[^"\\]|\\.)*"|-?\d{16,}(?![.\deE])/g)) {
+	for (const match of text.matchAll(/"(?:[^"\\]|\\.)*"|(?<![\d.eE+-])-?\d{16,}(?![.\deE])/g)) {
 		if (!match[0].startsWith('"')) count++
 	}
 	return count
+}
+
+/**
+ * Valid JSON text without the whitespace between tokens. Unlike a parse and stringify,
+ * it keeps large numbers and duplicate keys exactly as written.
+ */
+export function minifyJson(text: string) {
+	return text.replace(/"(?:[^"\\]|\\.)*"|\s+/g, (token) => (token.startsWith('"') ? token : ""))
 }
 
 export function depthOf(value: unknown): number {

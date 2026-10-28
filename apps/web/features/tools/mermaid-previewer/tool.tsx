@@ -12,6 +12,7 @@ import { CopyIcon, LayoutGridIcon, RotateCcwIcon } from "lucide-react"
 import { useTheme } from "next-themes"
 import { useEffect, useId, useRef, useState } from "react"
 import { ResizableSplit } from "@/components/resizable-split"
+import { download, downloadBlob } from "../download"
 import { CodeEditor } from "../editor/code-editor"
 import { mermaid } from "../editor/languages/mermaid"
 import { ErrorCard, FileTab, headerButton, PaneHeader, StatusBar } from "../tool-chrome"
@@ -58,13 +59,6 @@ function initialDiagram() {
 		example: sample?.name ?? null,
 		code: (sample && saved.drafts[sample.name]) ?? sample?.code ?? "",
 	}
-}
-
-function download(href: string, filename: string) {
-	const link = document.createElement("a")
-	link.href = href
-	link.download = filename
-	link.click()
 }
 
 export function MermaidPreviewerTool() {
@@ -132,11 +126,7 @@ export function MermaidPreviewerTool() {
 
 	const svg = state.status === "idle" ? "" : (state.svg ?? "")
 
-	const exportSvg = () => {
-		const url = URL.createObjectURL(new Blob([svg], { type: "image/svg+xml" }))
-		download(url, "diagram.svg")
-		URL.revokeObjectURL(url)
-	}
+	const exportSvg = () => downloadBlob(new Blob([svg], { type: "image/svg+xml" }), "diagram.svg")
 
 	const exportPng = async () => {
 		const size = naturalSize(svg)

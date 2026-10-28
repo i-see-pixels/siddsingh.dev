@@ -32,6 +32,7 @@ import {
 } from "lucide-react"
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react"
 import { ResizableSplit } from "@/components/resizable-split"
+import { downloadBlob } from "../download"
 import { CodeEditor } from "../editor/code-editor"
 import { json } from "../editor/languages/json"
 import { yaml } from "../editor/languages/yaml"
@@ -48,7 +49,14 @@ import {
 	ToggleChip,
 } from "../tool-chrome"
 import { type Analysis, type AnalyzeOptions, analyze } from "./analyze"
-import { formatBytes, type Indent, type InputKind, type OutputMode, parseInput } from "./format"
+import {
+	formatBytes,
+	type Indent,
+	type InputKind,
+	minifyJson,
+	type OutputMode,
+	parseInput,
+} from "./format"
 import { formatPath, type PathFormat, pathAt } from "./path"
 import { SecretRulesButton, useSecretRules } from "./secret-rules"
 import { type Finding, type PathSegment, redact, scanSecrets, secretRules } from "./secrets"
@@ -102,15 +110,6 @@ function readInitial(): { text: string; mode: OutputMode } {
 	return { text: text ?? SAMPLE, mode: params.get("mode") === "yaml" ? "yaml" : "formatted" }
 }
 
-function downloadText(text: string, filename: string) {
-	const url = URL.createObjectURL(new Blob([text], { type: "text/plain;charset=utf-8" }))
-	const link = document.createElement("a")
-	link.href = url
-	link.download = filename
-	link.click()
-	URL.revokeObjectURL(url)
-}
-
 export function JsonFormatterTool() {
 	const [initial] = useState(readInitial)
 	const [text, setText] = useState(initial.text)
@@ -153,6 +152,9 @@ export function JsonFormatterTool() {
 	// Small input re-runs shortly after typing stops.
 	useEffect(() => {
 		if (large) return
+		// Drop any large-input result still in flight, so it can't land over this one.
+		requestRef.current++
+		setBusy(false)
 		const timer = setTimeout(() => setAnalysis(analyze(text, options)), 150)
 		return () => clearTimeout(timer)
 	}, [text, options, large])
@@ -168,6 +170,7 @@ export function JsonFormatterTool() {
 			setAnalysis(event.data.analysis)
 			setBusy(false)
 		}
+		workerRef.current.onerror = () => setBusy(false)
 		setBusy(true)
 		workerRef.current.postMessage({ id, text: source, options })
 	}
@@ -276,8 +279,7 @@ export function JsonFormatterTool() {
 	const finish = async (action: OutAction, result: Analysis) => {
 		try {
 			if (action === "share") {
-				const payload =
-					result.kind === "json" ? JSON.stringify(JSON.parse(result.text)) : result.text
+				const payload = result.kind === "json" ? minifyJson(result.text) : result.text
 				const link = fragmentLink(WORKSPACE, {
 					json: toBase64Url(payload),
 					...(mode === "yaml" ? { mode: "yaml" } : {}),
@@ -292,7 +294,10 @@ export function JsonFormatterTool() {
 				await navigator.clipboard.writeText(result.output)
 				showFlash("copy", "Copied")
 			} else {
-				downloadText(result.output, outputFiles[mode])
+				downloadBlob(
+					new Blob([result.output], { type: "text/plain;charset=utf-8" }),
+					outputFiles[mode],
+				)
 			}
 		} catch {
 			showFlash(action, "Clipboard blocked")
@@ -300,10 +305,15 @@ export function JsonFormatterTool() {
 	}
 
 	const start = (action: OutAction) => {
-		const current = stale && !large ? analyze(text, options) : analysis
+		// Large input is only analysed on Format, so an edited one has nothing current to send.
+		if (large && stale) return
+		const current = stale ? analyze(text, options) : analysis
 		if (current.status !== "ok") return
+		// Share links never carry secrets, so ignored and low-severity findings are redacted too.
 		const blocking = current.findings.filter(
-			(finding) => finding.severity !== "low" && !ignored.has(finding.signature),
+			(finding) =>
+				action === "share" ||
+				(finding.severity !== "low" && !ignored.has(finding.signature)),
 		)
 		if (blocking.length > 0) setGuard({ action, analysis: current, findings: blocking })
 		else void finish(action, current)
@@ -363,7 +373,7 @@ export function JsonFormatterTool() {
 			size="sm"
 			variant="outline"
 			className={headerButton}
-			disabled={!ok || busy}
+			disabled={!ok || busy || (large && stale)}
 			onClick={() => start(action)}
 		>
 			{flash?.action === action ? <CheckIcon /> : icon}

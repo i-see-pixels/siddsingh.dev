@@ -50,17 +50,31 @@ export function analyze(text: string, options: AnalyzeOptions): Analysis {
 			stats,
 		}
 	}
-	return {
-		text,
-		status: "ok",
-		kind: parsed.kind,
-		yamlComments: parsed.yamlComments,
-		output: formatValue(parsed.value, options.mode, options),
-		findings: scanSecrets(text, parsed.kind, new Set(options.enabledRules)),
-		stats: {
-			...stats,
-			depth: depthOf(parsed.value),
-			largeNumbers: parsed.kind === "json" ? countLargeNumbers(text) : 0,
-		},
+	try {
+		return {
+			text,
+			status: "ok",
+			kind: parsed.kind,
+			yamlComments: parsed.yamlComments,
+			output: formatValue(parsed.value, options.mode, options),
+			findings: scanSecrets(text, parsed.kind, new Set(options.enabledRules)),
+			stats: {
+				...stats,
+				depth: depthOf(parsed.value),
+				largeNumbers: parsed.kind === "json" ? countLargeNumbers(text) : 0,
+			},
+		}
+	} catch {
+		// Formatting and the walks above recurse once per level, so very deep input
+		// overflows the stack. Report it rather than crash the tool or stall the worker.
+		return {
+			text,
+			status: "error",
+			error: { message: "Too deeply nested to format in the browser" },
+			yamlComments: false,
+			output: "",
+			findings: [],
+			stats,
+		}
 	}
 }

@@ -2,14 +2,15 @@
 // imports, so the large-input worker can run it too. Rules are modelled on gitleaks'
 // defaults (https://github.com/gitleaks/gitleaks).
 
-import { isMap, isScalar, isSeq, parseDocument } from "yaml"
+import { isMap, isScalar, isSeq, Parser, parseDocument } from "yaml"
 import type { InputKind } from "./format"
 
 export type Severity = "high" | "medium" | "low"
 export type PathSegment = string | number
 
 type Site = {
-	kind: "string" | "number"
+	/** A YAML comment is redacted whole as a comment, so the YAML stays valid. */
+	kind: "string" | "number" | "comment"
 	/** Source range of the whole token, quotes included. */
 	from: number
 	to: number
@@ -18,7 +19,10 @@ type Site = {
 	/** Where `text` starts in the source, when its offsets map one-to-one onto it. */
 	textStart?: number
 	value: string
-	/** Key of the nearest enclosing object, so `"tokens": ["sk-…"]` still reads as a token. */
+	/**
+	 * Key of the nearest enclosing object, so `"tokens": ["sk-…"]` still reads as a token.
+	 * Unset for keys themselves, which only the pattern rules read.
+	 */
 	key?: string
 	path: PathSegment[]
 }
@@ -92,7 +96,7 @@ export function isSecretKey(key: string | undefined) {
 }
 
 const PLACEHOLDER =
-	/^(x+|\*+|•+|<.*>|\$\{.*\}|\{\{.*\}\}|changeme|change_me|password|secret|example|your[_-].*[_-]here|\[?redacted.*)$/i
+	/^(x+|\*+|•+|<[^<>]*>|\$\{[^{}]*\}|\{\{[^{}]*\}\}|changeme|change_me|password|secret|example|your[_-].*[_-]here|\[?redacted.*)$/i
 
 export function isPlaceholder(value: string) {
 	return value.trim() === "" || PLACEHOLDER.test(value.trim())
@@ -195,8 +199,9 @@ export const secretRules: Rule[] = [
 		id: "connection-string",
 		name: "Password in a connection string",
 		severity: "high",
-		// Only the password between `user:` and `@` is redacted.
-		find: pattern(/\b[a-z][a-z0-9+.-]*:\/\/[^\s:/@]+:([^\s@]+)@/gi, 1),
+		// Only the password between `user:` and `@` is redacted. The scheme is capped so
+		// long strings without one don't make every position rescan to the end.
+		find: pattern(/\b[a-z][a-z0-9+.-]{0,31}:\/\/[^\s:/@]+:([^\s@]+)@/gi, 1),
 	},
 	{
 		id: "secret-key-name",
@@ -230,7 +235,10 @@ export const secretRules: Rule[] = [
 		id: "email",
 		name: "Email address",
 		severity: "low",
-		find: pattern(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g),
+		// Bounded and anchored to the start of a word, so long strings scan in linear time.
+		find: pattern(
+			/(?<![A-Za-z0-9._%+-])[A-Za-z0-9._%+-]{1,64}@[A-Za-z0-9.-]{1,253}\.[A-Za-z]{2,}/g,
+		),
 	},
 	{
 		id: "high-entropy",
@@ -278,24 +286,25 @@ function jsonSites(source: string): Site[] {
 			while (end < source.length && source[end] !== '"') end += source[end] === "\\" ? 2 : 1
 			const token = source.slice(i, end + 1)
 			const value = JSON.parse(token) as string
-			if (top?.type === "object" && top.expectKey) {
+			const isKey = top?.type === "object" && top.expectKey
+			if (isKey) {
 				top.key = value
 				top.expectKey = false
-			} else {
-				const raw = source.slice(i + 1, end)
-				// Escapes shift offsets, so only plain strings can be redacted in part.
-				const plain = !raw.includes("\\")
-				sites.push({
-					kind: "string",
-					from: i,
-					to: end + 1,
-					text: raw,
-					textStart: plain ? i + 1 : undefined,
-					value,
-					key: nearestKey(),
-					path: path(),
-				})
 			}
+			const raw = source.slice(i + 1, end)
+			// Escapes shift offsets, so only plain strings can be redacted in part.
+			const plain = !raw.includes("\\")
+			// Keys are scanned too: a token used as a key would otherwise reach a share link.
+			sites.push({
+				kind: "string",
+				from: i,
+				to: end + 1,
+				text: raw,
+				textStart: plain ? i + 1 : undefined,
+				value,
+				key: isKey ? undefined : nearestKey(),
+				path: path(),
+			})
 			i = end
 		} else if (char === "{") stack.push({ type: "object", expectKey: true })
 		else if (char === "[") stack.push({ type: "array", index: 0 })
@@ -324,13 +333,17 @@ function jsonSites(source: string): Site[] {
 	return sites
 }
 
-/** Scalars in YAML. Always redacted whole, since a plain scalar can't safely take `[` in its middle. */
+/**
+ * Scalars, keys included, and comments in YAML. Scalars are always redacted whole, since a
+ * plain scalar can't safely take `[` in its middle; comments can be redacted in part.
+ */
 function yamlSites(source: string): Site[] {
 	const sites: Site[] = []
 	const walk = (node: unknown, key: string | undefined, path: PathSegment[]) => {
 		if (isMap(node)) {
 			for (const pair of node.items) {
 				const name = isScalar(pair.key) ? String(pair.key.value) : undefined
+				walk(pair.key, undefined, [...path, name ?? ""])
 				walk(pair.value, name, [...path, name ?? ""])
 			}
 		} else if (isSeq(node)) {
@@ -352,6 +365,25 @@ function yamlSites(source: string): Site[] {
 		}
 	}
 	walk(parseDocument(source).contents, undefined, [])
+	// Comments aren't in the document model, so they're read from the parser's tokens.
+	const comments = (token: unknown): void => {
+		if (!token || typeof token !== "object") return
+		const { type, offset, source: text } = token as Partial<Record<string, unknown>>
+		if (type === "comment" && typeof offset === "number" && typeof text === "string") {
+			sites.push({
+				kind: "comment",
+				from: offset,
+				to: offset + text.length,
+				text,
+				textStart: offset,
+				value: text.replace(/^#\s*/, ""),
+				path: [],
+			})
+		} else {
+			for (const child of Object.values(token)) comments(child)
+		}
+	}
+	for (const token of new Parser().parse(source)) comments(token)
 	return sites
 }
 
@@ -367,21 +399,21 @@ export function scanSecrets(source: string, kind: InputKind, enabled: ReadonlySe
 	const sites = kind === "json" ? jsonSites(source) : yamlSites(source)
 	const found: Finding[] = []
 	for (const site of sites) {
-		if (site.kind === "string" && isPlaceholder(site.value)) continue
 		for (const rule of rules) {
 			for (const match of rule.find(site)) {
 				// A part already redacted, or a placeholder like `user:${PASSWORD}@`.
 				if (isPlaceholder(match.text)) continue
 				const partial =
-					!match.wholeValue && site.textStart !== undefined && site.kind === "string"
+					!match.wholeValue && site.textStart !== undefined && site.kind !== "number"
 				const label = `[REDACTED:${rule.id}]`
+				const whole = site.kind === "comment" ? `# ${label}` : JSON.stringify(label)
 				found.push({
 					ruleId: rule.id,
 					ruleName: rule.name,
 					severity: rule.severity,
 					from: partial ? (site.textStart ?? 0) + match.start : site.from,
 					to: partial ? (site.textStart ?? 0) + match.end : site.to,
-					replacement: partial ? label : JSON.stringify(label),
+					replacement: partial ? label : whole,
 					path: site.path,
 					preview: mask(match.text),
 					signature: `${rule.id}:${match.text}`,

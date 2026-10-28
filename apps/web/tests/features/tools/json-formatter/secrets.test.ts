@@ -144,6 +144,39 @@ describe("redaction", () => {
 		})
 	})
 
+	it("finds secrets in keys", () => {
+		const token = fixtures["github-token"]?.value ?? ""
+		const text = JSON.stringify({ [token]: true })
+		const output = JSON.parse(redact(text, scanSecrets(text, "json", defaults)))
+		expect(Object.keys(output)).toEqual(["[REDACTED:github-token]"])
+	})
+
+	it("redacts secrets in YAML keys and comments and keeps it valid", async () => {
+		const { parse } = await import("yaml")
+		const token = fixtures["github-token"]?.value ?? ""
+		const key = fixtures["aws-access-key"]?.value ?? ""
+		const text = `# old token: ${token}\n${key}: 1\nname: app # ${token}\n`
+		const output = redact(text, scanSecrets(text, "yaml", defaults))
+		expect(output).not.toContain(token)
+		expect(output).toContain("# old token: [REDACTED:github-token]")
+		expect(parse(output)).toEqual({ "[REDACTED:aws-access-key]": 1, name: "app" })
+	})
+
+	it("still finds secrets inside placeholder-like delimiters", () => {
+		const token = fixtures["github-token"]?.value ?? ""
+		const text = jsonOf("message", `<${token}>`)
+		expect(scanSecrets(text, "json", defaults).map((finding) => finding.ruleId)).toEqual([
+			"github-token",
+		])
+	})
+
+	it("scans long strings without a match quickly", () => {
+		const text = jsonOf("x", "a-".repeat(200_000))
+		const started = performance.now()
+		scanSecrets(text, "json", allRules)
+		expect(performance.now() - started).toBeLessThan(2000)
+	})
+
 	it("gives each finding its path", () => {
 		const text = JSON.stringify({ a: [{ b: fixtures["aws-access-key"]?.value }] })
 		expect(scanSecrets(text, "json", allRules)[0]?.path).toEqual(["a", 0, "b"])
