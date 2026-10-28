@@ -25,7 +25,7 @@
 			"a11y": {
 				"noLabelWithoutControl": {
 					"level": "error",
-					"options": { "inputComponents": ["Input", "Textarea"] }
+					"options": { "inputComponents": ["Input", "Textarea", "Switch"] }
 				}
 			}
 		}
