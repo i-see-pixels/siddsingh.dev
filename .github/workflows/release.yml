@@ -14,82 +14,82 @@ name: Release
 # Without them, the workflow falls back to GITHUB_TOKEN.
 
 on:
-  pull_request:
-    types: [closed]
-    branches: [main]
+    pull_request:
+        types: [closed]
+        branches: [main]
 
 # One release at a time, in merge order; never cancel one halfway.
 concurrency:
-  group: release
-  cancel-in-progress: false
+    group: release
+    cancel-in-progress: false
 
 permissions:
-  contents: write
+    contents: write
 
 jobs:
-  release:
-    if: >-
-      github.event.pull_request.merged == true &&
-      !contains(github.event.pull_request.labels.*.name, 'skip-release')
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    env:
-      HAS_APP: ${{ secrets.RELEASE_APP_ID != '' }}
-    steps:
-      - name: Get the release app's token
-        id: app-token
-        if: env.HAS_APP == 'true'
-        uses: actions/create-github-app-token@v3
-        with:
-          app-id: ${{ secrets.RELEASE_APP_ID }}
-          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
-
-      # The tip of main, which may already include later merges.
-      - uses: actions/checkout@v7
-        with:
-          ref: main
-          fetch-depth: 0
-          token: ${{ steps.app-token.outputs.token || github.token }}
-
-      - uses: actions/setup-node@v7
-        with:
-          node-version: 24
-
-      - name: Bump version
-        id: bump
+    release:
+        if: >-
+            github.event.pull_request.merged == true &&
+            !contains(github.event.pull_request.labels.*.name, 'skip-release')
+        runs-on: ubuntu-latest
+        timeout-minutes: 10
         env:
-          # Passed through env, never inlined into the script: titles are user input.
-          PR_TITLE: ${{ github.event.pull_request.title }}
-          PR_LABELS: ${{ toJSON(github.event.pull_request.labels.*.name) }}
-        run: echo "version=$(node .github/scripts/bump-version.mjs)" >> "$GITHUB_OUTPUT"
+            HAS_APP: ${{ secrets.RELEASE_APP_ID != '' }}
+        steps:
+            - name: Get the release app's token
+              id: app-token
+              if: env.HAS_APP == 'true'
+              uses: actions/create-github-app-token@v3
+              with:
+                  app-id: ${{ secrets.RELEASE_APP_ID }}
+                  private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
 
-      # "[skip ci]" stops these commits from starting CI or another release.
-      - name: Commit and tag
-        env:
-          VERSION: ${{ steps.bump.outputs.version }}
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -am "chore(release): v$VERSION [skip ci]"
-          git tag -a "v$VERSION" -m "v$VERSION"
-          git push --atomic origin HEAD:main "refs/tags/v$VERSION"
+            # The tip of main, which may already include later merges.
+            - uses: actions/checkout@v7
+              with:
+                  ref: main
+                  fetch-depth: 0
+                  token: ${{ steps.app-token.outputs.token || github.token }}
 
-      - name: Create GitHub release
-        env:
-          GH_TOKEN: ${{ github.token }}
-          VERSION: ${{ steps.bump.outputs.version }}
-        run: gh release create "v$VERSION" --title "v$VERSION" --generate-notes --verify-tag
+            - uses: actions/setup-node@v7
+              with:
+                  node-version: 24
 
-      # Brings the version commit (and the release merge) back to dev, so the
-      # next dev → main pull request starts from main's tip.
-      - name: Merge main back into dev
-        env:
-          VERSION: ${{ steps.bump.outputs.version }}
-        run: |
-          git fetch origin dev
-          git switch -c dev origin/dev
-          if ! git merge --no-ff main -m "chore(release): merge v$VERSION back into dev [skip ci]"; then
-            echo "::error::main could not be merged into dev automatically. Merge it by hand: git switch dev && git merge origin/main"
-            exit 1
-          fi
-          git push origin dev
+            - name: Bump version
+              id: bump
+              env:
+                  # Passed through env, never inlined into the script: titles are user input.
+                  PR_TITLE: ${{ github.event.pull_request.title }}
+                  PR_LABELS: ${{ toJSON(github.event.pull_request.labels.*.name) }}
+              run: echo "version=$(node .github/scripts/bump-version.mjs)" >> "$GITHUB_OUTPUT"
+
+            # "[skip ci]" stops these commits from starting CI or another release.
+            - name: Commit and tag
+              env:
+                  VERSION: ${{ steps.bump.outputs.version }}
+              run: |
+                  git config user.name "github-actions[bot]"
+                  git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+                  git commit -am "chore(release): v$VERSION [skip ci]"
+                  git tag -a "v$VERSION" -m "v$VERSION"
+                  git push --atomic origin HEAD:main "refs/tags/v$VERSION"
+
+            - name: Create GitHub release
+              env:
+                  GH_TOKEN: ${{ github.token }}
+                  VERSION: ${{ steps.bump.outputs.version }}
+              run: gh release create "v$VERSION" --title "v$VERSION" --generate-notes --verify-tag
+
+            # Brings the version commit (and the release merge) back to dev, so the
+            # next dev → main pull request starts from main's tip.
+            - name: Merge main back into dev
+              env:
+                  VERSION: ${{ steps.bump.outputs.version }}
+              run: |
+                  git fetch origin dev
+                  git switch -c dev origin/dev
+                  if ! git merge --no-ff main -m "chore(release): merge v$VERSION back into dev [skip ci]"; then
+                    echo "::error::main could not be merged into dev automatically. Merge it by hand: git switch dev && git merge origin/main"
+                    exit 1
+                  fi
+                  git push origin dev

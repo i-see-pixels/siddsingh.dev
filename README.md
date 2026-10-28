@@ -41,15 +41,15 @@ It is a pnpm + Turborepo monorepo with one Next.js 16 app. Posts live in Postgre
 
 ## What's inside
 
-| Route | What it is |
-| --- | --- |
-| `/` | Home: hero, selected work, services, contact |
-| `/work`, `/products`, `/about` | Case studies, own products, experience |
-| `/blog`, `/blog/[slug]` | Published posts, rendered from Markdown |
-| `/tools`, `/tools/[slug]` | Free browser tools (see below) |
-| `/admin` | Sign-in, post list and the post editor |
-| `/blog/rss.xml`, `/sitemap.xml`, `/robots.txt`, `/llms.txt` | Feeds and crawler files |
-| `/og/blog/[slug]` | Generated social card for posts without a cover |
+| Route                                                       | What it is                                      |
+| ----------------------------------------------------------- | ----------------------------------------------- |
+| `/`                                                         | Home: hero, selected work, services, contact    |
+| `/work`, `/products`, `/about`                              | Case studies, own products, experience          |
+| `/blog`, `/blog/[slug]`                                     | Published posts, rendered from Markdown         |
+| `/tools`, `/tools/[slug]`                                   | Free browser tools (see below)                  |
+| `/admin`                                                    | Sign-in, post list and the post editor          |
+| `/blog/rss.xml`, `/sitemap.xml`, `/robots.txt`, `/llms.txt` | Feeds and crawler files                         |
+| `/og/blog/[slug]`                                           | Generated social card for posts without a cover |
 
 **Tools:** screenshot mockup, LLM token & cost calculator, prompt template playground, tool schema converter (JSON Schema ↔ Anthropic / OpenAI), diff checker and Mermaid diagram previewer. They all run in the browser.
 
@@ -93,14 +93,14 @@ pnpm install
 
 Copy `apps/web/.env.example` to `apps/web/.env.local` and fill it in:
 
-| Variable | Purpose |
-| --- | --- |
-| `DATABASE_URL` | Neon pooled connection string; migrations read it too |
-| `NEON_AUTH_BASE_URL` | Auth URL from Neon Console → Auth → Configuration |
-| `NEON_AUTH_COOKIE_SECRET` | At least 32 characters (`openssl rand -base64 32`) |
-| `ADMIN_EMAIL` | The only account allowed into `/admin` |
-| `ADMIN_SETUP_ENABLED` | `true` opens `/admin/setup` once to create that account |
-| `BLOB_STORE_ID`, `BLOB_READ_WRITE_TOKEN` | Vercel Blob store; needed for image uploads only |
+| Variable                                 | Purpose                                                 |
+| ---------------------------------------- | ------------------------------------------------------- |
+| `DATABASE_URL`                           | Neon pooled connection string; migrations read it too   |
+| `NEON_AUTH_BASE_URL`                     | Auth URL from Neon Console → Auth → Configuration       |
+| `NEON_AUTH_COOKIE_SECRET`                | At least 32 characters (`openssl rand -base64 32`)      |
+| `ADMIN_EMAIL`                            | The only account allowed into `/admin`                  |
+| `ADMIN_SETUP_ENABLED`                    | `true` opens `/admin/setup` once to create that account |
+| `BLOB_STORE_ID`, `BLOB_READ_WRITE_TOKEN` | Vercel Blob store; needed for image uploads only        |
 
 Apply the database migrations, then start the dev server:
 
@@ -137,10 +137,10 @@ The blog starts empty. Your first post goes through the editor, not through file
 
 Two files hold almost everything a visitor reads:
 
-| File | What to change |
-| --- | --- |
-| `apps/web/lib/site-config.ts` | `siteConfig` (name, domain, description, email, booking link, socials, location, time zone), `availability` (the "open for work" pill) and `navItems` |
-| `apps/web/lib/content.ts` | Hero `pitch` and `proof` stats, `caseStudies` (/work), `services`, `products`, `experience`, `education`, `publication`, `certification`, `achievements`, `skills`, and `tools` (the /tools listing) |
+| File                          | What to change                                                                                                                                                                                       |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `apps/web/lib/site-config.ts` | `siteConfig` (name, domain, description, email, booking link, socials, location, time zone), `availability` (the "open for work" pill) and `navItems`                                                |
+| `apps/web/lib/content.ts`     | Hero `pitch` and `proof` stats, `caseStudies` (/work), `services`, `products`, `experience`, `education`, `publication`, `certification`, `achievements`, `skills`, and `tools` (the /tools listing) |
 
 Delete an entry you don't need, or leave an array empty. Images (avatar, hero, project tiles) are URLs, so they can be hosted anywhere. Allow that host in `apps/web/next.config.ts` → `images.remotePatterns` to get optimised images.
 
@@ -148,16 +148,16 @@ Delete an entry you don't need, or leave an array empty. Images (avatar, hero, p
 
 A few strings are hard-coded outside the data files. Search the repo for `siddsingh`, `creatorsidd`, `i-see-pixels` and `utxifjblgzbxujxp` to find them all:
 
-| Where | What it is |
-| --- | --- |
-| `apps/web/app/icon.svg` | Favicon and logo |
-| `apps/web/components/brand-mark.tsx` | The "sidd▪" wordmark in the header |
-| `apps/web/components/home/hero.tsx` | Social handles shown in the hero |
-| `apps/web/components/home/blueprint-figure.tsx` | Text in the home page illustration |
-| `apps/web/components/site-footer.tsx`, `workspace-header.tsx`, `app/(admin)/…` | Domain name in the footer, headers and login page |
-| `apps/web/app/layout.tsx` | `twitter.creator` handle |
+| Where                                                                                                | What it is                                                |
+| ---------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| `apps/web/app/icon.svg`                                                                              | Favicon and logo                                          |
+| `apps/web/components/brand-mark.tsx`                                                                 | The "sidd▪" wordmark in the header                        |
+| `apps/web/components/home/hero.tsx`                                                                  | Social handles shown in the hero                          |
+| `apps/web/components/home/blueprint-figure.tsx`                                                      | Text in the home page illustration                        |
+| `apps/web/components/site-footer.tsx`, `workspace-header.tsx`, `app/(admin)/…`                       | Domain name in the footer, headers and login page         |
+| `apps/web/app/layout.tsx`                                                                            | `twitter.creator` handle                                  |
 | `apps/web/lib/content.ts` → `blobUrl`, `apps/web/next.config.ts`, `apps/web/lib/server/container.ts` | Vercel Blob store URL and upload folder (`siddsingh_dev`) |
-| `apps/web/features/tools/screenshot-mockup/constants.ts` | Sample address in the mockup tool |
+| `apps/web/features/tools/screenshot-mockup/constants.ts`                                             | Sample address in the mockup tool                         |
 
 ### 4. Restyle it (optional)
 
@@ -176,15 +176,15 @@ Import the repo into [Vercel](https://vercel.com/new), set the root directory to
 
 Run these from the repository root.
 
-| Command | What it does |
-| --- | --- |
-| `pnpm dev` | Start the dev server |
-| `pnpm build` | Production build |
-| `pnpm typecheck` | Type-check every package |
-| `pnpm lint` / `pnpm lint-format` | Check with Biome / check and fix |
-| `pnpm db:generate` | Generate a migration after editing `packages/db/src/schema.ts` |
-| `pnpm db:migrate` | Apply pending migrations |
-| `pnpm db:studio` | Open Drizzle Studio |
+| Command                          | What it does                                                   |
+| -------------------------------- | -------------------------------------------------------------- |
+| `pnpm dev`                       | Start the dev server                                           |
+| `pnpm build`                     | Production build                                               |
+| `pnpm typecheck`                 | Type-check every package                                       |
+| `pnpm lint` / `pnpm lint-format` | Check with Biome / check and fix                               |
+| `pnpm db:generate`               | Generate a migration after editing `packages/db/src/schema.ts` |
+| `pnpm db:migrate`                | Apply pending migrations                                       |
+| `pnpm db:studio`                 | Open Drizzle Studio                                            |
 
 ## Adding UI components
 
@@ -208,13 +208,13 @@ Work happens on **`dev`**, the default branch. **`main`** is production: it chan
 
 GitHub Actions in `.github/` check every change and version the project:
 
-| Workflow | Runs on | What it does |
-| --- | --- | --- |
-| [`ci.yml`](.github/workflows/ci.yml) | Every PR, pushes to `dev` and `main` | Biome lint and format check, typecheck, then a production build |
-| [`pr-title.yml`](.github/workflows/pr-title.yml) | PRs | Requires a [Conventional Commit](https://www.conventionalcommits.org) title, which decides the version bump |
-| [`release.yml`](.github/workflows/release.yml) | Release PR merged into `main` | Bumps the version in `package.json`, tags `vX.Y.Z`, publishes a GitHub release with generated notes, and merges `main` back into `dev` |
-| [`codeql.yml`](.github/workflows/codeql.yml) | PRs, pushes to `dev` and `main`, weekly | CodeQL security scan of the TypeScript and the workflows |
-| [`dependabot.yml`](.github/dependabot.yml) | Weekly / monthly | Grouped dependency and GitHub Actions updates |
+| Workflow                                         | Runs on                                 | What it does                                                                                                                           |
+| ------------------------------------------------ | --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| [`ci.yml`](.github/workflows/ci.yml)             | Every PR, pushes to `dev` and `main`    | Biome lint and format check, typecheck, then a production build                                                                        |
+| [`pr-title.yml`](.github/workflows/pr-title.yml) | PRs                                     | Requires a [Conventional Commit](https://www.conventionalcommits.org) title, which decides the version bump                            |
+| [`release.yml`](.github/workflows/release.yml)   | Release PR merged into `main`           | Bumps the version in `package.json`, tags `vX.Y.Z`, publishes a GitHub release with generated notes, and merges `main` back into `dev` |
+| [`codeql.yml`](.github/workflows/codeql.yml)     | PRs, pushes to `dev` and `main`, weekly | CodeQL security scan of the TypeScript and the workflows                                                                               |
+| [`dependabot.yml`](.github/dependabot.yml)       | Weekly / monthly                        | Grouped dependency and GitHub Actions updates                                                                                          |
 
 **How the version is bumped.** A `release:major`, `release:minor` or `release:patch` label on the PR wins. Otherwise the title decides: `feat!:` (or any `type!:`) is major, `feat:` is minor, and everything else is a patch. Label a PR `skip-release` to merge it without a release. Release notes are grouped by label (see [`.github/release.yml`](.github/release.yml)).
 

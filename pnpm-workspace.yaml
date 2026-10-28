@@ -1,11 +1,11 @@
 packages:
-  - "apps/*"
-  - "packages/*"
+    - "apps/*"
+    - "packages/*"
 
 allowBuilds:
-  esbuild: true
-  sharp: true
-  unrs-resolver: true
-  msw: false
-  # Its postinstall only prints a funding message.
-  core-js: false
+    esbuild: true
+    sharp: true
+    unrs-resolver: true
+    msw: false
+    # Its postinstall only prints a funding message.
+    core-js: false

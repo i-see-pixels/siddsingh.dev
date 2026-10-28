@@ -14,9 +14,9 @@
 		"typecheck": "turbo typecheck"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "^2.5.15",
+		"@biomejs/biome": "^2.6.3",
 		"@workspace/typescript-config": "workspace:*",
-		"turbo": "^2.11.9",
+		"turbo": "^2.11.10",
 		"typescript": "^7"
 	},
 	"packageManager": "pnpm@12.14.0",
