@@ -90,10 +90,14 @@ export function SecretRulesButton({
 				<SettingsIcon />
 				<span className="max-sm:hidden">Secret rules</span>
 			</PopoverTrigger>
-			{/* Sized to the space the positioner reports, so only the rule list scrolls. */}
+			{/*
+			 * Sized to the space the positioner reports, so normally only the rule list scrolls.
+			 * The list keeps a minimum height; on very short screens the whole popover scrolls
+			 * instead, so the footer stays reachable.
+			 */}
 			<PopoverContent
 				align="end"
-				className="max-h-[min(34rem,var(--available-height))] w-[min(22rem,calc(100vw-2rem))] gap-0 overflow-hidden p-0"
+				className="max-h-[min(34rem,var(--available-height))] w-[min(22rem,calc(100vw-2rem))] gap-0 overflow-x-hidden overflow-y-auto p-0"
 			>
 				<div className="flex shrink-0 flex-col gap-1 border-b border-line px-4 pt-4 pb-3">
 					<p className="font-semibold">Secret rules</p>
@@ -101,21 +105,31 @@ export function SecretRulesButton({
 						Choose what the scan flags. Your choice is saved in this browser.
 					</p>
 				</div>
-				<div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain">
+				{/* The scroll padding keeps a row focused from the keyboard clear of the sticky header. */}
+				<div className="min-h-30 flex-1 scroll-pt-16 overflow-x-hidden overflow-y-auto overscroll-contain">
 					{severities.map((severity) => {
 						const rules = secretRules.filter((rule) => rule.severity === severity.id)
 						const ids = rules.map((rule) => rule.id)
 						const count = ids.filter((id) => on.has(id)).length
+						const partial = count > 0 && count < ids.length
 						return (
 							<section key={severity.id} aria-label={`${severity.label} severity`}>
-								<label className="sticky top-0 z-10 flex cursor-pointer items-center gap-3 border-b border-line bg-popover px-4 py-2.5">
+								{/* Not a label: only the switch toggles the group, so a stray click can't. */}
+								<div className="sticky top-0 z-10 flex items-center gap-3 border-b border-line bg-popover px-4 py-2.5">
 									<span
 										className={cn("size-2 shrink-0 rounded-full", severity.dot)}
 									/>
 									<span className="flex min-w-0 flex-1 flex-col">
 										<span className="text-sm font-medium">
 											{severity.label}
-											<span className="ml-1.5 font-normal text-muted-foreground tabular-nums">
+											<span
+												className={cn(
+													"ml-1.5 font-normal tabular-nums",
+													partial
+														? "text-amber-700 dark:text-amber-400"
+														: "text-muted-foreground",
+												)}
+											>
 												{count}/{ids.length}
 											</span>
 										</span>
@@ -126,9 +140,9 @@ export function SecretRulesButton({
 									<Switch
 										checked={count === ids.length}
 										onCheckedChange={(value) => toggle(ids, value)}
-										aria-label={`All ${severity.label.toLowerCase()} rules`}
+										aria-label={`All ${severity.label.toLowerCase()} rules (${count} of ${ids.length} on)`}
 									/>
-								</label>
+								</div>
 								<ul className="py-1">
 									{rules.map((rule) => (
 										<li key={rule.id}>
@@ -150,16 +164,18 @@ export function SecretRulesButton({
 						)
 					})}
 				</div>
-				{/* Below the list, so it appearing never pushes the rule being toggled out of place. */}
-				{highOff && (
-					<p
-						role="status"
-						className="flex shrink-0 gap-2 border-t border-amber-500/30 bg-amber-500/10 px-4 py-2.5 text-xs leading-relaxed text-amber-700 dark:text-amber-400"
-					>
-						<AlertTriangleIcon className="mt-0.5 size-3.5 shrink-0" />
-						High-severity rules are off. Share links may contain secrets.
-					</p>
-				)}
+				{/*
+				 * Below the list, so it appearing never pushes the rule being toggled out of place.
+				 * The live region stays mounted so screen readers announce the warning when it fills.
+				 */}
+				<div role="status" className="shrink-0">
+					{highOff && (
+						<p className="flex gap-2 border-t border-amber-500/30 bg-amber-500/10 px-4 py-2.5 text-xs leading-relaxed text-amber-700 dark:text-amber-400">
+							<AlertTriangleIcon className="mt-0.5 size-3.5 shrink-0" />
+							High-severity rules are off. Share links may contain secrets.
+						</p>
+					)}
+				</div>
 				<div className="flex shrink-0 items-center justify-between gap-3 border-t border-line px-4 py-2.5">
 					<span className="text-xs text-muted-foreground tabular-nums">
 						{enabled.length} of {secretRules.length} rules on
