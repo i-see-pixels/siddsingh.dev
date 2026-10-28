@@ -39,7 +39,10 @@ export function isHmac(alg: unknown): alg is HmacAlg {
 export type VerifyResult = {
 	status: "verified" | "invalid" | "error" | "unsupported"
 	message: string
-	/** A public key was used as an HMAC secret, or the key type doesn't fit `alg`. */
+	/**
+	 * A public key was used as the secret for an HS* token: the algorithm-confusion attack.
+	 * Ordinary paste mistakes, such as a key for the wrong curve, don't set it.
+	 */
 	confusion?: boolean
 	/** Length of the HMAC secret in bytes, for the short-secret check. */
 	secretBytes?: number
@@ -129,7 +132,6 @@ async function importPublicKey(
 				unsupported(error) ?? {
 					status: "error",
 					message: "This public key doesn't fit the token's algorithm.",
-					confusion: true,
 				}
 			)
 		}
@@ -142,6 +144,9 @@ async function importPublicKey(
 		return { status: "error", message: "Paste a PEM public key, a JWK or a JWKS." }
 	}
 	let jwk = parsed as JsonWebKey & { kid?: string; keys?: (JsonWebKey & { kid?: string })[] }
+	if (!jwk || typeof jwk !== "object") {
+		return { status: "error", message: "Paste a PEM public key, a JWK or a JWKS." }
+	}
 	if (Array.isArray(jwk.keys)) {
 		const match =
 			jwk.keys.find((key) => key.kid !== undefined && key.kid === kid) ??
@@ -161,7 +166,12 @@ async function importPublicKey(
 		return {
 			status: "error",
 			message: "That's a symmetric (oct) key, but the token uses a public-key algorithm.",
-			confusion: true,
+		}
+	}
+	if ("d" in jwk) {
+		return {
+			status: "error",
+			message: "That's a private key. Paste the public key instead (the JWK without d).",
 		}
 	}
 	// Drop fields that make importKey stricter than verifying needs to be.
@@ -173,7 +183,6 @@ async function importPublicKey(
 			unsupported(error) ?? {
 				status: "error",
 				message: "This key doesn't fit the token's algorithm.",
-				confusion: true,
 			}
 		)
 	}
@@ -225,7 +234,6 @@ export async function verifySignature(
 		return {
 			status: "error",
 			message: `${String(alg)} needs a public key (PEM, JWK or JWKS), not a shared secret.`,
-			confusion: true,
 		}
 	}
 	let cryptoKey: CryptoKey | VerifyResult

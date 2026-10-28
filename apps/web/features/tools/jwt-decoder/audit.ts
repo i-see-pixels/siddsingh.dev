@@ -4,6 +4,7 @@ import {
 	defaultEnabledRules,
 	isPlaceholder,
 	isSecretKey,
+	type PathSegment,
 	scanSecrets,
 } from "../json-formatter/secrets"
 import { formatDuration } from "./claims"
@@ -43,23 +44,93 @@ export type AuditInput = {
 const PERSONAL_CLAIMS =
 	/^(email|e_?mail_address|phone|phone_?number|mobile|address|street_?address|postal_?code|password|passwd|ssn|social_?security(_?number)?|dob|birth_?date|date_?of_?birth|national_?id|passport(_?number)?|card_?number|credit_?card|iban)$/i
 
+/**
+ * Path traversal, a system path, or SQL and shell injection in a kid. A lone `/` isn't
+ * enough: standard-base64 key IDs contain it.
+ */
+const SUSPICIOUS_KID = /\.\.[/\\]|^\/(?:dev|etc|proc|tmp|var|usr|home|root)\b|[\\'";`|]|--|\$\(/
+
+/** JWK members that only a private or symmetric key has. */
+const PRIVATE_JWK_MEMBERS = new Set(["d", "p", "q", "dp", "dq", "qi", "k"])
+
 const highRules = new Set(defaultEnabledRules)
 
-/** Payload claims that hold personal data or secrets. Anyone holding the token can read them. */
+/** A path as one string, for sets and React keys. */
+export const pathKey = (path: readonly PathSegment[]) => JSON.stringify(path)
+
+/** A path for people: `user.email`, `roles[0]`. */
+export function pathLabel(path: readonly PathSegment[]) {
+	return path
+		.map((segment, index) =>
+			typeof segment === "number" ? `[${segment}]` : index === 0 ? segment : `.${segment}`,
+		)
+		.join("")
+}
+
+/**
+ * Paths to values that hold personal data, secrets or private key material, at any
+ * depth. Anyone holding the token can read them.
+ */
+export function sensitivePaths(value: unknown) {
+	const found = new Map<string, PathSegment[]>()
+	const add = (path: PathSegment[]) => found.set(pathKey(path), path)
+	const walk = (node: unknown, path: PathSegment[]) => {
+		if (Array.isArray(node)) {
+			for (const [index, child] of node.entries()) walk(child, [...path, index])
+			return
+		}
+		if (!node || typeof node !== "object") return
+		const isJwk = "kty" in node
+		for (const [name, child] of Object.entries(node)) {
+			const childPath = [...path, name]
+			// Already masked, for example in a share link.
+			if (typeof child === "string" && isPlaceholder(child)) continue
+			if (
+				PERSONAL_CLAIMS.test(name) ||
+				(isJwk && PRIVATE_JWK_MEMBERS.has(name)) ||
+				(typeof child === "string" && isSecretKey(name) && child.length >= 8)
+			)
+				add(childPath)
+			else walk(child, childPath)
+		}
+	}
+	walk(value, [])
+	for (const finding of scanSecrets(JSON.stringify(value), "json", highRules)) {
+		if (!found.has(pathKey(finding.path))) add(finding.path)
+	}
+	// A flagged object covers everything inside it.
+	const paths = [...found.values()]
+	return paths.filter(
+		(path) =>
+			!paths.some(
+				(other) =>
+					other.length < path.length &&
+					other.every((segment, index) => segment === path[index]),
+			),
+	)
+}
+
+/** Labels of the payload values `sensitivePaths` finds. */
 export function sensitiveClaims(payload: JsonObject) {
-	const flagged = new Set<string>()
-	for (const [name, value] of Object.entries(payload)) {
-		// Already masked, for example in a share link.
-		if (typeof value === "string" && isPlaceholder(value)) continue
-		if (PERSONAL_CLAIMS.test(name)) flagged.add(name)
-		else if (typeof value === "string" && isSecretKey(name) && value.length >= 8)
-			flagged.add(name)
-	}
-	for (const finding of scanSecrets(JSON.stringify(payload), "json", highRules)) {
-		const top = finding.path[0]
-		if (typeof top === "string") flagged.add(top)
-	}
-	return [...flagged]
+	return sensitivePaths(payload).map(pathLabel)
+}
+
+/** `value` with the value at each path in `masked` (see `pathKey`) replaced. */
+export function maskPaths(
+	value: unknown,
+	masked: ReadonlySet<string>,
+	path: PathSegment[] = [],
+): unknown {
+	if (path.length > 0 && masked.has(pathKey(path))) return "[REDACTED]"
+	if (Array.isArray(value))
+		return value.map((child, index): unknown => maskPaths(child, masked, [...path, index]))
+	if (!value || typeof value !== "object") return value
+	return Object.fromEntries(
+		Object.entries(value).map(([name, child]) => [
+			name,
+			maskPaths(child, masked, [...path, name]),
+		]),
+	)
 }
 
 const numeric = (value: unknown) =>
@@ -246,14 +317,25 @@ export function audit(input: AuditInput): AuditCheck[] {
 	}
 
 	// 8–10. Header risks
+	const embedded = header.jwk
+	const privateMembers =
+		embedded && typeof embedded === "object"
+			? Object.keys(embedded).filter((name) => PRIVATE_JWK_MEMBERS.has(name))
+			: []
 	add(
 		"jwk" in header
 			? {
 					id: 8,
 					title: "Embedded key",
 					status: "fail",
-					detail: "The header carries its own key (jwk). If the server trusts it, an attacker can sign with their own key.",
-					fix: "Ignore keys in the header; verify only with keys the server already has.",
+					detail:
+						privateMembers.length > 0
+							? `The header's jwk includes private key material (${privateMembers.join(", ")}). Anyone with the token can sign as the issuer.`
+							: "The header carries its own key (jwk). If the server trusts it, an attacker can sign with their own key.",
+					fix:
+						privateMembers.length > 0
+							? "Rotate this key now, and never put a key in the header."
+							: "Ignore keys in the header; verify only with keys the server already has.",
 				}
 			: { id: 8, title: "Embedded key", status: "pass", detail: "No jwk in the header." },
 	)
@@ -271,7 +353,7 @@ export function audit(input: AuditInput): AuditCheck[] {
 	)
 	const kid = header.kid
 	add(
-		typeof kid === "string" && /\.\.\/|[/\\'";]|--/.test(kid)
+		typeof kid === "string" && SUSPICIOUS_KID.test(kid)
 			? {
 					id: 10,
 					title: "Key ID",
@@ -350,7 +432,7 @@ export function audit(input: AuditInput): AuditCheck[] {
 						id: 15,
 						title: "Key matches algorithm",
 						status: "fail",
-						detail: `The key you pasted doesn't fit ${alg ?? "the algorithm"}. Servers that pick the algorithm from the token can be tricked into using a public key as an HMAC secret.`,
+						detail: `This ${alg ?? "HMAC"} token is checked with a public key as its secret. Servers that pick the algorithm from the token can be tricked into exactly this, letting anyone who has the public key sign tokens.`,
 						fix: "Pin the expected algorithm for each key on the server.",
 					}
 				: {

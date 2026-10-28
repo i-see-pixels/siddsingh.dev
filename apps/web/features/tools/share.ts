@@ -1,12 +1,16 @@
 // Share links for the tools. State travels in the URL fragment (after #), which the
 // browser keeps to itself: it is never sent to a server.
 
-/** UTF-8 text as URL-safe base64 without padding. */
-export function toBase64Url(text: string) {
-	const bytes = new TextEncoder().encode(text)
+/** Bytes as URL-safe base64 without padding. */
+export function bytesToBase64Url(bytes: Uint8Array) {
 	let binary = ""
 	for (const byte of bytes) binary += String.fromCharCode(byte)
 	return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "")
+}
+
+/** UTF-8 text as URL-safe base64 without padding. */
+export function toBase64Url(text: string) {
+	return bytesToBase64Url(new TextEncoder().encode(text))
 }
 
 /** The text in `encoded`, or null when it isn't valid base64url. */

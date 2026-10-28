@@ -28,7 +28,7 @@ import { CodeEditor } from "../editor/code-editor"
 import { json } from "../editor/languages/json"
 import { jwt } from "../editor/languages/jwt"
 import type { InlineMark } from "../editor/marks"
-import { fragmentLink, readFragment } from "../share"
+import { bytesToBase64Url, fragmentLink, readFragment, toBase64Url } from "../share"
 import {
 	Chip,
 	ErrorCard,
@@ -40,8 +40,8 @@ import {
 	ToggleChip,
 } from "../tool-chrome"
 import { CopyButton } from "../tool-ui"
-import { audit, sensitiveClaims, type WeakSecretState } from "./audit"
-import { bytesToBase64Url, decodeToken, type Segment, textToBase64Url } from "./decode"
+import { audit, maskPaths, pathKey, pathLabel, sensitivePaths, type WeakSecretState } from "./audit"
+import { decodeToken, type Segment } from "./decode"
 import { AuditPanel, ClaimsPanel, ExpiryCountdown } from "./panels"
 import { algorithmFamily, isHmac, type VerifyResult, verifySignature } from "./verify"
 import type { WorkerReply, WorkerRequest } from "./worker"
@@ -64,7 +64,7 @@ async function makeSample() {
 		jti: crypto.randomUUID(),
 	}
 	const secret = crypto.getRandomValues(new Uint8Array(32))
-	const input = `${textToBase64Url(JSON.stringify(header))}.${textToBase64Url(JSON.stringify(payload))}`
+	const input = `${toBase64Url(JSON.stringify(header))}.${toBase64Url(JSON.stringify(payload))}`
 	const key = await crypto.subtle.importKey(
 		"raw",
 		secret,
@@ -95,7 +95,7 @@ export function JwtDecoderTool() {
 	const [weakSecret, setWeakSecret] = useState<WeakSecretState>({ status: "idle" })
 	const [tab, setTab] = useState<Tab>("audit")
 	const [shareDialog, setShareDialog] = useState<{
-		flagged: string[]
+		flagged: { key: string; label: string }[]
 		masked: Set<string>
 	} | null>(null)
 	const [flash, setFlash] = useState<string | null>(null)
@@ -132,10 +132,12 @@ export function JwtDecoderTool() {
 
 	// Weak-secret check for HS* tokens, in a worker.
 	useEffect(() => {
-		if (!jws || !hmac || !jws.signature || shared) {
-			setWeakSecret({ status: "idle" })
-			return
-		}
+		// Whatever the new token is, the last result no longer applies: drop it, and stop
+		// the worker grinding through the list for a token that's gone.
+		const cancelId = ++requestRef.current
+		workerRef.current?.postMessage({ type: "cancel", id: cancelId } satisfies WorkerRequest)
+		setWeakSecret({ status: "idle" })
+		if (!jws || !hmac || !jws.signature || shared) return
 		const timer = setTimeout(() => {
 			if (!workerRef.current) {
 				workerRef.current = new Worker(new URL("./worker.ts", import.meta.url), {
@@ -162,6 +164,7 @@ export function JwtDecoderTool() {
 			const id = ++requestRef.current
 			setWeakSecret({ status: "checking", checked: 0, total: 0 })
 			workerRef.current.postMessage({
+				type: "check",
 				id,
 				alg,
 				signingInput: jws.signingInput,
@@ -236,24 +239,18 @@ export function JwtDecoderTool() {
 		return { doc: text, items: [item] }
 	}, [decoded, text])
 
+	/** `masked` holds `pathKey`s into `{ header, payload }`. */
 	const shareLink = (masked: ReadonlySet<string>) => {
 		if (!jws) return null
 		const [headerPart = "", payloadPart = ""] = jws.signingInput.split(".")
-		const payload =
-			masked.size === 0
-				? payloadPart
-				: textToBase64Url(
-						JSON.stringify(
-							Object.fromEntries(
-								Object.entries(jws.payload).map(([name, value]) => [
-									name,
-									masked.has(name) ? "[REDACTED]" : value,
-								]),
-							),
-						),
-					)
+		const part = (name: "header" | "payload", original: string) =>
+			[...masked].some((key) => key.startsWith(`["${name}"`))
+				? toBase64Url(JSON.stringify(maskPaths(jws[name], masked, [name])))
+				: original
 		// Never the signature: a link must not work as a login.
-		return fragmentLink(WORKSPACE, { token: `${headerPart}.${payload}` })
+		return fragmentLink(WORKSPACE, {
+			token: `${part("header", headerPart)}.${part("payload", payloadPart)}`,
+		})
 	}
 
 	const copyLink = async (masked: ReadonlySet<string>) => {
@@ -269,9 +266,17 @@ export function JwtDecoderTool() {
 
 	const startShare = () => {
 		if (!jws) return
-		const flagged = sensitiveClaims(jws.payload)
-		if (flagged.length > 0) setShareDialog({ flagged, masked: new Set(flagged) })
-		else void copyLink(new Set())
+		// Nested values and the header count too: a header jwk can carry a private key.
+		const flagged = sensitivePaths({ header: jws.header, payload: jws.payload }).map(
+			(path) => ({
+				key: pathKey(path),
+				// Payload paths read as claims; header ones keep their prefix.
+				label: pathLabel(path[0] === "payload" ? path.slice(1) : path),
+			}),
+		)
+		if (flagged.length > 0) {
+			setShareDialog({ flagged, masked: new Set(flagged.map((item) => item.key)) })
+		} else void copyLink(new Set())
 	}
 
 	const badge =
@@ -554,26 +559,26 @@ export function JwtDecoderTool() {
 						<DialogTitle>Share without the signature</DialogTitle>
 						<DialogDescription>
 							The link carries the header and payload only, so it can't be used to
-							sign in. These claims hold personal data or secrets. Mask them in the
-							link?
+							sign in. These values hold personal data, secrets or key material. Mask
+							them in the link?
 						</DialogDescription>
 					</DialogHeader>
 					<ul className="flex flex-col gap-1.5">
-						{shareDialog?.flagged.map((name) => (
-							<li key={name}>
+						{shareDialog?.flagged.map(({ key, label }) => (
+							<li key={key}>
 								<label className="flex items-center gap-2 text-sm">
 									<input
 										type="checkbox"
 										className="size-4 accent-(--brand)"
-										checked={shareDialog.masked.has(name)}
+										checked={shareDialog.masked.has(key)}
 										onChange={(event) => {
 											const masked = new Set(shareDialog.masked)
-											if (event.target.checked) masked.add(name)
-											else masked.delete(name)
+											if (event.target.checked) masked.add(key)
+											else masked.delete(key)
 											setShareDialog({ ...shareDialog, masked })
 										}}
 									/>
-									<code className="font-mono">{name}</code>
+									<code className="font-mono">{label}</code>
 								</label>
 							</li>
 						))}

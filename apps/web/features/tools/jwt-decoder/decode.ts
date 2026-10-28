@@ -67,16 +67,6 @@ export function base64UrlToBytes(text: string) {
 	}
 }
 
-export function bytesToBase64Url(bytes: Uint8Array) {
-	let binary = ""
-	for (const byte of bytes) binary += String.fromCharCode(byte)
-	return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "")
-}
-
-export function textToBase64Url(text: string) {
-	return bytesToBase64Url(new TextEncoder().encode(text))
-}
-
 function decodeJsonPart(text: string, part: Segment) {
 	const label = part === "header" ? "header" : "payload"
 	const bytes = base64UrlToBytes(text)

@@ -2,7 +2,11 @@ import { describe, expect, it } from "vitest"
 import {
 	type AuditInput,
 	audit,
+	maskPaths,
+	pathKey,
+	pathLabel,
 	sensitiveClaims,
+	sensitivePaths,
 	verdict,
 } from "@/features/tools/jwt-decoder/audit"
 
@@ -124,5 +128,52 @@ describe("sensitiveClaims", () => {
 		).toEqual(["api_key", "email", "note", "phone_number"])
 		expect(sensitiveClaims(goodPayload)).toEqual([])
 		expect(sensitiveClaims({ email: "[REDACTED]" })).toEqual([])
+	})
+
+	it("finds nested personal data", () => {
+		expect(
+			sensitiveClaims({ user: { email: "a@b.io", contacts: [{ phone: "+1" }] } }).sort(),
+		).toEqual(["user.contacts[0].phone", "user.email"])
+	})
+})
+
+describe("sensitivePaths and maskPaths", () => {
+	it("masks nested claims and private key material in the header", () => {
+		const token = {
+			header: {
+				alg: "ES256",
+				jwk: { kty: "EC", crv: "P-256", x: "x", y: "y", d: "secret-d" },
+			},
+			payload: { sub: "1", user: { email: "a@b.io" } },
+		}
+		const paths = sensitivePaths(token)
+		expect(paths.map(pathLabel).sort()).toEqual(["header.jwk.d", "payload.user.email"])
+		const masked = maskPaths(token, new Set(paths.map(pathKey))) as typeof token
+		expect(masked.header.jwk).toEqual({
+			kty: "EC",
+			crv: "P-256",
+			x: "x",
+			y: "y",
+			d: "[REDACTED]",
+		})
+		expect(masked.payload).toEqual({ sub: "1", user: { email: "[REDACTED]" } })
+	})
+})
+
+describe("audit details", () => {
+	it("calls out private key material in an embedded jwk", () => {
+		const checks = run({
+			header: { ...goodHeader, jwk: { kty: "RSA", n: "n", e: "AQAB", d: "d" } },
+		})
+		expect(checks.find((check) => check.id === 8)?.detail).toMatch(/private key material/)
+	})
+
+	it("accepts standard-base64 kids and flags real injection", () => {
+		for (const kid of ["a1B2/c3D4e5F6+g7H8=", "2026-key", "https://keys.example.com/1"]) {
+			expect(statusOf(run({ header: { ...goodHeader, kid } }), 10), kid).toBe("pass")
+		}
+		for (const kid of ["../../dev/null", "/dev/null", "x' OR '1'='1", "k; rm -rf /", "a|b"]) {
+			expect(statusOf(run({ header: { ...goodHeader, kid } }), 10), kid).toBe("fail")
+		}
 	})
 })

@@ -77,11 +77,28 @@ describe("verifySignature", () => {
 		})
 	})
 
-	it("flags a secret pasted for an RS256 token", async () => {
+	it("rejects a secret pasted for an RS256 token without calling it confusion", async () => {
 		const { token } = await asymmetricToken("RS256", payload)
-		expect(await verifySignature(decoded(token), { value: "just-a-secret" })).toMatchObject({
-			status: "error",
-			confusion: true,
+		const result = await verifySignature(decoded(token), { value: "just-a-secret" })
+		expect(result.status).toBe("error")
+		expect(result.confusion).toBeFalsy()
+	})
+
+	it("doesn't call a key of the wrong type confusion", async () => {
+		const { token } = await asymmetricToken("ES256", payload)
+		const other = await asymmetricToken("RS256", payload)
+		const result = await verifySignature(decoded(token), { value: JSON.stringify(other.jwk) })
+		expect(result.status).toBe("error")
+		expect(result.confusion).toBeFalsy()
+	})
+
+	it("asks for the public key when a private JWK is pasted", async () => {
+		const { token, jwk } = await asymmetricToken("ES256", payload)
+		const result = await verifySignature(decoded(token), {
+			value: JSON.stringify({ ...jwk, d: "c2VjcmV0" }),
 		})
+		expect(result).toMatchObject({ status: "error" })
+		expect(result.message).toMatch(/private key/)
+		expect(result.confusion).toBeFalsy()
 	})
 })

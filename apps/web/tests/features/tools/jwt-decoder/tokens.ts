@@ -1,11 +1,11 @@
 // Builds signed test tokens at runtime with Web Crypto, so no key material is checked in.
 
-import { bytesToBase64Url, textToBase64Url } from "@/features/tools/jwt-decoder/decode"
+import { bytesToBase64Url, toBase64Url } from "@/features/tools/share"
 
 type Json = Record<string, unknown>
 
 export function unsignedParts(header: Json, payload: Json) {
-	return `${textToBase64Url(JSON.stringify(header))}.${textToBase64Url(JSON.stringify(payload))}`
+	return `${toBase64Url(JSON.stringify(header))}.${toBase64Url(JSON.stringify(payload))}`
 }
 
 export async function hmacToken(
