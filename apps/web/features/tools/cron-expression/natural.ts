@@ -36,6 +36,16 @@ const DAYS: Record<string, number> = {
 	sat: 6,
 }
 
+/** Only full names take a plural ("Mondays"); "thus" is not Thursdays. */
+const FULL_DAY_NAMES = Object.keys(DAYS).filter((day) => day.endsWith("day"))
+
+/** The weekday a single word names, if any. */
+function dayOf(word: string) {
+	if (word in DAYS) return DAYS[word]
+	const singular = word.replace(/s$/, "")
+	return FULL_DAY_NAMES.includes(singular) ? DAYS[singular] : undefined
+}
+
 const ORDINALS: Record<string, number> = { first: 1, second: 2, third: 3, fourth: 4, fifth: 5 }
 
 const NUMBER_WORDS: Record<string, number> = {
@@ -81,6 +91,7 @@ const KNOWN = new Set([
 	"weekdays",
 	"weekend",
 	"weekends",
+	"week",
 	"month",
 	"past",
 	"am",
@@ -90,7 +101,7 @@ const KNOWN = new Set([
 	"midday",
 	"last",
 	...Object.keys(DAYS),
-	...Object.keys(DAYS).map((day) => `${day}s`),
+	...FULL_DAY_NAMES.map((day) => `${day}s`),
 	...Object.keys(ORDINALS),
 	...Object.keys(NUMBER_WORDS),
 ])
@@ -141,13 +152,21 @@ export function parseNatural(sentence: string): NaturalResult {
 	if (!text.trim())
 		return { ok: false, message: "Describe a schedule, like one of the examples." }
 
-	// "every hour at :17" / "17 minutes past every hour"
-	const pastHour = /\bat :(\d{1,2})\b|\b(\d{1,2}) minutes? past\b/.exec(text)
-	if (pastHour) {
-		const minute = Number(pastHour[1] ?? pastHour[2])
-		if (minute > 59) return { ok: false, message: `:${minute} isn't a valid minute.` }
-		return { ok: true, spec: { ...EMPTY, minute: String(minute), hour: "*" } }
+	// Cron counts days, weeks and months within each month or year, not from a start date,
+	// so "every other day" has no exact cron form. Say so rather than run it daily.
+	const skipping = /\bevery (other|\w+) (day|days|week|weeks|month|months)\b/.exec(text)
+	if (skipping && (skipping[1] === "other" || readNumber(skipping[1]) !== undefined)) {
+		return {
+			ok: false,
+			message: `Cron can't run ${skipping[0].trim()} exactly: it restarts counting each month or year. For days, */2 in day of month is close (the 31st and the 1st both run).`,
+		}
 	}
+
+	// ":17" in "every hour at :17", "every 6 hours at :30" or "17 minutes past every hour"
+	const pastHour = /\bat :(\d{1,2})\b|\b(\d{1,2}) minutes? past\b/.exec(text)
+	const pastMinute = pastHour ? Number(pastHour[1] ?? pastHour[2]) : undefined
+	if (pastMinute !== undefined && pastMinute > 59)
+		return { ok: false, message: `:${pastMinute} isn't a valid minute.` }
 
 	// "every 15 minutes", "every minute", "every 6 hours", "every hour", "hourly"
 	const interval = /\bevery (other )?(\w+ )?(minute|minutes|min|mins|hour|hours)\b/.exec(text)
@@ -158,6 +177,8 @@ export function parseNatural(sentence: string): NaturalResult {
 			return { ok: false, message: `"${interval?.[2]?.trim()}" isn't a number I can read.` }
 		const minutes = unit.startsWith("min")
 		if (minutes) {
+			if (pastMinute !== undefined)
+				return { ok: false, message: "A minute interval can't also run at a set minute." }
 			if (count < 1 || count > 59)
 				return { ok: false, message: "Use an interval between 1 and 59 minutes." }
 			return {
@@ -167,7 +188,17 @@ export function parseNatural(sentence: string): NaturalResult {
 		}
 		if (count < 1 || count > 23)
 			return { ok: false, message: "Use an interval between 1 and 23 hours." }
-		return { ok: true, spec: { ...EMPTY, hour: count === 1 ? "*" : `*/${count}` } }
+		return {
+			ok: true,
+			spec: {
+				...EMPTY,
+				minute: String(pastMinute ?? 0),
+				hour: count === 1 ? "*" : `*/${count}`,
+			},
+		}
+	}
+	if (pastMinute !== undefined) {
+		return { ok: true, spec: { ...EMPTY, minute: String(pastMinute), hour: "*" } }
 	}
 
 	const timed = takeTime(text)
@@ -206,28 +237,23 @@ export function parseNatural(sentence: string): NaturalResult {
 	// Weekdays, weekends and named days.
 	if (/\bweekdays?\b/.test(rest)) return { ok: true, spec: { ...base, dow: "1-5" } }
 	if (/\bweekends?\b/.test(rest)) return { ok: true, spec: { ...base, dow: "0,6" } }
-	const named = [...rest.matchAll(/\b([a-z]+?)s?\b/g)]
-		.map((match) => DAYS[match[1] ?? ""])
+	const named = [...rest.matchAll(/\b[a-z]+\b/g)]
+		.map((match) => dayOf(match[0]))
 		.filter((day): day is number => day !== undefined)
 	if (named.length > 0) {
 		const days = [...new Set(named)].sort((a, b) => a - b)
 		return { ok: true, spec: { ...base, dow: days.join(",") } }
 	}
 
-	// "every day", "daily", "weekly", "monthly", or just a time.
-	if (/\b(every day|each day|daily)\b/.test(rest) || timed.time) {
-		const unknown = rest.split(" ").find((word) => word && !KNOWN.has(word))
-		if (unknown) return { ok: false, message: `I didn't understand "${unknown}".` }
-		return { ok: true, spec: base }
-	}
-	if (/\bweekly\b/.test(rest)) return { ok: true, spec: { ...base, dow: "0" } }
-	if (/\bmonthly\b/.test(rest)) return { ok: true, spec: { ...base, dom: "1" } }
-
+	// "every day", "daily", "weekly", "monthly", or just a time. Weekly and monthly come
+	// first, so "weekly at 9am" isn't read as a time on its own, which means daily.
 	const unknown = rest.split(" ").find((word) => word && !KNOWN.has(word))
-	return {
-		ok: false,
-		message: unknown
-			? `I didn't understand "${unknown}".`
-			: "I couldn't tell how often this should run.",
-	}
+	if (unknown) return { ok: false, message: `I didn't understand "${unknown}".` }
+	if (/\b(every|each) week\b|\bweekly\b/.test(rest))
+		return { ok: true, spec: { ...base, dow: "0" } }
+	if (/\b(every|each) month\b|\bmonthly\b/.test(rest))
+		return { ok: true, spec: { ...base, dom: "1" } }
+	if (/\b(every day|each day|daily)\b/.test(rest) || timed.time) return { ok: true, spec: base }
+
+	return { ok: false, message: "I couldn't tell how often this should run." }
 }

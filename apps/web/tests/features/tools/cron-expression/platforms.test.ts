@@ -37,6 +37,8 @@ describe("lint", () => {
 		["5/10 * * * *", "standard", "warn:bare-step"],
 		["0 9 1 * 1", "vercel", "fail:vercel-both-days"],
 		["0 0 13 * 5", "standard", "warn:either-day"],
+		["0 12 */2 * 1", "standard", "warn:both-days"],
+		["0 12 */2 * 1", "kubernetes", "warn:either-day"],
 		["cron(0 9 * * MON *)", "eventbridge", "fail:needs-question"],
 		["cron(0 9 ? * ? *)", "eventbridge", "fail:both-question"],
 		["cron(0 9 ? * 1-5 *)", "eventbridge", "warn:dow-numbering"],
@@ -61,6 +63,22 @@ describe("lint", () => {
 			expect(checks(input, platform, timezone)).toContain(expected)
 		})
 	}
+
+	it("suggests a bare-step fix within each field's range", () => {
+		const fix = (input: string) => {
+			const parsed = schedule(input, "github-actions")
+			return lint(parsed, {
+				timezone: "Etc/UTC",
+				shortestGap: null,
+				neverRuns: false,
+				dst: [],
+			}).find((check) => check.id === "bare-step")?.fix
+		}
+		expect(fix("0 0 5/10 * *")).toBe("Write 5-31/10.")
+		expect(fix("0 0 * 3/2 *")).toBe("Write 3-12/2.")
+		expect(fix("0 0 * * MON/2")).toBe("Write MON-SAT/2.")
+		expect(fix("5/10,3/20 * * * *")).toBe("Write 5-59/10,3-59/20.")
+	})
 
 	it("keeps a clean schedule clean", () => {
 		expect(

@@ -19,8 +19,22 @@ export function cronerConfig(schedule: Schedule): { pattern: string; options: Cr
 			options: { mode: "6-or-7-parts", alternativeWeekdays: true, domAndDow: false },
 		}
 	}
-	// Five-field crons run when either day field matches, if both are restricted.
-	return { pattern: texts.join(" "), options: { mode: "5-part", domAndDow: false } }
+	// Five-field crons run when either day field matches, if both are restricted. Vixie
+	// cron and cronie count a field starting with * (like */2) as unrestricted for this,
+	// so then both have to match.
+	return {
+		pattern: texts.join(" "),
+		options: { mode: "5-part", domAndDow: requiresBothDays(schedule) },
+	}
+}
+
+/** Standard crontab with a day field like `*\/2`: both day fields must match. */
+export function requiresBothDays(schedule: Schedule) {
+	const { dom, dow } = schedule.field
+	return (
+		schedule.platform === "standard" &&
+		Boolean(dom && dow && (dom.text.startsWith("*") || dow.text.startsWith("*")))
+	)
 }
 
 export function makeCron(schedule: Schedule, timezone: string) {
@@ -128,6 +142,8 @@ export function dstEvents(
 	} catch {
 		return []
 	}
+	// Every second the schedule can fire on within a minute; just 0 without a seconds field.
+	const seconds = schedule.field.second?.values ?? [0]
 	const events: DstEvent[] = []
 	for (const change of offsetChanges(zone, from, days)) {
 		const difference = change.after - change.before
@@ -138,9 +154,14 @@ export function dstEvents(
 				: change.at.getTime() + change.after * 60_000
 		const times: string[] = []
 		for (let minute = 0; minute < Math.abs(difference); minute++) {
-			const wall = new Date(wallStart + minute * 60_000)
-			if (wallClock.match(wall))
-				times.push(`${pad(wall.getUTCHours())}:${pad(wall.getUTCMinutes())}`)
+			const start = wallStart + minute * 60_000
+			// The first matching second stands for the minute.
+			const second = seconds.find((value) => wallClock.match(new Date(start + value * 1000)))
+			if (second === undefined) continue
+			const wall = new Date(start)
+			times.push(
+				`${pad(wall.getUTCHours())}:${pad(wall.getUTCMinutes())}${second ? `:${pad(second)}` : ""}`,
+			)
 		}
 		if (times.length > 0) {
 			const day = new Date(wallStart)

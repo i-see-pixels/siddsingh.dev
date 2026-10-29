@@ -10,9 +10,9 @@
 //   (UTC, no names, day of month and day of week not together, Hobby: once a day, ±59 min)
 
 import cronstrue from "cronstrue"
-import { PLATFORM_NAMES } from "./convert"
+import { expandBareStep, PLATFORM_NAMES } from "./convert"
 import { dowBase, MACROS, type PlatformId, type Schedule } from "./parse"
-import type { DstEvent } from "./runs"
+import { type DstEvent, requiresBothDays } from "./runs"
 
 export type Platform = {
 	id: PlatformId
@@ -170,9 +170,7 @@ export function lint(schedule: Schedule, context: LintContext): Check[] {
 			status: "warn",
 			title: "Step without a range",
 			detail: `${field?.text} is Quartz syntax; many crons reject it.`,
-			fix: field
-				? `Write ${field.text.replace("/", `-${field.name === "hour" ? 23 : 59}/`)}.`
-				: undefined,
+			fix: field ? `Write ${expandBareStep(field.text, field.name)}.` : undefined,
 		})
 	}
 
@@ -185,6 +183,14 @@ export function lint(schedule: Schedule, context: LintContext): Check[] {
 				title: "Both day fields set",
 				detail: "Vercel doesn't allow day of month and day of week together.",
 				fix: "Set one of them to *.",
+			})
+		} else if (requiresBothDays(schedule)) {
+			checks.push({
+				id: "both-days",
+				status: "warn",
+				title: "Runs only when both days match",
+				detail: `In a crontab, a day field starting with * (here ${dom?.text.startsWith("*") ? dom?.text : dow?.text}) makes both day fields have to match: only days that are ${dom?.text} of the month and also a matching weekday.`,
+				fix: "Write the day of month as a list or range (like 1-31/2) to run on either day, or set the other field to *.",
 			})
 		} else {
 			checks.push({

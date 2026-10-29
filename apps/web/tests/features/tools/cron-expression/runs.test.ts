@@ -35,6 +35,19 @@ describe("nextRuns", () => {
 		])
 	})
 
+	it("needs both day fields in crontab when one starts with *", () => {
+		// Vixie cron and cronie: odd days that are also Mondays.
+		const { runs } = nextRuns(schedule("0 12 */2 * 1", "standard"), "Etc/UTC", 3, from)
+		expect(iso(runs)).toEqual([
+			"2026-11-09T12:00:00.000Z",
+			"2026-11-23T12:00:00.000Z",
+			"2026-12-07T12:00:00.000Z",
+		])
+		// Kubernetes (robfig/cron) still runs on either.
+		const k8s = nextRuns(schedule("0 12 */2 * 1", "kubernetes"), "Etc/UTC", 2, from).runs
+		expect(iso(k8s)).toEqual(["2026-11-02T12:00:00.000Z", "2026-11-03T12:00:00.000Z"])
+	})
+
 	it("reads EventBridge numbering and ?", () => {
 		const { runs } = nextRuns(schedule("cron(0 9 ? * 2 *)", "eventbridge"), "Etc/UTC", 2, from)
 		expect(iso(runs)).toEqual(["2026-11-02T09:00:00.000Z", "2026-11-09T09:00:00.000Z"])
@@ -84,6 +97,14 @@ describe("daylight saving", () => {
 		)
 		const events = dstEvents(schedule("30 2 * * *", "standard"), "Europe/Berlin", unaligned)
 		expect(events[0]).toMatchObject({ kind: "gap", date: "2027-03-28", times: ["02:30"] })
+	})
+
+	it("checks Quartz schedules at their own second", () => {
+		const events = dstEvents(schedule("30 30 2 * * ?", "quartz"), "Europe/Berlin", from)
+		expect(events.map(({ kind, times }) => ({ kind, times }))).toEqual([
+			{ kind: "gap", times: ["02:30:30"] },
+			{ kind: "overlap", times: ["02:30:30"] },
+		])
 	})
 
 	it("finds nothing for UTC or a safe time", () => {

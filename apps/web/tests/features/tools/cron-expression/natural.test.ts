@@ -22,6 +22,11 @@ describe("parseNatural", () => {
 		["every minute", "* * * * *"],
 		["daily at 6 pm", "0 18 * * *"],
 		["every weekend at noon", "0 12 * * 0,6"],
+		["weekly at 9am", "0 9 * * 0"],
+		["monthly at 9am", "0 9 1 * *"],
+		["every week at 9am", "0 9 * * 0"],
+		["every 6 hours at :30", "30 */6 * * *"],
+		["every Mondays at 9am", "0 9 * * 1"],
 	]
 	for (const [sentence, expected] of cases) {
 		it(sentence, () => expect(to(sentence).expression).toBe(expected))
@@ -54,5 +59,24 @@ describe("parseNatural", () => {
 
 	it("rejects impossible times", () => {
 		expect(parseNatural("every day at 25:00")).toMatchObject({ ok: false })
+	})
+
+	it("explains that every other day has no exact cron form", () => {
+		for (const sentence of ["every other day at 9am", "every 2 weeks", "every 3 months"]) {
+			const result = parseNatural(sentence)
+			expect(result.ok, sentence).toBe(false)
+			if (!result.ok) expect(result.message).toMatch(/can't run/)
+		}
+	})
+
+	it("doesn't read ordinary words as weekdays", () => {
+		expect(parseNatural("thus at 9am")).toMatchObject({
+			ok: false,
+			message: `I didn't understand "thus".`,
+		})
+	})
+
+	it("rejects a minute interval at a set minute", () => {
+		expect(parseNatural("every 15 minutes at :30")).toMatchObject({ ok: false })
 	})
 })

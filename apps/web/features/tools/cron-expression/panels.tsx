@@ -29,7 +29,7 @@ import {
 	TriangleAlertIcon,
 	XCircleIcon,
 } from "lucide-react"
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { CopyButton } from "../tool-ui"
 import { type CronSpec, convert, PLATFORM_NAMES, render } from "./convert"
 import { EXAMPLES, parseNatural } from "./natural"
@@ -254,9 +254,16 @@ export function ConvertPanel({
 	)
 	const effectiveTarget =
 		target === schedule.platform ? (platformIds.find((id) => id !== target) ?? target) : target
-	const result = convert(schedule, effectiveTarget)
-	const parsed = result.expression ? parseCron(result.expression, effectiveTarget) : null
-	const comparison = parsed?.ok ? compareRuns(schedule, parsed.schedule, timezone) : null
+	// Comparing runs computes 100 of them, so it only reruns when its inputs change, not on
+	// every re-render of the tool (like hovering the field ruler).
+	const { result, comparison } = useMemo(() => {
+		const result = convert(schedule, effectiveTarget)
+		const parsed = result.expression ? parseCron(result.expression, effectiveTarget) : null
+		return {
+			result,
+			comparison: parsed?.ok ? compareRuns(schedule, parsed.schedule, timezone) : null,
+		}
+	}, [schedule, effectiveTarget, timezone])
 	return (
 		<div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-3">
 			<div className="flex flex-wrap items-center gap-2 text-sm">

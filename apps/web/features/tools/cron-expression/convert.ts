@@ -1,6 +1,7 @@
 // Converts schedules between dialects through one neutral form. Pure and DOM-free.
 
 import { dowBase, type FieldName, type PlatformId, type Schedule } from "./parse"
+import { requiresBothDays } from "./runs"
 
 /**
  * A schedule in neutral form: every field present, crontab day numbering
@@ -36,13 +37,23 @@ function mapItems(text: string, map: (value: string) => string) {
 		.join(",")
 }
 
-/** `5/10` → `5-59/10`, the form every cron accepts. */
-function expandBareStep(text: string, name: FieldName) {
+/**
+ * `5/10` → `5-59/10`, the form every cron accepts, in five-field numbering. A named start
+ * gets a named end (`MON/2` → `MON-SAT/2`).
+ */
+export function expandBareStep(text: string, name: FieldName) {
 	const max = name === "dow" ? 6 : MAX[name]
 	if (max === undefined) return text
+	const maxName = name === "dow" ? "SAT" : name === "month" ? "DEC" : undefined
 	return text
 		.split(",")
-		.map((item) => (/^\d+\/\d+$/.test(item) ? item.replace("/", `-${max}/`) : item))
+		.map((item) => {
+			const match = /^(\d+|[A-Za-z]{3})\/(\d+)$/.exec(item)
+			if (!match) return item
+			const named = /^[A-Za-z]/.test(match[1] ?? "")
+			if (named && !maxName) return item
+			return `${match[1]}-${named ? maxName : max}/${match[2]}`
+		})
 		.join(",")
 }
 
@@ -168,5 +179,11 @@ export const PLATFORM_NAMES: Record<PlatformId, string> = {
 
 /** Convert a parsed schedule into `target`'s dialect. */
 export function convert(schedule: Schedule, target: PlatformId): Rendered {
-	return render(toSpec(schedule), target)
+	const rendered = render(toSpec(schedule), target)
+	if (rendered.expression && target !== "standard" && requiresBothDays(schedule)) {
+		rendered.notes.push(
+			`In a crontab both day fields must match here, but ${PLATFORM_NAMES[target]} runs when either does.`,
+		)
+	}
+	return rendered
 }
