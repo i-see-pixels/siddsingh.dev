@@ -1,4 +1,5 @@
 import type { ComponentType } from "react"
+import { CronExpression } from "./cron-expression"
 import { DiffChecker } from "./diff-checker"
 import { JsonFormatter } from "./json-formatter"
 import { JwtDecoder } from "./jwt-decoder"
@@ -18,4 +19,5 @@ export const toolComponents: Record<string, ComponentType> = {
 	"mermaid-previewer": MermaidPreviewer,
 	"json-formatter": JsonFormatter,
 	"jwt-decoder": JwtDecoder,
+	"cron-expression": CronExpression,
 }

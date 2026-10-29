@@ -451,4 +451,34 @@ export const tools = [
 			},
 		],
 	},
+	{
+		slug: "cron-expression",
+		name: "Cron expression explainer & generator",
+		description:
+			"Explain cron expressions in plain English, build them from a sentence, and check them for GitHub Actions, Kubernetes, AWS EventBridge, Vercel and Quartz.",
+		category: "Developer",
+		steps: [
+			"Pick your platform and paste an expression, or type a schedule like 'every weekday at 9am'.",
+			"Read it in plain English and see the next runs in your time and UTC.",
+			"Fix anything the platform checks flag, then copy the config snippet.",
+		],
+		faq: [
+			{
+				question: "Why didn't my GitHub Actions schedule run on time?",
+				answer: "Schedules run in UTC unless you set timezone:, only from the default branch, and jobs at the top of the hour are often delayed. The checks tab flags each of these for your expression.",
+			},
+			{
+				question: "Why is the day of week different in AWS EventBridge?",
+				answer: "EventBridge and Quartz number days 1–7 starting at Sunday, so 2 is Monday. Crontab counts from 0 for Sunday, so 1 is Monday. The convert tab renumbers them for you.",
+			},
+			{
+				question: "Does it handle daylight saving time?",
+				answer: "Yes. Runs that fall in a skipped or repeated hour in the schedule's time zone are marked, up to a year ahead.",
+			},
+			{
+				question: "Is anything sent to a server?",
+				answer: "No. Parsing, the sentence builder and run times all work in your browser.",
+			},
+		],
+	},
 ]
