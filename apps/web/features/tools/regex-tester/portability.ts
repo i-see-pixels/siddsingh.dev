@@ -46,16 +46,21 @@ export type Portability = {
 	pattern: string | null
 	/** Group names as this language spells them, by original name. */
 	names: Map<string, string>
+	/** PHP only: the pattern needs `/u`, also when the JavaScript has no u or v flag. */
+	unicodeMode: boolean
 }
 
 type Edit = { from: number; to: number; text: string }
 
 const hex = (value: number, width = 2) => value.toString(16).toUpperCase().padStart(width, "0")
 
-/** Java group names are ASCII letters and digits, starting with a letter. */
-function javaName(name: string, taken: Set<string>) {
-	const clean = name.replace(/[^A-Za-z0-9]/g, "")
-	const base = /^[A-Za-z]/.test(clean) ? clean : `g${clean}`
+/**
+ * A group name this language accepts. JavaScript names can hold `$` and non-ASCII letters;
+ * Java's are ASCII letters and digits, the others also take `_`.
+ */
+function groupName(name: string, target: Target, taken: Set<string>) {
+	const clean = name.replace(target === "java" ? /[^A-Za-z0-9]/g : /\W/g, "")
+	const base = (target === "java" ? /^[A-Za-z]/ : /^[A-Za-z_]/).test(clean) ? clean : `g${clean}`
 	let candidate = base
 	for (let suffix = 2; taken.has(candidate); suffix++) candidate = `${base}${suffix}`
 	taken.add(candidate)
@@ -111,11 +116,19 @@ export function checkTarget(
 			})
 		}
 		seen.add(group.name)
-		if (target === "java" && !names.has(group.name))
-			names.set(group.name, javaName(group.name, taken))
+		if (!names.has(group.name)) names.set(group.name, groupName(group.name, target, taken))
 	}
 
 	const inClass = (parent: Node | null) => parent?.type === "characterClass"
+
+	// PCRE rejects `\x{…}` above 255 outside UTF mode, so these escapes turn on /u.
+	let unicodeMode = flags.includes("u") || flags.includes("v")
+	if (target === "php") {
+		walk(parsed.root, (node) => {
+			if (node.type === "value" && node.kind === "unicodeEscape" && node.codePoint > 255)
+				unicodeMode = true
+		})
+	}
 
 	walk(parsed.root, (node, parent) => {
 		switch (node.type) {
@@ -173,16 +186,23 @@ export function checkTarget(
 					const name = node.name.value
 					const start = node.range[0]
 					const header = { range: [start, node.name.range[1] + 1] as [number, number] }
-					if (target === "python") {
-						rewrite(header, `(?P<${name}>`, "Named groups are written (?P<name>…).")
-					}
-					const renamed = names.get(name)
-					if (renamed && renamed !== name) {
-						rewrite(
+					const renamed = names.get(name) ?? name
+					if (renamed !== name) {
+						once(
+							`rename-${name}`,
+							"rewrite",
 							header,
-							`(?<${renamed}>`,
-							`Java group names can only use letters and digits, so ${name} becomes ${renamed}.`,
+							`${TARGET_NAMES[target]} group names can't be written ${name} here, so it becomes ${renamed}.`,
 						)
+					}
+					if (target === "python") {
+						rewrite(header, `(?P<${renamed}>`, "Named groups are written (?P<name>…).")
+					} else if (renamed !== name) {
+						edits.push({
+							from: header.range[0],
+							to: header.range[1],
+							text: `(?<${renamed}>`,
+						})
 					}
 				}
 				break
@@ -197,10 +217,14 @@ export function checkTarget(
 					)
 				} else if (node.name) {
 					const name = node.name.value
+					const renamed = names.get(name) ?? name
 					if (target === "python")
-						rewrite(node, `(?P=${name})`, "Named backreferences are written (?P=name).")
-					const renamed = names.get(name)
-					if (renamed && renamed !== name)
+						rewrite(
+							node,
+							`(?P=${renamed})`,
+							"Named backreferences are written (?P=name).",
+						)
+					else if (renamed !== name)
 						edits.push({
 							from: node.range[0],
 							to: node.range[1],
@@ -275,6 +299,21 @@ export function checkTarget(
 						"List the characters you want instead.",
 					)
 				}
+				// With the v flag a class inside a class adds to it; elsewhere `[` is often just a
+				// character, so the pattern can run and mean something else.
+				if (
+					node.kind === "union" &&
+					target !== "rust" &&
+					target !== "java" &&
+					(node.body as Node[]).some((item) => item.type === "characterClass")
+				) {
+					add(
+						"unsupported",
+						node,
+						`${TARGET_NAMES[target]} has no nested classes: ${node.raw} would mean something else.`,
+						"Flatten it into one class.",
+					)
+				}
 				break
 			case "characterClassEscape": {
 				const lower = node.value.toLowerCase()
@@ -292,7 +331,7 @@ export function checkTarget(
 							: "Use (?-u:\\d) or (?-u:\\w) for the JavaScript meaning.",
 					)
 				}
-				if ((lower === "d" || lower === "w") && target === "php" && flags.includes("u")) {
+				if ((lower === "d" || lower === "w") && target === "php" && unicodeMode) {
 					once(
 						"unicode-dw",
 						"behaviour",
@@ -302,9 +341,7 @@ export function checkTarget(
 				}
 				if (
 					lower === "s" &&
-					(target === "go" ||
-						target === "java" ||
-						(target === "php" && !flags.includes("u")))
+					(target === "go" || target === "java" || (target === "php" && !unicodeMode))
 				) {
 					once(
 						"ascii-s",
@@ -375,6 +412,19 @@ export function checkTarget(
 						raw.slice(1),
 						`${raw} means a word boundary in Rust, so the backslash is dropped.`,
 					)
+				} else if (
+					kind === "symbol" &&
+					raw === "{" &&
+					!inClass(parent) &&
+					parent?.type !== "characterClassRange" &&
+					(target === "java" ||
+						target === "rust" ||
+						((target === "python" || target === "php") &&
+							/^\{,\d+\}/.test(pattern.slice(node.range[0]))))
+				) {
+					// JavaScript takes a `{` that isn't a valid quantifier as itself. Java and Rust
+					// reject it, and Python and PCRE read `{,3}` as a quantifier.
+					rewrite(node, "\\{", "A literal { must be escaped here.")
 				} else if (inClass(parent) && kind === "symbol" && raw === "[") {
 					rewrite(node, "\\[", "A literal [ inside a class must be escaped.")
 				} else if (
@@ -419,5 +469,5 @@ export function checkTarget(
 			output = output.slice(0, edit.from) + edit.text + output.slice(edit.to)
 		}
 	}
-	return { target, status, issues, pattern: output, names }
+	return { target, status, issues, pattern: output, names, unicodeMode }
 }

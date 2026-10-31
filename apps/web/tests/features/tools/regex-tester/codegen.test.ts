@@ -133,4 +133,18 @@ describe("replacements", () => {
 			problem: expect.stringContaining("no equivalent"),
 		})
 	})
+
+	it("drops an unknown group name, which JavaScript makes empty", () => {
+		for (const target of ["python", "go", "java", "rust", "php"] as const) {
+			expect(replacement("[$<nope>]", "(?<a>x)", target), target).toEqual({ text: "[]" })
+		}
+	})
+
+	it("adds PHP's u modifier for an escape above 255", () => {
+		expect(code("\\u2603", "php")).toContain(raw`'/\x{2603}/u'`)
+	})
+
+	it("uses a renamed group in the replacement", () => {
+		expect(code("(?<a$>x)", "python", "g", "$<a$>")).toContain(raw`\g<a>`)
+	})
 })

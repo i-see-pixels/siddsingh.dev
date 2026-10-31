@@ -58,30 +58,42 @@ export function runRegex({ pattern, flags, text, replacement }: RunInput): RunRe
 	const global = flags.includes("g")
 	const unicode = flags.includes("u") || flags.includes("v")
 	const matches: Match[] = []
-	const executions: RegExpExecArray[] = []
+	const replacing = replacement !== undefined
+	const spans: { start: number; end: number }[] = []
+	let output = ""
+	let last = 0
 	let capped = false
 
 	for (;;) {
 		const match = regex.exec(text)
 		if (!match) break
-		const indices = match.indices
-		executions.push(match)
-		const groups: GroupMatch[] = []
-		for (let index = 1; index < match.length; index++) {
-			const range = indices?.[index]
-			if (range)
-				groups.push({ index, start: range[0], end: range[1], text: match[index] ?? "" })
+		if (matches.length < MAX_MATCHES) {
+			const indices = match.indices
+			const groups: GroupMatch[] = []
+			for (let index = 1; index < match.length; index++) {
+				const range = indices?.[index]
+				if (range)
+					groups.push({ index, start: range[0], end: range[1], text: match[index] ?? "" })
+			}
+			matches.push({
+				start: match.index,
+				end: match.index + match[0].length,
+				text: match[0],
+				groups,
+			})
 		}
-		matches.push({
-			start: match.index,
-			end: match.index + match[0].length,
-			text: match[0],
-			groups,
-		})
+		if (replacing) {
+			output += text.slice(last, match.index)
+			const expansion = expandReplacement(replacement, match, text)
+			spans.push({ start: output.length, end: output.length + expansion.length })
+			output += expansion
+			last = match.index + match[0].length
+		}
 		if (!global) break
 		if (matches.length >= MAX_MATCHES) {
 			capped = true
-			break
+			// The list stops here, but a replacement has to reach the end of the text.
+			if (!replacing) break
 		}
 		// An empty match would repeat forever; step over one character.
 		if (match[0] === "") {
@@ -90,27 +102,12 @@ export function runRegex({ pattern, flags, text, replacement }: RunInput): RunRe
 		}
 	}
 
-	let replaced: RunResult["replaced"]
-	if (replacement !== undefined) {
-		let output = ""
-		let last = 0
-		const spans: { start: number; end: number }[] = []
-		for (const match of executions) {
-			output += text.slice(last, match.index)
-			const expansion = expandReplacement(replacement, match, text)
-			spans.push({ start: output.length, end: output.length + expansion.length })
-			output += expansion
-			last = match.index + match[0].length
-		}
-		replaced = { text: output + text.slice(last), spans }
-	}
-
 	return {
 		matches,
 		capped,
 		groupCount:
 			(new RegExp(`${pattern}|`, flags.replace(/[gyd]/g, "")).exec("")?.length ?? 1) - 1,
 		ms: performance.now() - started,
-		replaced,
+		replaced: replacing ? { text: output + text.slice(last), spans } : undefined,
 	}
 }

@@ -7,7 +7,7 @@ const raw = String.raw
 function rows(pattern: string, flags = "") {
 	const parsed = parsePattern(pattern, flags)
 	if (!parsed.ok) throw new Error(`didn't parse: ${pattern}`)
-	return explain(parsed.root)
+	return explain(parsed.root, flags)
 }
 
 describe("explain", () => {
@@ -51,5 +51,19 @@ describe("explain", () => {
 		const text = rows(raw`(ab)+\1`).map((row) => row.text)
 		expect(text[0]).toBe("repeat one or more times:")
 		expect(text).toContain("the same text as group 1")
+	})
+
+	it("reads v-mode subtraction and intersection for what they do", () => {
+		expect(rows(raw`[\w--\d]`, "v")[0]?.text).toBe(
+			"a word character (letter, digit or _), but not a digit (0–9)",
+		)
+		expect(rows(raw`[\w&&[a-f]]`, "v")[0]?.text).toBe(
+			'a word character (letter, digit or _) that is also one of "a" to "f"',
+		)
+	})
+
+	it("describes the dot by the s flag", () => {
+		expect(rows(".")[0]?.text).toBe("any character except a newline")
+		expect(rows(".", "s")[0]?.text).toBe("any character, including a newline")
 	})
 })

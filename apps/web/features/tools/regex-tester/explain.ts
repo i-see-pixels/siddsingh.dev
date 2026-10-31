@@ -61,12 +61,12 @@ function isSingleToken(node: Node) {
 }
 
 /** A one-line description of a node that needs no rows of its own. */
-function describeAtom(node: Node): string {
+function describeAtom(node: Node, dotAll: boolean): string {
 	switch (node.type) {
 		case "value":
 			return describeChar(node.codePoint)
 		case "dot":
-			return "any character except a newline"
+			return dotAll ? "any character, including a newline" : "any character except a newline"
 		case "characterClassEscape":
 			return CLASS_ESCAPES[node.value] ?? node.raw
 		case "unicodePropertyEscape":
@@ -81,22 +81,29 @@ function describeAtom(node: Node): string {
 			const parts = (node.body as Node[]).map((item) =>
 				item.type === "characterClassRange"
 					? `${describeChar(item.min.codePoint)} to ${describeChar(item.max.codePoint)}`
-					: item.type === "characterClass"
-						? item.raw
-						: describeAtom(item),
+					: describeAtom(item, dotAll),
 			)
 			if (parts.length === 0)
 				return node.negative ? "any character at all" : "nothing (this never matches)"
+			// With the v flag, the items of a class can subtract or intersect instead of adding up.
+			const combined =
+				node.kind === "subtraction"
+					? `${parts[0]}, but not ${parts.slice(1).join(" or ")}`
+					: node.kind === "intersection"
+						? parts.join(" that is also ")
+						: undefined
+			if (combined) return node.negative ? `anything except ${combined}` : combined
 			return `${node.negative ? "any character except" : "one of"} ${parts.join(", ")}`
 		}
 		case "quantifier":
-			return `${describeAtom(node.body[0] as Node)}, ${quantifierText(node.min, node.max, node.greedy)}`
+			return `${describeAtom(node.body[0] as Node, dotAll)}, ${quantifierText(node.min, node.max, node.greedy)}`
 		default:
 			return node.raw
 	}
 }
 
-export function explain(root: Node) {
+export function explain(root: Node, flags = "") {
+	const dotAll = flags.includes("s")
 	const rows: ExplainRow[] = []
 	const add = (node: Node, depth: number, text: string) =>
 		rows.push({ depth, token: node.raw, text, from: node.range[0], to: node.range[1] })
@@ -122,7 +129,7 @@ export function explain(root: Node) {
 							token: raw,
 							text:
 								run.length === 1
-									? `the character ${describeAtom(first)}`
+									? `the character ${describeAtom(first, dotAll)}`
 									: `the text "${text}"`,
 							from: first.range[0],
 							to: last.range[1],
@@ -158,7 +165,7 @@ export function explain(root: Node) {
 			}
 			case "quantifier": {
 				const body = node.body[0] as Node
-				if (isSingleToken(body)) add(node, depth, describeAtom(node))
+				if (isSingleToken(body)) add(node, depth, describeAtom(node, dotAll))
 				else {
 					add(node, depth, `repeat ${quantifierText(node.min, node.max, node.greedy)}:`)
 					visit(body, depth + 1)
@@ -166,7 +173,7 @@ export function explain(root: Node) {
 				break
 			}
 			default:
-				add(node, depth, describeAtom(node))
+				add(node, depth, describeAtom(node, dotAll))
 		}
 	}
 	visit(root, 0)

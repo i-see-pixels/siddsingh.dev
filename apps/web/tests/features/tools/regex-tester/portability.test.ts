@@ -115,3 +115,41 @@ describe("differences in meaning", () => {
 		expect(notes(raw`\d\d\d`, "python")).toHaveLength(1)
 	})
 })
+
+describe("JavaScript's looser syntax", () => {
+	it("escapes a literal { where it would be an error or a quantifier", () => {
+		expect(check("x{y}", "java").pattern).toBe(raw`x\{y}`)
+		expect(check("x{y}", "rust").pattern).toBe(raw`x\{y}`)
+		expect(check("x{y}", "python").pattern).toBe("x{y}")
+		expect(check("a{,3}", "python").pattern).toBe(raw`a\{,3}`)
+		expect(check("a{,3}", "php").pattern).toBe(raw`a\{,3}`)
+		expect(check("a{,3}", "go").pattern).toBe("a{,3}")
+	})
+
+	it("leaves quantifiers and { inside classes alone", () => {
+		expect(check("a{2,3}", "java")).toMatchObject({ status: "works", pattern: "a{2,3}" })
+		expect(check("[{]", "java")).toMatchObject({ status: "works", pattern: "[{]" })
+		expect(check("[{-}]", "rust")).toMatchObject({ status: "works", pattern: "[{-}]" })
+	})
+
+	it("rejects nested v-mode classes where they mean something else", () => {
+		for (const target of ["python", "go", "php"] as const) {
+			expect(check("[[a-z][0-9]]", target, "v").status, target).toBe("unsupported")
+		}
+		expect(check("[[a-z][0-9]]", "java", "v").status).toBe("works")
+		expect(check("[a-z0-9]", "python", "v").status).toBe("works")
+	})
+
+	it("renames groups each language can't spell", () => {
+		expect(check(raw`(?<a$>x)\k<a$>`, "python").pattern).toBe("(?P<a>x)(?P=a)")
+		expect(check("(?<a$>x)", "go")).toMatchObject({ status: "changes", pattern: "(?<a>x)" })
+		expect(check("(?<a_b>x)", "php")).toMatchObject({ status: "works" })
+		expect(check("(?<a_b>x)", "java").pattern).toBe("(?<ab>x)")
+	})
+
+	it("turns on PHP's UTF mode only when an escape needs it", () => {
+		expect(check("\\u2603", "php").unicodeMode).toBe(true)
+		expect(check("\\u00e9", "php").unicodeMode).toBe(false)
+		expect(check("a", "php", "v").unicodeMode).toBe(true)
+	})
+})

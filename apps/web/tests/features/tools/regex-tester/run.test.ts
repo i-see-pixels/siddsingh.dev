@@ -37,6 +37,14 @@ describe("runRegex", () => {
 		expect(result.capped).toBe(true)
 	})
 
+	it("replaces to the end of the text past the match limit", () => {
+		const text = "a".repeat(MAX_MATCHES + 1000)
+		const result = runRegex({ pattern: ".", flags: "g", text, replacement: "b" })
+		expect(result.matches).toHaveLength(MAX_MATCHES)
+		expect(result.capped).toBe(true)
+		expect(result.replaced?.text).toBe(text.replace(/./g, "b"))
+	})
+
 	it("throws on a bad pattern, for the worker to report", () => {
 		expect(() => runRegex({ pattern: "(", flags: "", text: "" })).toThrow()
 	})

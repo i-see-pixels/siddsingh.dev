@@ -23,18 +23,20 @@ import {
 	SubBar,
 	ToggleChip,
 } from "../tool-chrome"
-import { parsePattern } from "./ast"
-import { javascriptCode, targetCode } from "./codegen"
-import { explain } from "./explain"
+import type { AnalysisReply, AnalysisRequest } from "./analysis-worker"
+import type { Analysis, AnalysisInput } from "./analyze"
+import { type CaptureGroup, parsePattern } from "./ast"
 import { ExplainPanel, LanguageRow, MatchesPanel } from "./panels"
-import { checkTarget, TARGET_NAMES, TARGETS } from "./portability"
-import { findRedos } from "./redos"
+import type { RedosFinding } from "./redos"
 import type { Match, RunResult } from "./run"
 import type { WorkerReply, WorkerRequest } from "./worker"
 
 const WORKSPACE = "/tools/regex-tester/workspace"
 const BUDGET_MS = 1000
+const ANALYSIS_BUDGET_MS = 2000
 const DEBOUNCE_MS = 120
+const NO_GROUPS: CaptureGroup[] = []
+const NO_FINDINGS: RedosFinding[] = []
 const MAX_SHARED_TEXT = 4000
 const MAX_MARKS = 2000
 const GROUP_COLOURS = 6
@@ -135,6 +137,13 @@ function useRegexRun(
 	useEffect(() => {
 		if (!valid || !pattern) {
 			clearTimeout(budgetRef.current)
+			// The run may be stuck, and with the budget cleared nothing else would stop it.
+			if (busyRef.current) {
+				workerRef.current?.terminate()
+				workerRef.current = null
+				busyRef.current = false
+			}
+			requestRef.current++
 			setRun({ status: "idle" })
 			return
 		}
@@ -199,6 +208,82 @@ function useRegexRun(
 	return run
 }
 
+type AnalysisState = { key: string; analysis: Analysis | null; failed: boolean }
+
+/**
+ * Analyses the pattern in a worker, and stops it if it overruns the budget. While a new
+ * result is on its way, the last one stays available so the panels don't flash empty.
+ */
+function usePatternAnalysis(input: AnalysisInput | null) {
+	const [state, setState] = useState<AnalysisState | null>(null)
+	const workerRef = useRef<Worker | null>(null)
+	const requestRef = useRef(0)
+	const busyRef = useRef(false)
+	const budgetRef = useRef<ReturnType<typeof setTimeout>>(undefined)
+	const key = input ? JSON.stringify(input) : null
+
+	const stop = () => {
+		clearTimeout(budgetRef.current)
+		requestRef.current++
+		if (busyRef.current) {
+			workerRef.current?.terminate()
+			workerRef.current = null
+			busyRef.current = false
+		}
+	}
+
+	useEffect(
+		() => () => {
+			stop()
+			workerRef.current?.terminate()
+			workerRef.current = null
+		},
+		[],
+	)
+
+	useEffect(() => {
+		stop()
+		if (!input || key === null) {
+			setState(null)
+			return
+		}
+		const timer = setTimeout(() => {
+			const finish = (analysis: Analysis | null, failed: boolean) => {
+				clearTimeout(budgetRef.current)
+				busyRef.current = false
+				setState({ key, analysis, failed })
+			}
+			workerRef.current ??= new Worker(new URL("./analysis-worker.ts", import.meta.url), {
+				type: "module",
+			})
+			const id = ++requestRef.current
+			workerRef.current.onerror = () => finish(null, true)
+			workerRef.current.onmessage = (event: MessageEvent<AnalysisReply>) => {
+				const reply = event.data
+				if (reply.id !== requestRef.current) return
+				if (reply.type === "done") finish(reply.analysis, false)
+				else if (reply.type === "error") finish(null, true)
+				else {
+					budgetRef.current = setTimeout(() => {
+						stop()
+						setState({ key, analysis: null, failed: true })
+					}, ANALYSIS_BUDGET_MS)
+				}
+			}
+			busyRef.current = true
+			workerRef.current.postMessage({ id, ...input } satisfies AnalysisRequest)
+		}, DEBOUNCE_MS)
+		return () => clearTimeout(timer)
+	}, [key])
+
+	const fresh = key !== null && state?.key === key
+	return {
+		analysis: key === null ? null : (state?.analysis ?? null),
+		fresh,
+		failed: fresh && Boolean(state?.failed),
+	}
+}
+
 export function RegexTesterTool() {
 	const [initial] = useState(readInitial)
 	const [pattern, setPattern] = useState(initial.pattern)
@@ -232,41 +317,32 @@ export function RegexTesterTool() {
 			: run.status === "running" || run.status === "timeout"
 				? run.last
 				: undefined
-	const current = finished && finished.text === text ? finished : undefined
+	// While a run is going the last result stays up so typing doesn't flicker, but a run that
+	// was stopped never finished, so results from another pattern don't stand in for it.
+	const sameRun =
+		finished?.key === `${pattern}/${flags}` && finished.replacement === activeReplacement
+	const current =
+		finished && finished.text === text && (run.status !== "timeout" || sameRun)
+			? finished
+			: undefined
 	const matches = current?.result.matches ?? []
-	const groups = parsed.ok ? parsed.groups : []
+	const groups = parsed.ok ? parsed.groups : NO_GROUPS
 
-	const analysis = useMemo(() => {
-		if (!parsed.ok || !pattern) return null
-		const languages = TARGETS.map((target) => {
-			const result = checkTarget(parsed, pattern, flags, target)
-			return {
-				...result,
-				name: TARGET_NAMES[target],
-				code:
-					result.pattern === null
-						? null
-						: targetCode(result, {
-								flags,
-								groups: parsed.groups,
-								replacement: activeReplacement,
-							}),
-			}
-		})
-		return {
-			languages,
-			rows: explain(parsed.root),
-			redos: findRedos(parsed.root, flags),
-			javascript: javascriptCode({
-				pattern,
-				flags,
-				groups: parsed.groups,
-				replacement: activeReplacement,
-			}),
-		}
-	}, [parsed, pattern, flags, activeReplacement])
+	const analysisInput = useMemo(
+		() =>
+			!engineError && parsed.ok && pattern
+				? { pattern, flags, replacement: activeReplacement }
+				: null,
+		[engineError, parsed, pattern, flags, activeReplacement],
+	)
+	const { analysis, fresh, failed } = usePatternAnalysis(analysisInput)
+	const analysisHint = failed
+		? "This pattern is too complex to analyse in the browser."
+		: analysisInput
+			? "Analysing…"
+			: undefined
 
-	const redos = analysis?.redos ?? []
+	const redos = analysis?.redos ?? NO_FINDINGS
 	const patternMarks = useMemo(() => {
 		const items: InlineMark[] = []
 		if (engineError && !parsed.ok && parsed.position !== undefined) {
@@ -278,7 +354,8 @@ export function RegexTesterTool() {
 				tooltip: { title: engineError },
 			})
 		}
-		for (const finding of redos) {
+		// Positions from an older analysis would underline the wrong part of this pattern.
+		for (const finding of fresh ? redos : NO_FINDINGS) {
 			items.push({
 				from: finding.from,
 				to: finding.to,
@@ -288,7 +365,7 @@ export function RegexTesterTool() {
 		}
 		if (hover) items.push({ from: hover.from, to: hover.to, className: "cm-token-hover" })
 		return { doc: pattern, items }
-	}, [engineError, parsed, pattern, redos, hover])
+	}, [engineError, parsed, pattern, redos, fresh, hover])
 
 	const textMarks = useMemo(() => {
 		if (!current) return undefined
@@ -403,7 +480,7 @@ export function RegexTesterTool() {
 						? { tone: "idle", label: "Running…" }
 						: {
 								tone: count > 0 ? "ok" : "warn",
-								label: `Ran in ${current.result.ms.toFixed(1)} ms · ${count.toLocaleString()} ${count === 1 ? "match" : "matches"} · ${current.result.groupCount} ${current.result.groupCount === 1 ? "group" : "groups"}`,
+								label: `Ran in ${current.result.ms.toFixed(1)} ms · ${count.toLocaleString()}${current.result.capped ? "+" : ""} ${count === 1 ? "match" : "matches"} · ${current.result.groupCount} ${current.result.groupCount === 1 ? "group" : "groups"}`,
 							}
 	const needsWork =
 		analysis?.languages.filter((language) => language.status !== "works").length ?? 0
@@ -455,7 +532,7 @@ export function RegexTesterTool() {
 					<ErrorCard title="This pattern doesn't compile" message={engineError} />
 				</div>
 			)}
-			{(redos.length > 0 || run.status === "timeout") && (
+			{(redos.length > 0 || run.status === "timeout" || failed) && (
 				<div
 					role="status"
 					className="flex shrink-0 flex-wrap items-start gap-2 border-b border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs"
@@ -466,6 +543,12 @@ export function RegexTesterTool() {
 							<p className="font-medium">
 								This pattern took over a second on this text, so the run was
 								stopped.
+							</p>
+						)}
+						{failed && (
+							<p className="font-medium">
+								This pattern is too complex to analyse, so it hasn't been checked
+								for catastrophic backtracking.
 							</p>
 						)}
 						{redos.map((finding) => (
@@ -605,7 +688,7 @@ export function RegexTesterTool() {
 								<ExplainPanel rows={analysis.rows} onHover={setHover} />
 							) : (
 								<p className="flex flex-1 items-center justify-center p-6 text-sm text-muted-foreground">
-									Write a valid pattern to see it explained.
+									{analysisHint ?? "Write a valid pattern to see it explained."}
 								</p>
 							)
 						) : activeTab === "languages" ? (
@@ -634,7 +717,7 @@ export function RegexTesterTool() {
 								</div>
 							) : (
 								<p className="flex flex-1 items-center justify-center p-6 text-sm text-muted-foreground">
-									Write a valid pattern to compare languages.
+									{analysisHint ?? "Write a valid pattern to compare languages."}
 								</p>
 							)
 						) : (

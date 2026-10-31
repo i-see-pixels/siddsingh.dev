@@ -29,8 +29,11 @@ export function parseReplacement(replacement: string, groups: CaptureGroup[]): R
 		else if (token === "`") tokens.push({ type: "before" })
 		else if (token === "'") tokens.push({ type: "after" })
 		else if (token.startsWith("<")) {
-			if (named) tokens.push({ type: "name", name: token.slice(1, -1) })
-			else push(match[0])
+			const name = token.slice(1, -1)
+			// With named groups, a name that doesn't exist is empty, so nothing is added.
+			if (!named) push(match[0])
+			else if (groups.some((group) => group.name === name))
+				tokens.push({ type: "name", name })
 		} else {
 			// As in String.replace: two digits only if that group exists, else one digit.
 			const two = Number(token)
@@ -124,7 +127,7 @@ export type CodeInput = {
 }
 
 export function javascriptCode({ pattern, flags, replacement }: CodeInput) {
-	const literal = `/${new RegExp(pattern).source}/${flags}`
+	const literal = `/${new RegExp(pattern, flags).source}/${flags}`
 	if (replacement !== undefined) {
 		return `const re = ${literal}\nconst result = text.replace(re, ${JSON.stringify(replacement)})`
 	}
@@ -221,7 +224,7 @@ export function targetCode(
 				has("i") && "i",
 				has("m") && "m",
 				has("s") && "s",
-				(has("u") || has("v")) && "u",
+				result.unicodeMode && "u",
 			]
 				.filter(Boolean)
 				.join("")
