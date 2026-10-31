@@ -262,6 +262,9 @@ importers:
       react-markdown:
         specifier: ^10.1.0
         version: 10.1.0(@types/react@19.3.0)(react@19.3.1)(supports-color@7.2.0)
+      regjsparser:
+        specifier: ^0.14.0
+        version: 0.14.0
       rehype-highlight:
         specifier: ^7.0.2
         version: 7.0.2
@@ -5113,6 +5116,10 @@ packages:
 
   reflect-metadata@0.2.2:
     resolution: {integrity: sha512-urBwgfrvVP/eAyXx4hluJivBKzuEbSQs9rKWCrCkbSxNv8mxPcUZKeuoF3Uy4mJl3Lwprp6yy5/39VWigZ4K6Q==}
+
+  regjsparser@0.14.0:
+    resolution: {integrity: sha512-ftmhQUEzt+GOeIuEI9MNhYMjaiAclv0DfFVOfZXN4FD5kt0VUjtWEfnss6+OfpAKeMhaRX5q2hh7C6JGdGx9Dg==}
+    hasBin: true
 
   rehype-highlight@7.0.2:
     resolution: {integrity: sha512-k158pK7wdC2qL3M5NcZROZ2tR/l7zOzjxXd5VGdcfIyoijjQqpHd3JKtYSBDpDZ38UI2WJWuFAtkMDxmx5kstA==}
@@ -10285,6 +10292,10 @@ snapshots:
       tslib: 2.8.1
 
   reflect-metadata@0.2.2: {}
+
+  regjsparser@0.14.0:
+    dependencies:
+      jsesc: 3.1.0
 
   rehype-highlight@7.0.2:
     dependencies:

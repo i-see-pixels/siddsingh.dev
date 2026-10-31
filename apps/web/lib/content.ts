@@ -481,4 +481,34 @@ export const tools = [
 			},
 		],
 	},
+	{
+		slug: "regex-tester",
+		name: "Regex tester",
+		description:
+			"Test regular expressions live, see if they work in JavaScript, Python, Go, Java, Rust and PHP, and get code for each.",
+		category: "Developer",
+		steps: [
+			"Write a pattern, pick flags and paste some test text. Matches and groups highlight as you type.",
+			"Read the plain-English explanation, and check for patterns that can hang a server.",
+			"Open Languages to see what works where and copy ready-to-use code for your language.",
+		],
+		faq: [
+			{
+				question: "Which regex engine does it use?",
+				answer: "Your browser's JavaScript engine runs the matches. Python, Go, Java, Rust and PHP are checked against their known differences, not run.",
+			},
+			{
+				question: "Why does my regex work here but not in Go?",
+				answer: "Go's engine has no lookahead, lookbehind or backreferences. The Languages tab lists exactly which part of your pattern Go can't run.",
+			},
+			{
+				question: "What is catastrophic backtracking?",
+				answer: "Some patterns take exponentially longer on certain inputs, enough to freeze a server. The tool flags those patterns and stops any test that runs longer than a second.",
+			},
+			{
+				question: "Is my text sent anywhere?",
+				answer: "No. Everything runs in your browser.",
+			},
+		],
+	},
 ]

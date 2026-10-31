@@ -21,7 +21,16 @@ const clamp = (value: number) => Math.min(MAX, Math.max(MIN, value))
  * fixed heights and the divider is hidden. The desktop height is the viewport
  * minus the 3.5rem workspace header, so neither pane grows with its content.
  */
-export function ResizableSplit({ left, right }: { left: ReactNode; right: ReactNode }) {
+export function ResizableSplit({
+	left,
+	right,
+	className,
+}: {
+	left: ReactNode
+	right: ReactNode
+	/** Overrides the default of filling the viewport, for a split below other content. */
+	className?: string
+}) {
 	const [percent, setPercent] = useState(50)
 	const containerRef = useRef<HTMLDivElement>(null)
 
@@ -48,7 +57,10 @@ export function ResizableSplit({ left, right }: { left: ReactNode; right: ReactN
 	return (
 		<div
 			ref={containerRef}
-			className="flex flex-1 flex-col lg:grid lg:h-[calc(100svh-3.5rem)] lg:flex-none lg:grid-cols-[var(--split)_0.5rem_minmax(0,1fr)]"
+			className={cn(
+				"flex flex-1 flex-col lg:grid lg:h-[calc(100svh-3.5rem)] lg:flex-none lg:grid-cols-[var(--split)_0.5rem_minmax(0,1fr)]",
+				className,
+			)}
 			style={{ "--split": `${percent}%` } as CSSProperties}
 		>
 			{/*

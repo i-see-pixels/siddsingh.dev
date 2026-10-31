@@ -36,6 +36,7 @@ export async function GET() {
 		`- [JSON formatter & validator](${url("/tools/json-formatter/workspace")}): open with \`#json=<base64url of the JSON or YAML>\`, and add \`&mode=yaml\` for YAML output. Secrets in the input are flagged and can be redacted.`,
 		`- [JWT decoder & security check](${url("/tools/jwt-decoder/workspace")}): open with \`#token=<header>.<payload>\` (leave the signature off so the link can't be used to sign in). It decodes the token and audits it for common security mistakes.`,
 		`- [Cron expression explainer & generator](${url("/tools/cron-expression/workspace")}): open with \`#cron=<url-encoded expression>&platform=<standard|github-actions|kubernetes|eventbridge|vercel|quartz>&tz=<IANA zone>\`. It explains the schedule, lists the next runs and checks it against the platform's rules.`,
+		`- [Regex tester](${url("/tools/regex-tester/workspace")}): open with \`#state=<base64url of JSON {p: pattern, f: flags, t: text, r?: replacement}>\`. It runs the pattern in the browser, explains it, checks it for catastrophic backtracking and shows whether it works in Python, Go, Java, Rust and PHP, with code for each.`,
 		"",
 	]
 

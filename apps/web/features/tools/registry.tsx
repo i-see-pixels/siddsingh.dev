@@ -6,6 +6,7 @@ import { JwtDecoder } from "./jwt-decoder"
 import { LlmTokenCost } from "./llm-token-cost"
 import { MermaidPreviewer } from "./mermaid-previewer"
 import { PromptPlayground } from "./prompt-playground"
+import { RegexTester } from "./regex-tester"
 import { ScreenshotMockup } from "./screenshot-mockup"
 import { ToolSchemaConverter } from "./tool-schema-converter"
 
@@ -20,4 +21,5 @@ export const toolComponents: Record<string, ComponentType> = {
 	"json-formatter": JsonFormatter,
 	"jwt-decoder": JwtDecoder,
 	"cron-expression": CronExpression,
+	"regex-tester": RegexTester,
 }
