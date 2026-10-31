@@ -4,6 +4,8 @@ import { defineConfig } from "vitest/config"
 // Tests live in tests/, mirroring the source tree, and import code through the same
 // `@/` alias the app uses.
 export default defineConfig({
+	// tsconfig keeps JSX for Next to compile, so tests that import .tsx need their own setting.
+	oxc: { jsx: { runtime: "automatic" } },
 	resolve: {
 		alias: { "@": fileURLToPath(new URL(".", import.meta.url)) },
 	},

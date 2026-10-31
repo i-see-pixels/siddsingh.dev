@@ -2,10 +2,11 @@
 
 import { Button } from "@workspace/ui/components/button"
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@workspace/ui/components/input-group"
-import { SearchIcon, WrenchIcon } from "lucide-react"
+import { SearchIcon } from "lucide-react"
 import Link from "next/link"
 import { useState } from "react"
 import { IconTile, Tag } from "@/components/badges"
+import { ToolIcon } from "@/features/tools/icons"
 import { tools } from "@/lib/content"
 
 const categories = ["All", ...new Set(tools.map((tool) => tool.category))]
@@ -53,7 +54,7 @@ export function ToolsBrowser() {
 					))}
 				</fieldset>
 			</div>
-			<ul className="grid gap-px bg-line sm:grid-cols-2">
+			<ul className="grid gap-px bg-line sm:grid-cols-2 sm:[&>li:last-child:nth-child(odd)]:col-span-2">
 				{visible.map((tool) => (
 					<li key={tool.slug} className="bg-background">
 						<Link
@@ -62,7 +63,7 @@ export function ToolsBrowser() {
 						>
 							<div className="flex items-center gap-3">
 								<IconTile>
-									<WrenchIcon />
+									<ToolIcon slug={tool.slug} />
 								</IconTile>
 								<h2 className="flex-1 text-lg/snug font-medium">{tool.name}</h2>
 								<Tag>{tool.category}</Tag>
@@ -71,15 +72,6 @@ export function ToolsBrowser() {
 						</Link>
 					</li>
 				))}
-				{!needle && category === "All" && (
-					<li className="flex flex-col justify-center gap-1 bg-background p-4 text-sm text-muted-foreground">
-						<p className="font-mono text-xs uppercase">Next up</p>
-						<p>
-							More tools are on the way: JSON formatter, JWT decoder, colour
-							converter.
-						</p>
-					</li>
-				)}
 			</ul>
 			{visible.length === 0 && (
 				<p className="screen-line-top p-4 text-sm text-muted-foreground" role="status">

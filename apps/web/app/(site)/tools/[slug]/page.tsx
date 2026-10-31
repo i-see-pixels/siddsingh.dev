@@ -5,6 +5,7 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 import { Tag } from "@/components/badges"
 import { Panel, PanelContent, PanelHeader, PanelTitle, Separator } from "@/components/panel"
+import { ToolScene } from "@/features/tools/scenes"
 import { tools } from "@/lib/content"
 import { siteConfig } from "@/lib/site-config"
 
@@ -56,14 +57,17 @@ export default async function ToolPage({ params }: Props) {
 				</div>
 			</div>
 			<Panel marks={false} className="screen-line-top-none">
-				<div className="dot-grid flex min-h-60 flex-col items-center justify-center gap-4 p-8 text-center">
-					<p className="max-w-sm text-balance text-muted-foreground">
+				<div className="dot-grid">
+					<ToolScene slug={tool.slug} className="block h-52 w-full sm:h-60" />
+				</div>
+				<div className="screen-line-top flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between">
+					<p className="text-sm text-balance text-muted-foreground">
 						The editor opens full screen. Your files stay in your browser.
 					</p>
 					<Button
 						nativeButton={false}
 						render={<Link href={`/tools/${tool.slug}/workspace`} />}
-						className="gap-2"
+						className="shrink-0 gap-2"
 					>
 						Open {tool.name.toLowerCase()}
 						<ArrowRightIcon />
