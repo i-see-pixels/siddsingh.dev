@@ -10,7 +10,13 @@ import { Markdown } from "@/components/markdown"
 import { Panel, PanelContent, Separator } from "@/components/panel"
 import { formatDate, getPost, getPosts } from "@/lib/blog"
 import { siteConfig } from "@/lib/site-config"
-import { blogPostingJsonLd, breadcrumbJsonLd, socialImage } from "@/lib/structured-data"
+import {
+	blogPostingJsonLd,
+	breadcrumbJsonLd,
+	faqFromMarkdown,
+	faqPageJsonLd,
+	socialImage,
+} from "@/lib/structured-data"
 
 type Props = { params: Promise<{ slug: string }> }
 
@@ -31,7 +37,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 		alt: post.cover?.alt || post.title,
 	}
 	return {
-		title: post.seoTitle,
+		// The seoTitle is written to fit the results page, so the site-name suffix is skipped.
+		title: { absolute: post.seoTitle },
 		description: post.seoDescription,
 		keywords: post.tags,
 		authors: [{ name: siteConfig.name, url: siteConfig.url }],
@@ -62,6 +69,7 @@ export default async function BlogPostPage({ params }: Props) {
 	const dates = [formatDate(post.date)]
 	if (post.updated) dates.push(`Updated ${formatDate(post.updated)}`)
 	dates.push(`${post.readingMinutes} min read`)
+	const faq = faqFromMarkdown(post.content)
 
 	return (
 		<>
@@ -74,6 +82,7 @@ export default async function BlogPostPage({ params }: Props) {
 						{ name: post.title, path: `/blog/${post.slug}` },
 					])}
 				/>
+				{faq.length > 0 && <JsonLd data={faqPageJsonLd(faq)} />}
 				<header className="pt-12">
 					<nav aria-label="Breadcrumb">
 						<p className="px-4 pb-2 text-sm/none font-medium tracking-wider text-muted-foreground">

@@ -35,6 +35,8 @@ function revalidateBlog(...slugs: string[]) {
 	updateTag(POSTS_TAG)
 	for (const path of ["/", "/blog", "/blog/rss.xml", "/sitemap.xml", "/llms.txt"])
 		revalidatePath(path)
+	// Tool pages link to their guide once it's published.
+	revalidatePath("/tools/[slug]", "page")
 	for (const slug of new Set(slugs)) {
 		revalidatePath(`/blog/${slug}`)
 		revalidatePath(`/og/blog/${slug}`)

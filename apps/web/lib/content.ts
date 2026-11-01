@@ -243,6 +243,20 @@ export const tools = [
 		name: "Screenshot mockup",
 		description: "Turn raw screenshots into polished product visuals, exported as PNG or JPG.",
 		category: "Images",
+		seoTitle: "Screenshot Mockup Generator: Free, No Watermark",
+		guide: "free-screenshot-mockup-generator",
+		overview: [
+			"Paste a screenshot and turn it into a product shot: a gradient or image background, a macOS, Windows, browser or iPhone frame, rounded corners and a soft shadow. Export it as a PNG or JPG at 1x or 2x, or copy it straight to your clipboard.",
+			"It's free, with no account and no watermark. Your screenshot is edited in your browser and never uploaded, so unreleased features and customer data stay on your machine.",
+		],
+		features: [
+			"Paste with Ctrl or Cmd + V, drag and drop, or upload, then crop with free or fixed ratios.",
+			"14 gradient presets, a multi-stop gradient editor, image backgrounds with tint and blur, solid colours or transparent.",
+			"macOS, macOS Unified, Windows 11, browser and iPhone frames in light or dark, with an editable address bar.",
+			"Canvas ratios for X, LinkedIn and Instagram, plus padding, corner radius, border and shadow presets.",
+			"3D tilt, rotation and a stack effect that layers copies behind your screenshot.",
+			"Undo and redo, and export at 1x or 2x from a full-size render, not the preview.",
+		],
 		steps: [
 			"Drop in a screenshot, or paste one from your clipboard.",
 			"Pick a background, padding, corner radius and shadow.",
@@ -269,6 +283,19 @@ export const tools = [
 		description:
 			"Count tokens in a prompt and compare the cost across Claude, GPT and Gemini models.",
 		category: "AI",
+		seoTitle: "LLM Token Calculator: Claude, GPT & Gemini Cost",
+		guide: "llm-token-cost-calculator",
+		overview: [
+			"Paste a prompt, document or code and see how many tokens it uses and what it costs on ten Claude, GPT and Gemini models side by side. Set the expected output length and the number of requests to budget a whole feature, not one call.",
+			"OpenAI counts use OpenAI's published o200k_base tokenizer. Anthropic and Google don't publish theirs, so those counts are estimates and marked with ≈. Counting happens in your browser, so your prompt is never sent anywhere.",
+		],
+		features: [
+			"Token counts for every model, exact for OpenAI and estimated for Claude and Gemini.",
+			"Cost per request and in total, with separate input and output prices.",
+			"Context window fit for each model, flagged when the prompt is too long.",
+			"Every price is editable, for negotiated rates or price changes.",
+			"Prices are dated, so you know when they were last checked.",
+		],
 		steps: [
 			"Paste your prompt, document or code.",
 			"Set the expected output length and how many requests you will make.",
@@ -295,6 +322,18 @@ export const tools = [
 		description:
 			"Write prompts with {{variables}}, fill them in and copy plain text or API-ready messages.",
 		category: "AI",
+		seoTitle: "Prompt Template Playground with {{Variables}}",
+		guide: "prompt-template-playground",
+		overview: [
+			"Write a system prompt and a user prompt with {{variables}} where the content changes. The playground finds every variable, gives you a field for each and fills them in as you type.",
+			"Copy the result as plain text, as an Anthropic Messages request body or as an OpenAI Chat Completions body. It never calls a model and needs no API key, and nothing is stored once you close the tab.",
+		],
+		features: [
+			"Variables detected in both prompts as you type, with autocomplete for names you've already used.",
+			"A list of variables still empty, so nothing ships with a {{placeholder}} in it.",
+			"Output as plain text, Anthropic messages JSON or OpenAI messages JSON.",
+			"No account, no API key and no storage.",
+		],
 		steps: [
 			"Write a system and user prompt with {{variables}} where the content changes.",
 			"Fill in a value for each variable the tool detects.",
@@ -321,6 +360,19 @@ export const tools = [
 		description:
 			"Convert a JSON Schema into an Anthropic tool or OpenAI function definition, and back.",
 		category: "AI",
+		seoTitle: "Convert OpenAI Functions to Anthropic Tools",
+		guide: "openai-function-to-anthropic-tool",
+		overview: [
+			"Paste a JSON Schema, an Anthropic tool or an OpenAI function and convert it to any of the others. The converter detects what you pasted, moves the schema between parameters and input_schema and adds or removes the right wrapper.",
+			"Turn on strict mode for OpenAI and it marks every property as required and sets additionalProperties to false at every level. Checks flag the mistakes that make a provider reject a tool, with the path where each one happens.",
+		],
+		features: [
+			"JSON Schema, Anthropic tools, OpenAI Chat Completions functions and OpenAI Responses functions.",
+			"Detects the input format automatically.",
+			"OpenAI strict mode applied for you, including nested objects.",
+			"Checks for tool names, descriptions, the root object type and required fields that don't exist.",
+			"Runs in your browser; nothing is uploaded.",
+		],
 		steps: [
 			"Paste a JSON Schema, an Anthropic tool or an OpenAI function.",
 			"Pick the format you need. The tool detects what you pasted.",
@@ -346,6 +398,20 @@ export const tools = [
 		name: "Diff checker",
 		description: "Compare two pieces of text or code side by side, by line, word or character.",
 		category: "Developer",
+		seoTitle: "Diff Checker: Compare Text Online, Privately",
+		guide: "private-diff-checker",
+		overview: [
+			"Paste two versions of a text or code and see what changed, by line, word or character. Read it side by side or as a unified diff, and ignore case or whitespace when they're just noise.",
+			"The comparison runs in your browser, so config files, contracts and code with secrets in them stay on your device. Copy the result as a standard unified patch and apply it with git apply or patch.",
+		],
+		features: [
+			"Line, word and character comparison.",
+			"Split and unified views with line numbers.",
+			"Ignore case and ignore whitespace options.",
+			"Copy a unified patch in the same format as git diff.",
+			"Swap the two sides and see added and removed counts at a glance.",
+			"Nothing is uploaded or saved.",
+		],
 		steps: [
 			"Paste the original text on the left and the changed text on the right.",
 			"Choose lines, words or characters, and a split or unified view.",
@@ -371,6 +437,20 @@ export const tools = [
 		name: "Mermaid diagram previewer",
 		description: "Write Mermaid code, preview the diagram live and export it as SVG or PNG.",
 		category: "Developer",
+		seoTitle: "Mermaid Live Editor & Viewer: SVG and PNG Export",
+		guide: "best-mermaid-viewer",
+		overview: [
+			"Write Mermaid code and watch the diagram render as you type. When something breaks, the line Mermaid complains about is highlighted and the last good diagram stays on screen while you fix it.",
+			"Pan and zoom around large diagrams, then export a clean SVG or a 2x PNG with a solid background. It runs the real Mermaid library in your browser, so your diagrams are never uploaded.",
+		],
+		features: [
+			"Live preview with line-level errors.",
+			"Flowcharts, sequence, ER, state, class, Gantt and every other Mermaid diagram type.",
+			"Pan, zoom and fit to screen for large diagrams.",
+			"SVG export and 2x PNG export with a solid background.",
+			"A clean theme for light and dark mode, with no changes to your code.",
+			"Diagrams on this blog open in the editor with one click.",
+		],
 		steps: [
 			"Write or paste Mermaid code, or start from an example.",
 			"Watch the diagram update as you type, and fix any error shown below the code.",
@@ -397,6 +477,20 @@ export const tools = [
 		description:
 			"Format, validate and minify JSON, convert it to YAML, and redact any secrets before you share it.",
 		category: "Developer",
+		seoTitle: "JSON Formatter & Validator Online (No Upload)",
+		guide: "safe-json-formatter",
+		overview: [
+			"Paste JSON to format, validate or minify it, or convert it to YAML. Errors are marked on the exact line and column, and you can click any value to copy its path as JSONPath, jq, JavaScript or Python.",
+			"Before you copy, download or share, the formatter scans for secrets such as API keys, private keys, JWTs and passwords in connection strings, and offers to redact them. Formatting and the scan run in your browser, so your JSON is never uploaded.",
+		],
+		features: [
+			"Format with 2 spaces, 4 spaces or tabs, minify, or sort keys.",
+			"JSON to YAML and YAML to JSON.",
+			"Secret scan modelled on gitleaks, with one-click redaction.",
+			"Share links that carry the redacted JSON in the URL fragment, never on a server.",
+			"Warnings for large numbers that lose precision in JavaScript.",
+			"Handles files up to 20 MB in a background worker.",
+		],
 		steps: [
 			"Paste JSON or YAML. Errors are marked on the line they happen.",
 			"Pick formatted, minified or YAML output, and click any value to copy its path.",
@@ -427,6 +521,19 @@ export const tools = [
 		description:
 			"Decode a JWT, read its claims in plain English, verify its signature and check it for common security mistakes.",
 		category: "Developer",
+		seoTitle: "JWT Decoder & Security Checker (Free, Private)",
+		guide: "jwt-decoder-security-check",
+		overview: [
+			"Paste a JSON Web Token to split and decode its header, payload and signature, with every claim explained in plain English and timestamps shown as real dates.",
+			"A 15-check audit flags unsigned tokens, HMAC secrets found in a public list of about 104,000 leaked JWT secrets, missing expiry, risky jku, x5u and kid headers and personal data in the payload. Verify the signature with your secret or public key, all in your browser.",
+		],
+		features: [
+			"Decodes HS, RS, PS, ES and EdDSA tokens and shows JWE headers.",
+			"15 security checks, each with a plain-English fix.",
+			"Signature verification with a secret, PEM, JWK or JWKS.",
+			"Share links with the signature removed, so they can't be used to log in.",
+			"Strips Bearer prefixes and quotes from pasted tokens.",
+		],
 		steps: [
 			"Paste a token. The header, payload and signature are split and decoded.",
 			"Read the audit: it flags unsigned tokens, weak secrets, missing expiry and risky headers.",
@@ -457,6 +564,19 @@ export const tools = [
 		description:
 			"Explain cron expressions in plain English, build them from a sentence, and check them for GitHub Actions, Kubernetes, AWS EventBridge, Vercel and Quartz.",
 		category: "Developer",
+		seoTitle: "Cron Expression Generator & Explainer",
+		guide: "cron-expression-generator",
+		overview: [
+			"Paste a cron expression to read it in plain English, or type a schedule like 'every weekday at 9:30' and get the expression. See the next runs in your time zone and in UTC, with daylight-saving traps marked up to a year ahead.",
+			"Cron isn't the same everywhere, so pick your platform: standard crontab, GitHub Actions, Kubernetes, AWS EventBridge, Vercel or Quartz. The checks flag what that platform rejects or handles differently, and the convert tab rewrites the schedule for another platform.",
+		],
+		features: [
+			"Plain-English explanations and a sentence-to-cron builder that runs in your browser.",
+			"Next run times in any IANA time zone and UTC.",
+			"Platform checks for GitHub Actions, Kubernetes, EventBridge, Vercel and Quartz.",
+			"Conversion between dialects, checked by comparing the next 50 runs.",
+			"Copy-ready config snippets for each platform.",
+		],
 		steps: [
 			"Pick your platform and paste an expression, or type a schedule like 'every weekday at 9am'.",
 			"Read it in plain English and see the next runs in your time and UTC.",
@@ -487,6 +607,20 @@ export const tools = [
 		description:
 			"Test regular expressions live, see if they work in JavaScript, Python, Go, Java, Rust and PHP, and get code for each.",
 		category: "Developer",
+		seoTitle: "Regex Tester for JS, Python, Go, Java, Rust & PHP",
+		guide: "regex-tester-every-language",
+		overview: [
+			"Write a pattern, pick flags and paste test text. Matches and capture groups highlight as you type, and every token of the pattern is explained in plain English.",
+			"The Languages tab checks the same pattern against Python, Go, Java, Rust and PHP, rewrites it where the syntax differs and gives you ready-to-paste code for each. Patterns that can backtrack catastrophically are flagged, and any test that runs longer than a second is stopped.",
+		],
+		features: [
+			"Live matching with groups highlighted, using your browser's JavaScript engine.",
+			"Plain-English explanation of every token.",
+			"Portability checks and rewrites for Python, Go, Java, Rust and PHP.",
+			"Code generation for each language, including replacements.",
+			"ReDoS detection and a one-second time limit.",
+			"Share links that keep everything in the URL fragment.",
+		],
 		steps: [
 			"Write a pattern, pick flags and paste some test text. Matches and groups highlight as you type.",
 			"Read the plain-English explanation, and check for patterns that can hang a server.",

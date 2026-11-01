@@ -1,7 +1,17 @@
 import { ArrowUpRightIcon, BoxIcon } from "lucide-react"
+import type { Metadata } from "next"
 import { IconTile, StatusTag, Tag } from "@/components/badges"
 import { PageHeading, Panel, PanelHeader, PanelTitle, Separator } from "@/components/panel"
 import { products } from "@/lib/content"
+import { pageMetadata } from "@/lib/seo"
+
+export const metadata: Metadata = pageMetadata({
+	title: "Products: plenz, SnapNode & admin-boil",
+	description:
+		"Open-source products by Siddhant Singh: plenz, a Grammarly for AI prompts, SnapNode for element screenshots, and admin-boil.",
+	path: "/products",
+	section: "Products",
+})
 
 export default function ProductsPage() {
 	return (

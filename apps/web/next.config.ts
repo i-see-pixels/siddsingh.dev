@@ -20,6 +20,12 @@ const nextConfig: NextConfig = {
 			{ source: "/work/admin-boil-cli", destination: "/products", permanent: true },
 			{ source: "/work/plenz", destination: "/products", permanent: true },
 			{ source: "/work/:slug", destination: "/work", permanent: true },
+			// A v1 post that Google still lists. Remove this if the post is republished at the same slug.
+			{
+				source: "/blog/building-a-python-mcp-client-for-multiple-servers",
+				destination: "/blog",
+				permanent: true,
+			},
 		]
 	},
 }

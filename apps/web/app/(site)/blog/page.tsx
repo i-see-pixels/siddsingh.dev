@@ -6,16 +6,17 @@ import { IconTile, Tag } from "@/components/badges"
 import { CoverImage } from "@/components/cover-image"
 import { PageHeading, Panel, PanelHeader, PanelTitle } from "@/components/panel"
 import { formatDate, getPosts, type Post } from "@/lib/blog"
+import { pageMetadata } from "@/lib/seo"
 
 const description =
 	"Notes on what I build and what breaks along the way: AI agents, web platforms and side projects I swear I'll finish."
 
-export const metadata: Metadata = {
-	title: "Blog",
+export const metadata: Metadata = pageMetadata({
+	title: "Blog: AI Agents, Web Platforms and Side Projects",
 	description,
-	alternates: { canonical: "/blog" },
-	openGraph: { url: "/blog", title: "Blog", description },
-}
+	path: "/blog",
+	section: "Blog",
+})
 
 export default async function BlogPage() {
 	const posts = await getPosts()

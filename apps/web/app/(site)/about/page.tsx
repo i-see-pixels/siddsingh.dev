@@ -5,8 +5,10 @@ import {
 	GraduationCapIcon,
 	SparklesIcon,
 } from "lucide-react"
+import type { Metadata } from "next"
 import { IconTile, PulseDot, Tag } from "@/components/badges"
 import { Contact } from "@/components/home/sections"
+import { JsonLd } from "@/components/json-ld"
 import {
 	PageHeading,
 	Panel,
@@ -23,10 +25,21 @@ import {
 	publication,
 	skills,
 } from "@/lib/content"
+import { pageMetadata } from "@/lib/seo"
+import { personJsonLd } from "@/lib/structured-data"
+
+export const metadata: Metadata = pageMetadata({
+	title: "About Siddhant Singh: Resume",
+	description:
+		"Senior Software Engineer at Optum building multi-agent AI systems. DTU graduate, IEEE author and maker of plenz and SnapNode.",
+	path: "/about",
+	section: "About",
+})
 
 export default function AboutPage() {
 	return (
 		<>
+			<JsonLd data={personJsonLd()} />
 			<PageHeading
 				tagline="About"
 				title="Resume"

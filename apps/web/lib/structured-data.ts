@@ -52,3 +52,94 @@ export function breadcrumbJsonLd(items: { name: string; path: string }[]) {
 		})),
 	}
 }
+
+/** The site itself, for the home page. */
+export function websiteJsonLd() {
+	return {
+		"@context": "https://schema.org",
+		"@type": "WebSite",
+		"@id": `${absolute("/")}#website`,
+		url: absolute("/"),
+		name: siteConfig.name,
+		description: siteConfig.description,
+		inLanguage: "en",
+		publisher: author,
+	}
+}
+
+/** The person behind the site, for the home and about pages. */
+export function personJsonLd() {
+	return {
+		"@context": "https://schema.org",
+		...author,
+		"@id": `${absolute("/")}#person`,
+		jobTitle: "Senior Software Engineer",
+		email: `mailto:${siteConfig.email}`,
+		address: { "@type": "PostalAddress", addressLocality: "Gurugram", addressCountry: "IN" },
+	}
+}
+
+/** A free browser tool, for its page under /tools. */
+export function webApplicationJsonLd(tool: {
+	slug: string
+	name: string
+	description: string
+	category: string
+}) {
+	return {
+		"@context": "https://schema.org",
+		"@type": "WebApplication",
+		"@id": `${absolute(`/tools/${tool.slug}`)}#app`,
+		name: tool.name,
+		description: tool.description,
+		url: absolute(`/tools/${tool.slug}/workspace`),
+		applicationCategory:
+			tool.category === "Images" ? "DesignApplication" : "DeveloperApplication",
+		operatingSystem: "Any (runs in the browser)",
+		isAccessibleForFree: true,
+		offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+		author,
+	}
+}
+
+export type Faq = { question: string; answer: string }
+
+export function faqPageJsonLd(faq: readonly Faq[]) {
+	return {
+		"@context": "https://schema.org",
+		"@type": "FAQPage",
+		mainEntity: faq.map((item) => ({
+			"@type": "Question",
+			name: item.question,
+			acceptedAnswer: { "@type": "Answer", text: item.answer },
+		})),
+	}
+}
+
+/** Markdown down to plain text: links keep their words, emphasis and code marks go. */
+function plainText(markdown: string) {
+	return markdown
+		.replace(/!\[[^\]]*\]\([^)]*\)/g, "")
+		.replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
+		.replace(/[*_`]+/g, "")
+		.replace(/\s+/g, " ")
+		.trim()
+}
+
+/**
+ * The questions under a post's "## FAQ" heading: each "### " heading is a
+ * question and the text up to the next heading is its answer.
+ */
+export function faqFromMarkdown(markdown: string): Faq[] {
+	const section = markdown.match(
+		/^## (?:FAQ|Frequently asked questions)\s*$([\s\S]*?)(?=^## |(?![\s\S]))/im,
+	)
+	if (!section?.[1]) return []
+	const faq: Faq[] = []
+	for (const block of section[1].split(/^### /m).slice(1)) {
+		const [heading = "", ...rest] = block.split("\n")
+		const answer = plainText(rest.join("\n"))
+		if (heading.trim() && answer) faq.push({ question: plainText(heading), answer })
+	}
+	return faq
+}
