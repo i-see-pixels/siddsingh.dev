@@ -1,7 +1,8 @@
 export const siteConfig = {
 	name: "Siddhant Singh",
 	url: "https://siddsingh.dev",
-	description: "Developer portfolio, blog, products and free tools.",
+	description:
+		"Siddhant Singh, a senior software engineer in Gurugram, India. Portfolio, blog, side products and free browser tools for developers.",
 	github: "https://github.com/i-see-pixels",
 	sourceCode: "https://github.com/i-see-pixels/siddsingh.dev",
 	email: "siddhant06137@gmail.com",
