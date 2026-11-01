@@ -1,6 +1,16 @@
+import type { Metadata } from "next"
 import { PageHeading, Panel, PanelHeader, PanelTitle, Separator } from "@/components/panel"
 import { tools } from "@/lib/content"
+import { pageMetadata } from "@/lib/seo"
 import { ToolsBrowser } from "./tools-browser"
+
+export const metadata: Metadata = pageMetadata({
+	title: "Free Developer Tools That Run in Your Browser",
+	description:
+		"Free tools with no sign-up: JSON formatter, JWT decoder, regex tester, cron generator, diff checker, Mermaid editor and more. Nothing is uploaded.",
+	path: "/tools",
+	section: "Tools",
+})
 
 export default function ToolsPage() {
 	return (

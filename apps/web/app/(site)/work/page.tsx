@@ -1,5 +1,6 @@
 import { cn } from "@workspace/ui/lib/utils"
 import { ArrowUpRightIcon, MapPinIcon } from "lucide-react"
+import type { Metadata } from "next"
 import { AvailabilityPill, Joined, StatusTag } from "@/components/badges"
 import { Contact, Services } from "@/components/home/sections"
 import {
@@ -11,8 +12,17 @@ import {
 	Separator,
 } from "@/components/panel"
 import { type CaseStudy, caseStudies } from "@/lib/content"
+import { pageMetadata } from "@/lib/seo"
 import { siteConfig } from "@/lib/site-config"
 import { ProjectCover } from "./project-cover"
+
+export const metadata: Metadata = pageMetadata({
+	title: "Freelance Work: Web Apps, AI Features & Extensions",
+	description:
+		"Client projects by Siddhant Singh: web apps, AI features, browser extensions and sites built to rank, with what each one shipped.",
+	path: "/work",
+	section: "Work",
+})
 
 export default function WorkPage() {
 	return (

@@ -14,12 +14,23 @@ export const dynamicParams = false
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
 	const { slug } = await params
 	const tool = tools.find((item) => item.slug === slug)
-	return { title: tool ? `${tool.name} editor` : "Tool", robots: { index: false } }
+	// Not indexed: /tools/<slug> is the page meant to rank, and it links here.
+	return {
+		title: tool ? `${tool.name} editor` : "Tool",
+		description: tool?.description,
+		robots: { index: false },
+	}
 }
 
 export default async function ToolWorkspacePage({ params }: Props) {
 	const { slug } = await params
 	const Tool = toolComponents[slug]
-	if (!Tool) notFound()
-	return <Tool />
+	const tool = tools.find((item) => item.slug === slug)
+	if (!Tool || !tool) notFound()
+	return (
+		<>
+			<h1 className="sr-only">{tool.name}</h1>
+			<Tool />
+		</>
+	)
 }

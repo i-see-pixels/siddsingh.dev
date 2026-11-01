@@ -1,13 +1,17 @@
 import { Button } from "@workspace/ui/components/button"
-import { ArrowLeftIcon, ArrowRightIcon, MailIcon } from "lucide-react"
+import { ArrowLeftIcon, ArrowRightIcon, BookOpenIcon, MailIcon } from "lucide-react"
 import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { Tag } from "@/components/badges"
+import { JsonLd } from "@/components/json-ld"
 import { Panel, PanelContent, PanelHeader, PanelTitle, Separator } from "@/components/panel"
 import { ToolScene } from "@/features/tools/scenes"
+import { getPost } from "@/lib/blog"
 import { tools } from "@/lib/content"
+import { pageMetadata } from "@/lib/seo"
 import { siteConfig } from "@/lib/site-config"
+import { breadcrumbJsonLd, faqPageJsonLd, webApplicationJsonLd } from "@/lib/structured-data"
 
 type Props = { params: Promise<{ slug: string }> }
 
@@ -26,14 +30,31 @@ async function getTool(params: Props["params"]) {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
 	const tool = await getTool(params)
-	return { title: tool.name, description: tool.description }
+	return pageMetadata({
+		title: tool.seoTitle,
+		description: tool.description,
+		path: `/tools/${tool.slug}`,
+		section: "Tools",
+	})
 }
 
 export default async function ToolPage({ params }: Props) {
 	const tool = await getTool(params)
+	// Linked only once the guide is published, so the page never points at a 404.
+	// A database hiccup shouldn't take the tool page down with it.
+	const guide = await getPost(tool.guide).catch(() => null)
 
 	return (
 		<>
+			<JsonLd data={webApplicationJsonLd(tool)} />
+			<JsonLd data={faqPageJsonLd(tool.faq)} />
+			<JsonLd
+				data={breadcrumbJsonLd([
+					{ name: "Home", path: "/" },
+					{ name: "Tools", path: "/tools" },
+					{ name: tool.name, path: `/tools/${tool.slug}` },
+				])}
+			/>
 			<div className="pt-12">
 				<p className="px-4 pb-2 text-sm/none font-medium tracking-wider text-muted-foreground">
 					<Link
@@ -75,9 +96,45 @@ export default async function ToolPage({ params }: Props) {
 				</div>
 			</Panel>
 			<Separator />
+			<Panel id="overview">
+				<PanelHeader>
+					<PanelTitle sheet="01" anchor="overview">
+						What it does
+					</PanelTitle>
+				</PanelHeader>
+				<PanelContent className="flex flex-col gap-3">
+					{tool.overview.map((paragraph) => (
+						<p key={paragraph} className="text-pretty">
+							{paragraph}
+						</p>
+					))}
+				</PanelContent>
+				<ul>
+					{tool.features.map((feature) => (
+						<li key={feature} className="screen-line-top flex gap-3 px-4 py-3 text-sm">
+							<span aria-hidden className="text-brand">
+								+
+							</span>
+							{feature}
+						</li>
+					))}
+				</ul>
+				{guide && (
+					<div className="screen-line-top p-4">
+						<Link
+							href={`/blog/${guide.slug}`}
+							className="inline-flex items-center gap-2 text-sm font-medium text-brand hover:underline"
+						>
+							<BookOpenIcon className="size-4" />
+							Read the guide: {guide.title}
+						</Link>
+					</div>
+				)}
+			</Panel>
+			<Separator />
 			<Panel id="how-it-works">
 				<PanelHeader>
-					<PanelTitle sheet="01" anchor="how-it-works">
+					<PanelTitle sheet="02" anchor="how-it-works">
 						How it works
 					</PanelTitle>
 				</PanelHeader>
@@ -95,7 +152,7 @@ export default async function ToolPage({ params }: Props) {
 			<Separator />
 			<Panel id="faq">
 				<PanelHeader>
-					<PanelTitle sheet="02" count={tool.faq.length} anchor="faq">
+					<PanelTitle sheet="03" count={tool.faq.length} anchor="faq">
 						FAQ
 					</PanelTitle>
 				</PanelHeader>
