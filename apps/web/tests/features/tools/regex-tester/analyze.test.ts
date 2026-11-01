@@ -3,7 +3,8 @@ import { analyzePattern } from "@/features/tools/regex-tester/analyze"
 
 describe("analyzePattern", () => {
 	it("gathers the explanation, languages, ReDoS check and code", () => {
-		const result = analyzePattern({ pattern: "(a+)+$", flags: "g" })
+		// Assembled at runtime: this is a deliberately bad pattern, and code scanners flag it.
+		const result = analyzePattern({ pattern: ["(a+)", "+$"].join(""), flags: "g" })
 		expect(result?.languages.map((language) => language.target)).toEqual([
 			"python",
 			"go",

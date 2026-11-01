@@ -20,6 +20,8 @@ const post = (reply: WorkerReply) => self.postMessage(reply)
 class Superseded extends Error {}
 
 self.addEventListener("message", async (event: MessageEvent<WorkerRequest>) => {
+	// Messages from the page that owns a worker have an empty origin; refuse anything else.
+	if (event.origin !== "" && event.origin !== self.location.origin) return
 	const request = event.data
 	latest = request.id
 	if (request.type === "cancel") return

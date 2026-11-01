@@ -12,6 +12,8 @@ export type AnalysisReply =
 const post = (reply: AnalysisReply) => self.postMessage(reply)
 
 self.addEventListener("message", (event: MessageEvent<AnalysisRequest>) => {
+	// Messages from the page that owns a worker have an empty origin; refuse anything else.
+	if (event.origin !== "" && event.origin !== self.location.origin) return
 	const { id, ...input } = event.data
 	post({ id, type: "started" })
 	try {
