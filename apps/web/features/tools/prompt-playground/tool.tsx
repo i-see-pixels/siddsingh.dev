@@ -2,9 +2,12 @@
 
 import { Input } from "@workspace/ui/components/input"
 import { Tabs, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
-import { Textarea } from "@workspace/ui/components/textarea"
-import { useMemo, useState } from "react"
-import { CopyButton, monoTextarea, Pane, SplitLayout } from "../tool-ui"
+import { useMemo, useRef, useState } from "react"
+import { CodeEditor } from "../editor/code-editor"
+import { json } from "../editor/languages/json"
+import { promptTemplate } from "../editor/languages/template"
+import { prose } from "../editor/languages/text"
+import { CopyButton, Pane, SplitLayout } from "../tool-ui"
 
 type OutputFormat = "text" | "anthropic" | "openai"
 
@@ -58,36 +61,40 @@ export function PromptPlaygroundTool() {
 	const [kind, setKind] = useState<OutputFormat>("text")
 
 	const variables = useMemo(() => findVariables(system, template), [system, template])
+	// Both editors complete variables from either prompt, read at completion time.
+	const variablesRef = useRef(variables)
+	variablesRef.current = variables
+	const [templateLanguage] = useState(() => promptTemplate(() => variablesRef.current))
 	const missing = variables.filter((name) => !values[name])
 	const output = format(kind, fill(system, values), fill(template, values))
 
 	return (
 		<SplitLayout>
 			<Pane title="Template">
-				<label className="flex flex-col">
+				<div className="flex flex-col">
 					<span className="screen-line-bottom px-3 py-1.5 text-xs text-muted-foreground">
 						System prompt (optional)
 					</span>
-					<Textarea
-						aria-label="System prompt"
-						className={`${monoTextarea} min-h-24 flex-none`}
+					<CodeEditor
+						label="System prompt"
+						language={templateLanguage}
+						className="h-28 flex-none"
 						value={system}
-						onChange={(event) => setSystem(event.target.value)}
-						spellCheck={false}
+						onChange={setSystem}
 					/>
-				</label>
-				<label className="flex min-h-0 flex-1 flex-col">
+				</div>
+				<div className="flex min-h-0 flex-1 flex-col">
 					<span className="screen-line-top screen-line-bottom px-3 py-1.5 text-xs text-muted-foreground">
 						User prompt. Write variables as {"{{name}}"}
 					</span>
-					<Textarea
-						aria-label="User prompt template"
-						className={monoTextarea}
+					<CodeEditor
+						label="User prompt template"
+						language={templateLanguage}
+						className="min-h-40"
 						value={template}
-						onChange={(event) => setTemplate(event.target.value)}
-						spellCheck={false}
+						onChange={setTemplate}
 					/>
-				</label>
+				</div>
 				<div className="screen-line-top flex flex-col gap-2 p-3">
 					<p className="font-mono text-xs text-muted-foreground uppercase">
 						Variables ({variables.length})
@@ -143,9 +150,12 @@ export function PromptPlaygroundTool() {
 						below.
 					</p>
 				)}
-				<pre className="min-h-0 flex-1 overflow-auto p-3 font-mono text-sm leading-relaxed whitespace-pre-wrap">
-					{output}
-				</pre>
+				<CodeEditor
+					readOnly
+					label="Filled prompt"
+					language={kind === "text" ? prose : json}
+					value={output}
+				/>
 			</Pane>
 		</SplitLayout>
 	)

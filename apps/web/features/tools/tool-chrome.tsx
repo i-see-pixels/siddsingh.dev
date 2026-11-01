@@ -99,6 +99,7 @@ export function ToggleChip({
 	pressed,
 	onPressedChange,
 	children,
+	className,
 	...props
 }: {
 	pressed: boolean
@@ -115,6 +116,7 @@ export function ToggleChip({
 				pressed
 					? "border-brand/40 bg-brand/10 text-brand hover:bg-brand/15"
 					: "bg-background",
+				className,
 			)}
 			{...props}
 		>

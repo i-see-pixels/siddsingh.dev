@@ -11,7 +11,6 @@ import {
 	MailIcon,
 	MapPinIcon,
 	PenToolIcon,
-	WrenchIcon,
 } from "lucide-react"
 import Link from "next/link"
 import { AvailabilityPill, IconTile, Joined, PulseDot, StatusTag, Tag } from "@/components/badges"
@@ -24,6 +23,7 @@ import {
 	PanelHeader,
 	PanelTitle,
 } from "@/components/panel"
+import { ToolIcon } from "@/features/tools/icons"
 import { caseStudies, experience, products, proof, services, tools } from "@/lib/content"
 import { availability, siteConfig } from "@/lib/site-config"
 
@@ -319,7 +319,7 @@ export function Tools() {
 					<CardCell key={tool.slug} href={`/tools/${tool.slug}`}>
 						<div className="flex items-center gap-3">
 							<IconTile>
-								<WrenchIcon />
+								<ToolIcon slug={tool.slug} />
 							</IconTile>
 							<h3 className="flex-1 font-medium">{tool.name}</h3>
 							<Tag>{tool.category}</Tag>

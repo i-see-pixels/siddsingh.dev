@@ -6,7 +6,7 @@ import { cn } from "@workspace/ui/lib/utils"
 import { type Change, createTwoFilesPatch, diffChars, diffLines, diffWordsWithSpace } from "diff"
 import { ArrowLeftRightIcon } from "lucide-react"
 import { useDeferredValue, useMemo, useState } from "react"
-import { CodeEditor } from "../code-editor"
+import { CodeEditor } from "../editor/code-editor"
 import {
 	Chip,
 	FileTab,

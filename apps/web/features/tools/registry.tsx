@@ -1,8 +1,12 @@
 import type { ComponentType } from "react"
+import { CronExpression } from "./cron-expression"
 import { DiffChecker } from "./diff-checker"
+import { JsonFormatter } from "./json-formatter"
+import { JwtDecoder } from "./jwt-decoder"
 import { LlmTokenCost } from "./llm-token-cost"
 import { MermaidPreviewer } from "./mermaid-previewer"
 import { PromptPlayground } from "./prompt-playground"
+import { RegexTester } from "./regex-tester"
 import { ScreenshotMockup } from "./screenshot-mockup"
 import { ToolSchemaConverter } from "./tool-schema-converter"
 
@@ -14,4 +18,8 @@ export const toolComponents: Record<string, ComponentType> = {
 	"tool-schema-converter": ToolSchemaConverter,
 	"diff-checker": DiffChecker,
 	"mermaid-previewer": MermaidPreviewer,
+	"json-formatter": JsonFormatter,
+	"jwt-decoder": JwtDecoder,
+	"cron-expression": CronExpression,
+	"regex-tester": RegexTester,
 }

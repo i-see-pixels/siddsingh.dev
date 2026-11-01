@@ -3,58 +3,58 @@ description: Something on the site, in a tool or in the editor doesn't work as i
 title: "bug: "
 labels: [bug]
 body:
-  - type: markdown
-    attributes:
-      value: |
-        Thanks for reporting. For a security problem, don't file it here: see [SECURITY.md](https://github.com/i-see-pixels/siddsingh.dev/blob/main/SECURITY.md).
+    - type: markdown
+      attributes:
+          value: |
+              Thanks for reporting. For a security problem, don't file it here: see [SECURITY.md](https://github.com/i-see-pixels/siddsingh.dev/blob/main/SECURITY.md).
 
-  - type: dropdown
-    id: area
-    attributes:
-      label: Area
-      options:
-        - Public site (home, work, about, products)
-        - Blog (posts, RSS, SEO)
-        - Tools
-        - Admin / blog editor
-        - Running or deploying a fork
-        - Other
-    validations:
-      required: true
+    - type: dropdown
+      id: area
+      attributes:
+          label: Area
+          options:
+              - Public site (home, work, about, products)
+              - Blog (posts, RSS, SEO)
+              - Tools
+              - Admin / blog editor
+              - Running or deploying a fork
+              - Other
+      validations:
+          required: true
 
-  - type: input
-    id: url
-    attributes:
-      label: URL or route
-      placeholder: https://siddsingh.dev/tools/diff-checker
+    - type: input
+      id: url
+      attributes:
+          label: URL or route
+          placeholder: https://siddsingh.dev/tools/diff-checker
 
-  - type: textarea
-    id: what-happened
-    attributes:
-      label: What happened?
-      description: What you saw, and what you expected instead.
-    validations:
-      required: true
+    - type: textarea
+      id: what-happened
+      attributes:
+          label: What happened?
+          description: What you saw, and what you expected instead.
+      validations:
+          required: true
 
-  - type: textarea
-    id: steps
-    attributes:
-      label: Steps to reproduce
-      placeholder: |
-        1. Open …
-        2. Click …
-        3. See …
-    validations:
-      required: true
+    - type: textarea
+      id: steps
+      attributes:
+          label: Steps to reproduce
+          placeholder: |
+              1. Open …
+              2. Click …
+              3. See …
+      validations:
+          required: true
 
-  - type: input
-    id: environment
-    attributes:
-      label: Browser and device
-      placeholder: Chrome 140 on macOS, Safari on iPhone 15…
+    - type: input
+      id: environment
+      attributes:
+          label: Browser and device
+          placeholder: Chrome 140 on macOS, Safari on iPhone 15…
 
-  - type: textarea
-    id: extra
-    attributes:
-      label: Screenshots, logs or anything else
-      description: Console errors and screenshots help a lot. For a fork, include your Node and pnpm versions.
+    - type: textarea
+      id: extra
+      attributes:
+          label: Screenshots, logs or anything else
+          description: Console errors and screenshots help a lot. For a fork, include your Node and pnpm versions.

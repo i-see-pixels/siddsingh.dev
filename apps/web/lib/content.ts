@@ -391,4 +391,124 @@ export const tools = [
 			},
 		],
 	},
+	{
+		slug: "json-formatter",
+		name: "JSON formatter & validator",
+		description:
+			"Format, validate and minify JSON, convert it to YAML, and redact any secrets before you share it.",
+		category: "Developer",
+		steps: [
+			"Paste JSON or YAML. Errors are marked on the line they happen.",
+			"Pick formatted, minified or YAML output, and click any value to copy its path.",
+			"Redact any keys or passwords the tool finds, then copy, download or share.",
+		],
+		faq: [
+			{
+				question: "Is my JSON sent anywhere?",
+				answer: "No. Formatting and the secret scan run in your browser. Open DevTools → Network and paste to check: no requests are made.",
+			},
+			{
+				question: "What secrets does it look for?",
+				answer: "Private keys, cloud and API keys (AWS, GitHub, OpenAI, Anthropic, Stripe, Slack, Google), JWTs and passwords in connection strings by default. You can also turn on checks for values under keys like password or token, card numbers, emails and random-looking strings.",
+			},
+			{
+				question: "What does a share link contain?",
+				answer: "The redacted JSON, inside the part of the link after #, which browsers never send to a server. Secrets are always removed from share links.",
+			},
+			{
+				question: "Can it convert YAML to JSON?",
+				answer: "Yes. Paste YAML and the formatted and minified tabs give you JSON.",
+			},
+		],
+	},
+	{
+		slug: "jwt-decoder",
+		name: "JWT decoder & security check",
+		description:
+			"Decode a JWT, read its claims in plain English, verify its signature and check it for common security mistakes.",
+		category: "Developer",
+		steps: [
+			"Paste a token. The header, payload and signature are split and decoded.",
+			"Read the audit: it flags unsigned tokens, weak secrets, missing expiry and risky headers.",
+			"Verify the signature with your secret or public key, or share a link with the signature removed.",
+		],
+		faq: [
+			{
+				question: "Is my token sent anywhere?",
+				answer: "No. Decoding, verification and the audit run in your browser. Open DevTools → Network and paste to check: the only request is the public list of known secrets, which never includes your token.",
+			},
+			{
+				question: "Why does the share link drop the signature?",
+				answer: "A full token works as a login until it expires. Without the signature, the link shows what's inside but can't be used.",
+			},
+			{
+				question: "How does the weak-secret check work?",
+				answer: "For HMAC tokens, it tries about 104,000 publicly known JWT secrets from SecLists in your browser. A match means anyone can forge tokens. No match doesn't prove the secret is strong.",
+			},
+			{
+				question: "Can it decode encrypted tokens (JWE)?",
+				answer: "It shows the header. The payload needs the private key, which this tool doesn't ask for.",
+			},
+		],
+	},
+	{
+		slug: "cron-expression",
+		name: "Cron expression explainer & generator",
+		description:
+			"Explain cron expressions in plain English, build them from a sentence, and check them for GitHub Actions, Kubernetes, AWS EventBridge, Vercel and Quartz.",
+		category: "Developer",
+		steps: [
+			"Pick your platform and paste an expression, or type a schedule like 'every weekday at 9am'.",
+			"Read it in plain English and see the next runs in your time and UTC.",
+			"Fix anything the platform checks flag, then copy the config snippet.",
+		],
+		faq: [
+			{
+				question: "Why didn't my GitHub Actions schedule run on time?",
+				answer: "Schedules run in UTC unless you set timezone:, only from the default branch, and jobs at the top of the hour are often delayed. The checks tab flags each of these for your expression.",
+			},
+			{
+				question: "Why is the day of week different in AWS EventBridge?",
+				answer: "EventBridge and Quartz number days 1–7 starting at Sunday, so 2 is Monday. Crontab counts from 0 for Sunday, so 1 is Monday. The convert tab renumbers them for you.",
+			},
+			{
+				question: "Does it handle daylight saving time?",
+				answer: "Yes. Runs that fall in a skipped or repeated hour in the schedule's time zone are marked, up to a year ahead.",
+			},
+			{
+				question: "Is anything sent to a server?",
+				answer: "No. Parsing, the sentence builder and run times all work in your browser.",
+			},
+		],
+	},
+	{
+		slug: "regex-tester",
+		name: "Regex tester",
+		description:
+			"Test regular expressions live, see if they work in JavaScript, Python, Go, Java, Rust and PHP, and get code for each.",
+		category: "Developer",
+		steps: [
+			"Write a pattern, pick flags and paste some test text. Matches and groups highlight as you type.",
+			"Read the plain-English explanation, and check for patterns that can hang a server.",
+			"Open Languages to see what works where and copy ready-to-use code for your language.",
+		],
+		faq: [
+			{
+				question: "Which regex engine does it use?",
+				answer: "Your browser's JavaScript engine runs the matches. Python, Go, Java, Rust and PHP are checked against their known differences, not run.",
+			},
+			{
+				question: "Why does my regex work here but not in Go?",
+				answer: "Go's engine has no lookahead, lookbehind or backreferences. The Languages tab lists exactly which part of your pattern Go can't run.",
+			},
+			{
+				question: "What is catastrophic backtracking?",
+				answer: "Some patterns take exponentially longer on certain inputs, enough to freeze a server. The tool flags those patterns and stops any test that runs longer than a second.",
+			},
+			{
+				question: "Is my text sent anywhere?",
+				answer: "No. Everything runs in your browser.",
+			},
+		],
+	},
 ]

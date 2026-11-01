@@ -5,7 +5,9 @@ import { Tabs, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
 import { AlertTriangleIcon, CheckCircle2Icon } from "lucide-react"
 import { useMemo, useState } from "react"
 import { ResizableSplit } from "@/components/resizable-split"
-import { CodeEditor, CodeView } from "../code-editor"
+import { CodeEditor } from "../editor/code-editor"
+import { json } from "../editor/languages/json"
+import { prose } from "../editor/languages/text"
 import { ErrorCard, FileTab, PaneHeader, StatusBar, SubBar, ToggleChip } from "../tool-chrome"
 import { CopyButton } from "../tool-ui"
 import {
@@ -93,7 +95,13 @@ export function ToolSchemaConverterTool() {
 						label="Schema or tool definition"
 						placeholder="Paste a JSON Schema, an Anthropic tool or an OpenAI function"
 						value={input}
+						language={json}
 						invalid={!parsed.ok}
+						errorLine={
+							parsed.ok
+								? undefined
+								: Number(parsed.error.match(/line (\d+)/)?.[1]) || undefined
+						}
 						onChange={setInput}
 					/>
 					{!parsed.ok && (
@@ -161,8 +169,10 @@ export function ToolSchemaConverterTool() {
 							</ToggleChip>
 						)}
 					</SubBar>
-					<CodeView
+					<CodeEditor
+						readOnly
 						label="Converted definition"
+						language={result ? json : prose}
 						value={result?.output ?? "Fix the JSON on the left to see the result."}
 					/>
 					{result && (

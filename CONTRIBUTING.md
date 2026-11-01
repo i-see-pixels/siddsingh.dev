@@ -36,7 +36,7 @@ pnpm dev
 pnpm lint-format
 ```
 
-Match the code around your change: its naming, comment density and idioms. Comments explain *why*, not *what*.
+Match the code around your change: its naming, comment density and idioms. Comments explain _why_, not _what_.
 
 ### Where code goes
 
@@ -81,11 +81,11 @@ Create `apps/web/features/tools/<slug>/`, register the component in `features/to
 
 3. Give the PR a [Conventional Commit](https://www.conventionalcommits.org) title. CI enforces it, release notes list it, and on a release PR it chooses the version bump:
 
-   | Title | Release |
-   | --- | --- |
-   | `feat: add tag pages`, `feat(tools): JSON formatter` | minor |
-   | `fix(blog): RSS dates in UTC`, `docs: …`, `chore: …` | patch |
-   | `feat!: move posts to /writing` | major |
+   | Title                                                | Release |
+   | ---------------------------------------------------- | ------- |
+   | `feat: add tag pages`, `feat(tools): JSON formatter` | minor   |
+   | `fix(blog): RSS dates in UTC`, `docs: …`, `chore: …` | patch   |
+   | `feat!: move posts to /writing`                      | major   |
 
 4. Fill in the PR template. Add screenshots for visual changes, in both light and dark themes and at phone width.
 

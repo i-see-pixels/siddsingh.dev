@@ -27,11 +27,11 @@ Its commits carry `[skip ci]`, so they don't start CI or another release, and th
 
 ## Protection on this repository
 
-| Ref | Rules |
-| --- | --- |
-| `main` | No deletion or force push. Changes only through a PR merged with a merge commit, with open review comments resolved. `Lint and typecheck`, `Build`, `Conventional title` and `Analyze (javascript-typescript)` must pass on an up-to-date branch |
-| `dev` | No deletion or force push. The maintainer commits directly; contributors open PRs |
-| `v*` tags | Only the release workflow can create, change or delete them |
+| Ref       | Rules                                                                                                                                                                                                                                            |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `main`    | No deletion or force push. Changes only through a PR merged with a merge commit, with open review comments resolved. `Lint and typecheck`, `Build`, `Conventional title` and `Analyze (javascript-typescript)` must pass on an up-to-date branch |
+| `dev`     | No deletion or force push. The maintainer commits directly; contributors open PRs                                                                                                                                                                |
+| `v*` tags | Only the release workflow can create, change or delete them                                                                                                                                                                                      |
 
 The release workflow's GitHub App is the only bypass on all three. Workflows on pull requests from outside contributors wait for maintainer approval before they run.
 
