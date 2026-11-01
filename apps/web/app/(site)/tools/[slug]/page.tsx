@@ -1,12 +1,12 @@
 import { Button } from "@workspace/ui/components/button"
-import { ArrowLeftIcon, ArrowRightIcon, BookOpenIcon, MailIcon } from "lucide-react"
+import { ArrowLeftIcon, BookOpenIcon, MailIcon } from "lucide-react"
 import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { Tag } from "@/components/badges"
 import { JsonLd } from "@/components/json-ld"
 import { Panel, PanelContent, PanelHeader, PanelTitle, Separator } from "@/components/panel"
-import { ToolScene } from "@/features/tools/scenes"
+import { ToolEmbed } from "@/features/tools/tool-embed"
 import { getPost } from "@/lib/blog"
 import { tools } from "@/lib/content"
 import { pageMetadata } from "@/lib/seo"
@@ -77,24 +77,7 @@ export default async function ToolPage({ params }: Props) {
 					<Tag>Runs in your browser</Tag>
 				</div>
 			</div>
-			<Panel marks={false} className="screen-line-top-none">
-				<div className="dot-grid">
-					<ToolScene slug={tool.slug} className="block h-52 w-full sm:h-60" />
-				</div>
-				<div className="screen-line-top flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between">
-					<p className="text-sm text-balance text-muted-foreground">
-						The editor opens full screen. Your files stay in your browser.
-					</p>
-					<Button
-						nativeButton={false}
-						render={<Link href={`/tools/${tool.slug}/workspace`} />}
-						className="shrink-0 gap-2"
-					>
-						Open {tool.name.toLowerCase()}
-						<ArrowRightIcon />
-					</Button>
-				</div>
-			</Panel>
+			<ToolEmbed slug={tool.slug} name={tool.name} />
 			<Separator />
 			<Panel id="overview">
 				<PanelHeader>

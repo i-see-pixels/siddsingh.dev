@@ -57,7 +57,7 @@ export function PanZoom({
 	viewRef.current = view
 	const needsFit = useRef(true)
 
-	const fit = useCallback(() => {
+	const fitView = useCallback(() => {
 		const viewport = viewportRef.current
 		const natural = naturalSize(svg)
 		if (!viewport || !natural) return
@@ -90,12 +90,12 @@ export function PanZoom({
 				const rect = viewportRef.current?.getBoundingClientRect()
 				if (rect) zoomAt(factor, rect.width / 2, rect.height / 2)
 			},
-			fit,
+			fit: fitView,
 			get scale() {
 				return viewRef.current.scale
 			},
 		}),
-		[fit, zoomAt],
+		[fitView, zoomAt],
 	)
 
 	// Fit the first diagram, and any diagram after a new example is loaded.
@@ -106,9 +106,9 @@ export function PanZoom({
 	useEffect(() => {
 		if (svg && needsFit.current) {
 			needsFit.current = false
-			fit()
+			fitView()
 		}
-	}, [svg, fit])
+	}, [svg, fitView])
 
 	useEffect(() => {
 		onScaleChange(view.scale)
