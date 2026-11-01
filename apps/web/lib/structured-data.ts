@@ -92,7 +92,7 @@ export function webApplicationJsonLd(tool: {
 		"@id": `${absolute(`/tools/${tool.slug}`)}#app`,
 		name: tool.name,
 		description: tool.description,
-		url: absolute(`/tools/${tool.slug}/workspace`),
+		url: absolute(`/tools/${tool.slug}`),
 		applicationCategory:
 			tool.category === "Images" ? "DesignApplication" : "DeveloperApplication",
 		operatingSystem: "Any (runs in the browser)",
