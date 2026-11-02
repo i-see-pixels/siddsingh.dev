@@ -3,12 +3,12 @@
 import { Input } from "@workspace/ui/components/input"
 import { cn } from "@workspace/ui/lib/utils"
 import { countTokens } from "gpt-tokenizer/encoding/o200k_base"
-import { useDeferredValue, useEffect, useMemo, useState } from "react"
+import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react"
 import { CodeEditor } from "../editor/code-editor"
 import { prose } from "../editor/languages/text"
 import { Pane, SplitLayout } from "../tool-ui"
 import { builtInPrices, tokenizerRatio } from "./models"
-import type { PriceList } from "./pricing"
+import type { PricedModel, PriceList } from "./pricing"
 
 const SAMPLE = `You are a helpful assistant. Summarise the following support ticket in two sentences and suggest the next action.
 
@@ -25,6 +25,16 @@ const formatDate = (iso: string) =>
 		timeZone: "UTC",
 	})
 
+const isPositive = (value: unknown) =>
+	typeof value === "number" && Number.isFinite(value) && value > 0
+
+/** A row the table can show: a known provider, real prices and a context window. */
+const isUsable = (model: PricedModel) =>
+	Object.hasOwn(tokenizerRatio, model.provider) &&
+	isPositive(model.inputPrice) &&
+	isPositive(model.outputPrice) &&
+	isPositive(model.contextWindow)
+
 const money = (value: number) =>
 	value < 0.01 && value > 0
 		? `$${value.toFixed(5)}`
@@ -37,13 +47,18 @@ export function LlmTokenCostTool() {
 	const [prices, setPrices] = useState<Record<string, { input: number; output: number }>>({})
 	const [priceList, setPriceList] = useState<PriceList>(builtInPrices)
 	const { models } = priceList
+	// Once a price is edited, the list stays put so the edit isn't lost to a model swap.
+	const edited = useRef(false)
 
 	useEffect(() => {
 		const controller = new AbortController()
 		fetch("/api/llm-prices", { signal: controller.signal })
 			.then((response) => (response.ok ? response.json() : null))
 			.then((list: PriceList | null) => {
-				if (list?.models.length) setPriceList(list)
+				const usable = Array.isArray(list?.models) ? list.models.filter(isUsable) : []
+				if (list && usable.length && !edited.current) {
+					setPriceList({ ...list, models: usable })
+				}
 			})
 			// Keep the built-in prices if the request fails.
 			.catch(() => {})
@@ -61,13 +76,15 @@ export function LlmTokenCostTool() {
 		return { model, exact, inputTokens, price, perRequest, total: perRequest * requests }
 	})
 
-	const setPrice = (id: string, key: "input" | "output", value: number) =>
+	const setPrice = (id: string, key: "input" | "output", value: number) => {
+		edited.current = true
 		setPrices((current) => {
 			const model = models.find((item) => item.id === id)
 			if (!model) return current
 			const existing = current[id] ?? { input: model.inputPrice, output: model.outputPrice }
 			return { ...current, [id]: { ...existing, [key]: Number.isFinite(value) ? value : 0 } }
 		})
+	}
 
 	return (
 		<SplitLayout>

@@ -44,6 +44,8 @@ describe("familyOf", () => {
 		expect(familyOf("gemini-flash-latest")).toBeNull()
 		expect(familyOf("gemini-omni-flash-preview")).toBeNull()
 		expect(familyOf("claude-opus-4-5-20251101")).toBeNull()
+		expect(familyOf("gpt-4o-2024-11-20")).toBeNull()
+		expect(familyOf("gpt-6.1-sol-2026-11-01")).toBeNull()
 		expect(familyOf("gpt-realtime-2.1")).toBeNull()
 	})
 })
@@ -141,5 +143,20 @@ describe("crossCheck", () => {
 			(model) => model.id === "claude-opus-5-5",
 		)
 		expect(opus?.openRouter).toEqual({ input: 5, output: 25 })
+	})
+
+	it("ignores other vendors' models with the same name", () => {
+		const resold: OpenRouterList = {
+			data: [
+				{
+					id: "someone/claude-opus-5.5",
+					pricing: { prompt: "0.000005", completion: "0.000025" },
+				},
+			],
+		}
+		const opus = crossCheck(pickModels(catalog), resold).find(
+			(model) => model.id === "claude-opus-5-5",
+		)
+		expect(opus?.openRouter).toBeUndefined()
 	})
 })

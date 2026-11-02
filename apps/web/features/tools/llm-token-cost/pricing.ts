@@ -67,13 +67,17 @@ const skipWords = new Set([
 const RETIRED_AFTER_DAYS = 150
 
 const isVersion = (part: string) => /^\d+(\.\d+)*$/.test(part)
-/** Dated snapshots such as claude-opus-4-5-20251101 repeat the undated model. */
-const isSnapshot = (part: string) => /^\d{8}$/.test(part)
+/**
+ * Dated snapshots such as claude-opus-4-5-20251101 or gpt-4o-2024-11-20 repeat the
+ * undated model.
+ */
+const isSnapshot = (id: string) => /-(\d{8}|\d{4}-\d{2}-\d{2})$/.test(id)
 
 /** `gemini-4-argon` → `gemini-argon`, or null when the id has no family name. */
 export function familyOf(id: string) {
+	if (isSnapshot(id)) return null
 	const words = id.toLowerCase().split("-")
-	if (words.some((word) => skipWords.has(word) || isSnapshot(word))) return null
+	if (words.some((word) => skipWords.has(word))) return null
 	const family = words.filter((word) => !isVersion(word))
 	// `gpt-5.6` has no name after the version, so it belongs to no family.
 	return family.length > 1 ? family.join("-") : null
@@ -163,7 +167,12 @@ export function pickModels(catalog: Catalog): PricedModel[] {
 }
 
 /** OpenRouter writes `anthropic/claude-opus-5.5`; the catalogue writes `claude-opus-5-5`. */
-const normalise = (id: string) => (id.split("/").pop() ?? id).replaceAll(".", "-")
+const normalise = (id: string) => id.replaceAll(".", "-")
+
+/** OpenRouter's id prefix for each provider, e.g. `anthropic` for Anthropic. */
+const openRouterPrefix = Object.fromEntries(
+	Object.entries(providers).map(([key, provider]) => [provider, key]),
+) as Record<ModelSpec["provider"], string>
 
 const differs = (a: number, b: number) => Math.abs(a - b) / Math.max(a, b) > 0.05
 
@@ -177,7 +186,8 @@ export function crossCheck(models: PricedModel[], openRouter: OpenRouterList): P
 		if (isPrice(input) && isPrice(output)) prices.set(normalise(entry.id), { input, output })
 	}
 	return models.map((model) => {
-		const other = prices.get(normalise(model.id))
+		// Match the provider's own listing only, not another vendor's model with the same name.
+		const other = prices.get(normalise(`${openRouterPrefix[model.provider]}/${model.id}`))
 		if (!other) return model
 		const round = (value: number) => Math.round(value * 1e6) / 1e6
 		return differs(model.inputPrice, other.input) || differs(model.outputPrice, other.output)
