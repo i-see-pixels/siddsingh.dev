@@ -5,6 +5,8 @@ import type { Post, PostFields, PostStatus } from "../domain/post"
 export interface PostReader {
 	findById(id: string): Promise<Post | null>
 	findBySlug(slug: string): Promise<Post | null>
+	/** Every post's id and slug, without the rest of the row. */
+	listSlugs(): Promise<Pick<Post, "id" | "slug">[]>
 	/** Published posts newest first by publish date; otherwise most recently edited first. */
 	list(filter?: { status?: PostStatus }): Promise<Post[]>
 }

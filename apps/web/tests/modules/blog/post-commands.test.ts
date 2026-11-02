@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest"
 import type { PostRepository } from "@/modules/blog/application/ports"
 import { PublishPosts } from "@/modules/blog/application/post-commands"
-import { CheckSlug } from "@/modules/blog/application/post-queries"
+import { CheckSlug, GetSlugFilter } from "@/modules/blog/application/post-queries"
+import { readBloomFilter } from "@/modules/blog/domain/bloom"
 import { draftFields, type Post } from "@/modules/blog/domain/post"
 
 const now = new Date("2026-06-01")
@@ -24,6 +25,7 @@ function repository(...seed: Post[]) {
 	const stored = new Map(seed.map((item) => [item.id, item]))
 	const fake = {
 		findById: async (id: string) => stored.get(id) ?? null,
+		listSlugs: async () => [...stored.values()].map(({ id, slug }) => ({ id, slug })),
 		findBySlug: async (slug: string) =>
 			[...stored.values()].find((item) => item.slug === slug) ?? null,
 		save: async (item: Post) => {
@@ -66,30 +68,24 @@ describe("PublishPosts", () => {
 })
 
 describe("CheckSlug", () => {
-	const { posts } = repository(
-		post("a", { slug: "taken" }),
-		post("c", { slug: "taken-2" }),
-		post("d", { slug: "x".repeat(100) }),
-	)
+	const { posts } = repository(post("a", { slug: "taken" }))
 	const check = new CheckSlug(posts)
 
-	it("suggests the next free slug when another post has it", async () => {
-		expect(await check.execute("taken", "b")).toEqual({
-			available: false,
-			suggestion: "taken-3",
-		})
+	it("is false when another post has the slug", async () => {
+		expect(await check.execute("taken", "b")).toBe(false)
 	})
 
-	it("suggests nothing when the suffix wouldn't fit", async () => {
-		expect(await check.execute("x".repeat(100), "b")).toEqual({
-			available: false,
-			suggestion: null,
-		})
+	it("is true for a free slug and for the post's own", async () => {
+		expect(await check.execute("free", "b")).toBe(true)
+		expect(await check.execute("taken", "a")).toBe(true)
 	})
+})
 
-	it("is available for a free slug and for the post's own", async () => {
-		const available = { available: true, suggestion: null }
-		expect(await check.execute("free", "b")).toEqual(available)
-		expect(await check.execute("taken", "a")).toEqual(available)
+describe("GetSlugFilter", () => {
+	it("holds the other posts' slugs, not the post's own", async () => {
+		const { posts } = repository(post("a", { slug: "mine" }), post("b", { slug: "theirs" }))
+		const has = readBloomFilter(await new GetSlugFilter(posts).execute("a"))
+		expect(has("theirs")).toBe(true)
+		expect(has("mine")).toBe(false)
 	})
 })

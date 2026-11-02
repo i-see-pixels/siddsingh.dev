@@ -1,5 +1,5 @@
+import { type BloomFilter, createBloomFilter } from "../domain/bloom"
 import type { Post, PostStatus } from "../domain/post"
-import { isValidSlug } from "../domain/slug"
 import type { PostReader } from "./ports"
 
 export class ListPosts {
@@ -18,23 +18,29 @@ export class GetPost {
 	}
 }
 
-const SUGGESTIONS = 5
-
-export type SlugAvailability = { available: boolean; suggestion: string | null }
-
-/** A post can always keep its own slug. A taken slug comes back with a free one to try. */
+/** A post can always keep its own slug. */
 export class CheckSlug {
 	constructor(private readonly posts: PostReader) {}
 
-	async execute(slug: string, postId: string): Promise<SlugAvailability> {
+	async execute(slug: string, postId: string): Promise<boolean> {
 		const post = await this.posts.findBySlug(slug)
-		if (!post || post.id === postId) return { available: true, suggestion: null }
-		for (let suffix = 2; suffix < 2 + SUGGESTIONS; suffix++) {
-			const candidate = `${slug}-${suffix}`
-			if (isValidSlug(candidate) && !(await this.posts.findBySlug(candidate)))
-				return { available: false, suggestion: candidate }
-		}
-		return { available: false, suggestion: null }
+		return !post || post.id === postId
+	}
+}
+
+/**
+ * Every other post's slug, as a Bloom filter for the editor: a slug it doesn't
+ * contain is free without asking the server. The post's own slug is left out,
+ * since keeping it is always allowed.
+ */
+export class GetSlugFilter {
+	constructor(private readonly posts: PostReader) {}
+
+	async execute(postId: string): Promise<BloomFilter> {
+		const slugs = await this.posts.listSlugs()
+		return createBloomFilter(
+			slugs.filter((post) => post.id !== postId).map((post) => post.slug),
+		)
 	}
 }
 

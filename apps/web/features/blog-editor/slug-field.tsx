@@ -48,21 +48,7 @@ export function SlugField({
 			{/* Always takes a line, so the form doesn't jump as the status comes and goes. */}
 			<p id="slug-status" aria-live="polite" className="min-h-5 text-sm">
 				{problem ? (
-					<span className="text-destructive">
-						{problem}
-						{check.suggestion && (
-							<>
-								{" "}
-								<button
-									type="button"
-									onClick={() => onChange(check.suggestion ?? "")}
-									className="font-mono underline underline-offset-2"
-								>
-									Use {check.suggestion}
-								</button>
-							</>
-						)}
-					</span>
+					<span className="text-destructive">{problem}</span>
 				) : check.status === "checking" ? (
 					<span className="text-muted-foreground">Checking availability…</span>
 				) : check.status === "available" ? (

@@ -28,6 +28,7 @@ export default async function EditPostPage({ params }: Props) {
 				publishedAt: post.publishedAt?.toISOString() ?? null,
 				updatedAt: post.updatedAt.toISOString(),
 			}}
+			slugFilter={await blog().getSlugFilter.execute(post.id)}
 		/>
 	)
 }

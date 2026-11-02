@@ -25,6 +25,10 @@ export class DrizzlePostRepository implements PostRepository {
 		return (await this.db.query.posts.findFirst({ where: eq(posts.slug, slug) })) ?? null
 	}
 
+	listSlugs() {
+		return this.db.select({ id: posts.id, slug: posts.slug }).from(posts)
+	}
+
 	list(filter: { status?: PostStatus } = {}): Promise<Post[]> {
 		return this.db
 			.select()

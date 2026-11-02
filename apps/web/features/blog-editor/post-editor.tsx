@@ -21,6 +21,7 @@ import Link from "next/link"
 import { useDeferredValue, useEffect, useRef, useState, useTransition } from "react"
 import { Markdown } from "@/components/markdown"
 import { ResizableSplit } from "@/components/resizable-split"
+import type { BloomFilter } from "@/modules/blog/domain/bloom"
 import type { PostField, PostFields } from "@/modules/blog/domain/post"
 import { slugify } from "@/modules/blog/domain/slug"
 import { deletePostAction, type SavedPost, savePostAction } from "./actions"
@@ -67,10 +68,12 @@ export function PostEditor({
 	id,
 	initial,
 	saved: initialSaved,
+	slugFilter,
 }: {
 	id: string
 	initial: Fields
 	saved: SavedPost
+	slugFilter: BloomFilter
 }) {
 	const [fields, setFields] = useState(initial)
 	const [tagsText, setTagsText] = useState(initial.tags.join(", "))
@@ -91,7 +94,12 @@ export function PostEditor({
 	const current: Fields = { ...fields, tags: parseTags(tagsText) }
 	const dirty = JSON.stringify(current) !== JSON.stringify(baseline)
 	const published = saved.status === "published"
-	const slugCheck = useSlugCheck(id, fields.slug, saved.slug)
+	const { check: slugCheck, refreshFilter } = useSlugCheck(
+		id,
+		fields.slug,
+		saved.slug,
+		slugFilter,
+	)
 
 	useEffect(() => {
 		if (!dirty) return
@@ -124,6 +132,7 @@ export function PostEditor({
 			if (result?.ok && result.post && result.fields) {
 				const stored = result.fields
 				setSaved(result.post)
+				refreshFilter()
 				// Show what was stored (trimmed, lowercased, de-duplicated), unless the
 				// writer kept typing while the save ran.
 				setFields((previous) =>

@@ -8,7 +8,7 @@ import { requireAdmin } from "@/lib/auth/session"
 import { POSTS_TAG } from "@/lib/blog"
 import { blog } from "@/lib/server/container"
 import type { PublishFailure, SaveIntent } from "@/modules/blog/application/post-commands"
-import type { SlugAvailability } from "@/modules/blog/application/post-queries"
+import type { BloomFilter } from "@/modules/blog/domain/bloom"
 import { fieldsOf, type Post, type PostField, type PostFields } from "@/modules/blog/domain/post"
 
 /** The editor's view of a saved post. Dates are ISO strings so they cross to the client. */
@@ -84,8 +84,14 @@ export async function savePostAction(
 	return state
 }
 
+/** A fresh filter for the editor, after a save or when its tab comes back into view. */
+export async function slugFilterAction(id: string): Promise<BloomFilter> {
+	await requireAdmin()
+	return blog().getSlugFilter.execute(z.uuid().parse(id))
+}
+
 /** The editor's live check; `savePostAction` still has the final say. */
-export async function checkSlugAction(id: string, slug: string): Promise<SlugAvailability> {
+export async function checkSlugAction(id: string, slug: string): Promise<boolean> {
 	await requireAdmin()
 	return blog().checkSlug.execute(z.string().parse(slug), id)
 }

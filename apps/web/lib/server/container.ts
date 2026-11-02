@@ -20,6 +20,7 @@ import {
 	CheckSlug,
 	GetPost,
 	GetPublishedPost,
+	GetSlugFilter,
 	ListPosts,
 } from "@/modules/blog/application/post-queries"
 import { DrizzlePostRepository } from "@/modules/blog/infrastructure/drizzle-post-repository"
@@ -54,6 +55,7 @@ export const blog = once(() => {
 		listPosts: new ListPosts(posts),
 		getPost: new GetPost(posts),
 		checkSlug: new CheckSlug(posts),
+		getSlugFilter: new GetSlugFilter(posts),
 		getPublishedPost: new GetPublishedPost(posts),
 	}
 })
