@@ -1,6 +1,9 @@
 const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 export const MAX_SLUG_LENGTH = 100
 
+export const INVALID_SLUG = `Use lowercase letters, numbers and single hyphens (up to ${MAX_SLUG_LENGTH} characters).`
+export const SLUG_TAKEN = "Another post already uses this slug."
+
 /** "Hello, World!" → "hello-world". */
 export function slugify(text: string) {
 	return text

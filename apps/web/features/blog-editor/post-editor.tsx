@@ -28,7 +28,9 @@ import { CoverImageField } from "./cover-image-field"
 import { type CommandName, commands, insertImage, type TextEdit } from "./markdown-commands"
 import { MarkdownToolbar } from "./markdown-toolbar"
 import { SeoFields } from "./seo-fields"
+import { SlugField } from "./slug-field"
 import { useImageUpload } from "./upload-image"
+import { useSlugCheck } from "./use-slug-check"
 
 type Fields = PostFields
 
@@ -89,6 +91,7 @@ export function PostEditor({
 	const current: Fields = { ...fields, tags: parseTags(tagsText) }
 	const dirty = JSON.stringify(current) !== JSON.stringify(baseline)
 	const published = saved.status === "published"
+	const slugCheck = useSlugCheck(id, fields.slug, saved.slug)
 
 	useEffect(() => {
 		if (!dirty) return
@@ -99,10 +102,13 @@ export function PostEditor({
 
 	const update = (patch: Partial<Fields>) => setFields((previous) => ({ ...previous, ...patch }))
 
-	const set = (field: "slug" | "summary" | "content") => (value: string) =>
-		update({ [field]: value })
+	const set = (field: "summary" | "content") => (value: string) => update({ [field]: value })
+
+	/** The save's verdict on a slug doesn't outlive that slug. */
+	const clearSlugError = () => setErrors(({ slug: _, ...others }) => others)
 
 	function setTitle(title: string) {
+		if (slugFollowsTitle) clearSlugError()
 		setFields((previous) => ({
 			...previous,
 			title,
@@ -226,7 +232,7 @@ export function PostEditor({
 							<Button
 								id="save-post"
 								size="sm"
-								disabled={pending || !dirty}
+								disabled={pending || !dirty || Boolean(slugCheck.problem)}
 								onClick={() => save("save")}
 							>
 								Update
@@ -238,12 +244,16 @@ export function PostEditor({
 								id="save-post"
 								variant="outline"
 								size="sm"
-								disabled={pending || !dirty}
+								disabled={pending || !dirty || Boolean(slugCheck.problem)}
 								onClick={() => save("save")}
 							>
 								Save draft
 							</Button>
-							<Button size="sm" disabled={pending} onClick={() => save("publish")}>
+							<Button
+								size="sm"
+								disabled={pending || Boolean(slugCheck.problem)}
+								onClick={() => save("publish")}
+							>
 								Publish
 							</Button>
 						</>
@@ -273,20 +283,16 @@ export function PostEditor({
 						<FieldError>{errors.title}</FieldError>
 					</Field>
 					<div className="grid gap-4 sm:grid-cols-2">
-						<Field data-invalid={Boolean(errors.slug) || undefined}>
-							<FieldLabel htmlFor="slug">Slug</FieldLabel>
-							<Input
-								id="slug"
-								value={fields.slug}
-								onChange={(event) => {
-									setSlugFollowsTitle(false)
-									set("slug")(event.target.value)
-								}}
-								className="font-mono"
-								aria-invalid={Boolean(errors.slug) || undefined}
-							/>
-							<FieldError>{errors.slug}</FieldError>
-						</Field>
+						<SlugField
+							value={fields.slug}
+							check={slugCheck}
+							error={errors.slug}
+							onChange={(slug) => {
+								setSlugFollowsTitle(false)
+								clearSlugError()
+								update({ slug })
+							}}
+						/>
 						<Field data-invalid={Boolean(errors.tags) || undefined}>
 							<FieldLabel htmlFor="tags">Tags</FieldLabel>
 							<Input

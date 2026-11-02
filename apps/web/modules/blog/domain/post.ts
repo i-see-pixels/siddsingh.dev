@@ -1,5 +1,5 @@
 import { NotFoundError, ValidationError } from "@/modules/shared/domain-error"
-import { isValidSlug, MAX_SLUG_LENGTH } from "./slug"
+import { INVALID_SLUG, isValidSlug } from "./slug"
 
 export type PostStatus = "draft" | "published"
 
@@ -18,6 +18,8 @@ export type Post = {
 	/** Search and social overrides; empty falls back to the title and summary. */
 	seoTitle: string
 	seoDescription: string
+	/** Marked by hand in the admin once a search engine has indexed the post. */
+	indexed: boolean
 	publishedAt: Date | null
 	createdAt: Date
 	updatedAt: Date
@@ -110,8 +112,7 @@ export function normalizeFields(input: PostFields): PostFields {
 	if (!fields.title) issues.title = "Add a title."
 	else if (fields.title.length > POST_LIMITS.title)
 		issues.title = `Keep the title under ${POST_LIMITS.title} characters.`
-	if (!isValidSlug(fields.slug))
-		issues.slug = `Use lowercase letters, numbers and single hyphens (up to ${MAX_SLUG_LENGTH} characters).`
+	if (!isValidSlug(fields.slug)) issues.slug = INVALID_SLUG
 	if (fields.summary.length > POST_LIMITS.summary)
 		issues.summary = `Keep the summary under ${POST_LIMITS.summary} characters.`
 	if (fields.tags.length > POST_LIMITS.tags) issues.tags = `Use at most ${POST_LIMITS.tags} tags.`

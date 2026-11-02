@@ -13,6 +13,8 @@ export interface PostWriter {
 	create(fields: PostFields): Promise<Post>
 	/** Persists every field of an existing post. Throws PostValidationError if the slug is taken. */
 	save(post: Post): Promise<Post>
+	/** Leaves `updatedAt` alone: tracking a post isn't editing it. */
+	setIndexed(ids: string[], indexed: boolean): Promise<void>
 	delete(id: string): Promise<void>
 }
 

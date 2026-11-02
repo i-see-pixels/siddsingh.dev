@@ -1,16 +1,16 @@
 import type { Database } from "@workspace/db/client"
 import { posts } from "@workspace/db/schema"
-import { desc, eq } from "drizzle-orm"
+import { desc, eq, inArray, sql } from "drizzle-orm"
 import type { PostRepository } from "../application/ports"
 import { type Post, type PostFields, type PostStatus, PostValidationError } from "../domain/post"
+import { SLUG_TAKEN } from "../domain/slug"
 
 const UNIQUE_VIOLATION = "23505"
 
 /** Translates the slug's unique constraint, the last guard against a race between two saves. */
 function rethrowSlugTaken(error: unknown): never {
 	const cause = (error as { cause?: { code?: string } })?.cause
-	if (cause?.code === UNIQUE_VIOLATION)
-		throw new PostValidationError({ slug: "Another post already uses this slug." })
+	if (cause?.code === UNIQUE_VIOLATION) throw new PostValidationError({ slug: SLUG_TAKEN })
 	throw error
 }
 
@@ -54,6 +54,14 @@ export class DrizzlePostRepository implements PostRepository {
 			.catch(rethrowSlugTaken)
 		if (!post) throw new Error(`Post ${id} vanished while saving.`)
 		return post
+	}
+
+	async setIndexed(ids: string[], indexed: boolean) {
+		await this.db
+			.update(posts)
+			// Naming updatedAt keeps its $onUpdate from firing.
+			.set({ indexed, updatedAt: sql`${posts.updatedAt}` })
+			.where(inArray(posts.id, ids))
 	}
 
 	async delete(id: string) {
