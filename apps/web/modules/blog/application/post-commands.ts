@@ -9,6 +9,7 @@ import {
 	publish,
 	unpublish,
 } from "../domain/post"
+import { SLUG_TAKEN } from "../domain/slug"
 import type { PostRepository } from "./ports"
 
 // Each use case loads the post, applies a domain rule and saves the result.
@@ -52,10 +53,47 @@ export class SavePost {
 		if (intent === "publish") post = publish(post, this.clock.now())
 		if (post.slug !== previous.slug) {
 			const existing = await this.posts.findBySlug(post.slug)
-			if (existing && existing.id !== id)
-				throw new PostValidationError({ slug: "Another post already uses this slug." })
+			if (existing && existing.id !== id) throw new PostValidationError({ slug: SLUG_TAKEN })
 		}
 		return { post: await this.posts.save(post), previous }
+	}
+}
+
+export type PublishFailure = { id: string; title: string; reason: string }
+
+/**
+ * Publishes each post on its own, so one incomplete draft doesn't hold back the
+ * rest. Posts that are already published are left alone.
+ */
+export class PublishPosts {
+	constructor(
+		private readonly posts: PostRepository,
+		private readonly clock: Clock,
+	) {}
+
+	async execute(ids: string[]) {
+		const published: Post[] = []
+		const failed: PublishFailure[] = []
+		for (const id of ids) {
+			const post = await load(this.posts, id)
+			if (post.status === "published") continue
+			try {
+				published.push(await this.posts.save(publish(post, this.clock.now())))
+			} catch (error) {
+				if (!(error instanceof PostValidationError)) throw error
+				const [reason = error.message] = Object.values(error.issues)
+				failed.push({ id, title: post.title, reason })
+			}
+		}
+		return { published, failed }
+	}
+}
+
+export class SetPostsIndexed {
+	constructor(private readonly posts: PostRepository) {}
+
+	execute(ids: string[], indexed: boolean): Promise<void> {
+		return this.posts.setIndexed(ids, indexed)
 	}
 }
 

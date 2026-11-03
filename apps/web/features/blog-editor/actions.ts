@@ -7,7 +7,8 @@ import { type ActionState, toActionState } from "@/lib/action-state"
 import { requireAdmin } from "@/lib/auth/session"
 import { POSTS_TAG } from "@/lib/blog"
 import { blog } from "@/lib/server/container"
-import type { SaveIntent } from "@/modules/blog/application/post-commands"
+import type { PublishFailure, SaveIntent } from "@/modules/blog/application/post-commands"
+import type { BloomFilter } from "@/modules/blog/domain/bloom"
 import { fieldsOf, type Post, type PostField, type PostFields } from "@/modules/blog/domain/post"
 
 /** The editor's view of a saved post. Dates are ISO strings so they cross to the client. */
@@ -69,14 +70,47 @@ export async function savePostAction(
 ): Promise<SaveState> {
 	await requireAdmin()
 	const fields = postFields.parse(input)
+	let state: SaveState
 	try {
 		const { post, previous } = await blog().savePost.execute(id, fields, intent)
 		if (previous.status === "published" || post.status === "published")
 			revalidateBlog(previous.slug, post.slug)
-		return { ok: true, post: toSaved(post), fields: fieldsOf(post) }
+		state = { ok: true, post: toSaved(post), fields: fieldsOf(post) }
 	} catch (error) {
 		return toActionState(error)
 	}
+	// Outside the try: redirect throws.
+	if (intent === "publish") redirect("/admin")
+	return state
+}
+
+/** A fresh filter for the editor, after a save or when its tab comes back into view. */
+export async function slugFilterAction(id: string): Promise<BloomFilter> {
+	await requireAdmin()
+	return blog().getSlugFilter.execute(z.uuid().parse(id))
+}
+
+/** The editor's live check; `savePostAction` still has the final say. */
+export async function checkSlugAction(id: string, slug: string): Promise<boolean> {
+	await requireAdmin()
+	return blog().checkSlug.execute(z.string().parse(slug), id)
+}
+
+const postIds = z.array(z.uuid())
+
+export type PublishManyResult = { published: number; failed: PublishFailure[] }
+
+export async function publishPostsAction(ids: string[]): Promise<PublishManyResult> {
+	await requireAdmin()
+	const { published, failed } = await blog().publishPosts.execute(postIds.parse(ids))
+	if (published.length > 0) revalidateBlog(...published.map((post) => post.slug))
+	return { published: published.length, failed }
+}
+
+export async function setPostsIndexedAction(ids: string[], indexed: boolean) {
+	await requireAdmin()
+	await blog().setPostsIndexed.execute(postIds.parse(ids), z.boolean().parse(indexed))
+	revalidatePath("/admin")
 }
 
 export async function deletePostAction(id: string) {

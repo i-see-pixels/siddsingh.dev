@@ -3,11 +3,12 @@
 import { Input } from "@workspace/ui/components/input"
 import { cn } from "@workspace/ui/lib/utils"
 import { countTokens } from "gpt-tokenizer/encoding/o200k_base"
-import { useDeferredValue, useMemo, useState } from "react"
+import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react"
 import { CodeEditor } from "../editor/code-editor"
 import { prose } from "../editor/languages/text"
 import { Pane, SplitLayout } from "../tool-ui"
-import { models, pricesCheckedOn, tokenizerRatio } from "./models"
+import { builtInPrices, tokenizerRatio } from "./models"
+import type { PricedModel, PriceList } from "./pricing"
 
 const SAMPLE = `You are a helpful assistant. Summarise the following support ticket in two sentences and suggest the next action.
 
@@ -15,6 +16,24 @@ Ticket: The checkout page throws a 500 error when a customer applies a discount 
 
 const formatWindow = (tokens: number) =>
 	tokens >= 1_000_000 ? `${Math.round(tokens / 100_000) / 10}M` : `${Math.round(tokens / 1000)}k`
+
+const formatDate = (iso: string) =>
+	new Date(`${iso}T00:00:00Z`).toLocaleDateString("en-GB", {
+		day: "numeric",
+		month: "short",
+		year: "numeric",
+		timeZone: "UTC",
+	})
+
+const isPositive = (value: unknown) =>
+	typeof value === "number" && Number.isFinite(value) && value > 0
+
+/** A row the table can show: a known provider, real prices and a context window. */
+const isUsable = (model: PricedModel) =>
+	Object.hasOwn(tokenizerRatio, model.provider) &&
+	isPositive(model.inputPrice) &&
+	isPositive(model.outputPrice) &&
+	isPositive(model.contextWindow)
 
 const money = (value: number) =>
 	value < 0.01 && value > 0
@@ -26,6 +45,25 @@ export function LlmTokenCostTool() {
 	const [outputTokens, setOutputTokens] = useState(500)
 	const [requests, setRequests] = useState(1)
 	const [prices, setPrices] = useState<Record<string, { input: number; output: number }>>({})
+	const [priceList, setPriceList] = useState<PriceList>(builtInPrices)
+	const { models } = priceList
+	// Once a price is edited, the list stays put so the edit isn't lost to a model swap.
+	const edited = useRef(false)
+
+	useEffect(() => {
+		const controller = new AbortController()
+		fetch("/api/llm-prices", { signal: controller.signal })
+			.then((response) => (response.ok ? response.json() : null))
+			.then((list: PriceList | null) => {
+				const usable = Array.isArray(list?.models) ? list.models.filter(isUsable) : []
+				if (list && usable.length && !edited.current) {
+					setPriceList({ ...list, models: usable })
+				}
+			})
+			// Keep the built-in prices if the request fails.
+			.catch(() => {})
+		return () => controller.abort()
+	}, [])
 
 	const deferredText = useDeferredValue(text)
 	const baseTokens = useMemo(() => countTokens(deferredText), [deferredText])
@@ -38,13 +76,15 @@ export function LlmTokenCostTool() {
 		return { model, exact, inputTokens, price, perRequest, total: perRequest * requests }
 	})
 
-	const setPrice = (id: string, key: "input" | "output", value: number) =>
+	const setPrice = (id: string, key: "input" | "output", value: number) => {
+		edited.current = true
 		setPrices((current) => {
 			const model = models.find((item) => item.id === id)
 			if (!model) return current
 			const existing = current[id] ?? { input: model.inputPrice, output: model.outputPrice }
 			return { ...current, [id]: { ...existing, [key]: Number.isFinite(value) ? value : 0 } }
 		})
+	}
 
 	return (
 		<SplitLayout>
@@ -112,6 +152,12 @@ export function LlmTokenCostTool() {
 												{model.provider} · {exact ? "" : "≈ "}
 												{inputTokens.toLocaleString()} tokens
 											</div>
+											{model.openRouter && (
+												<div className="text-xs text-amber-600 dark:text-amber-400">
+													OpenRouter lists ${model.openRouter.input} · $
+													{model.openRouter.output}
+												</div>
+											)}
 										</td>
 										<td className="px-2.5 py-2 text-right whitespace-nowrap tabular-nums">
 											<span className={cn(fit > 1 && "text-destructive")}>
@@ -158,9 +204,12 @@ export function LlmTokenCostTool() {
 				<p className="screen-line-top p-3 text-xs text-muted-foreground">
 					OpenAI counts use OpenAI's published o200k_base tokenizer and should be very
 					close. Anthropic and Google do not publish theirs, so those counts (≈) are
-					estimates. Prices were read from each provider's pricing page on{" "}
-					{pricesCheckedOn} and can change: edit any of them, and check the pricing page
-					before relying on them.
+					estimates. The list shows the newest model in each family, with prices{" "}
+					{priceList.source === "live"
+						? "from the models.dev catalogue, refreshed daily"
+						: "read from each provider's pricing page"}{" "}
+					(checked {formatDate(priceList.checkedOn)}). Edit any price, and check the
+					provider's pricing page before relying on it.
 				</p>
 			</Pane>
 		</SplitLayout>

@@ -15,6 +15,13 @@
 			"when": 1792607653711,
 			"tag": "0001_post_cover_and_seo",
 			"breakpoints": true
+		},
+		{
+			"idx": 2,
+			"version": "7",
+			"when": 1793559817938,
+			"tag": "0002_post_indexed",
+			"breakpoints": true
 		}
 	]
 }

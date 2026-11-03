@@ -1,5 +1,14 @@
 import { sql } from "drizzle-orm"
-import { index, integer, pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core"
+import {
+	boolean,
+	index,
+	integer,
+	pgEnum,
+	pgTable,
+	text,
+	timestamp,
+	uuid,
+} from "drizzle-orm/pg-core"
 
 // Column names are camelCase here and snake_case in Postgres (`casing` in
 // client.ts and drizzle.config.ts). Users and sessions belong to Neon Auth,
@@ -26,6 +35,8 @@ export const posts = pgTable(
 		/** Search and social overrides; empty means "use the title / summary". */
 		seoTitle: text().notNull().default(""),
 		seoDescription: text().notNull().default(""),
+		/** Set by hand in the admin once a search engine has indexed the post. */
+		indexed: boolean().notNull().default(false),
 		publishedAt: timestamp({ withTimezone: true }),
 		createdAt: createdAt(),
 		updatedAt: timestamp({ withTimezone: true })

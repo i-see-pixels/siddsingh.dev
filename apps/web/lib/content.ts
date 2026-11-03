@@ -286,7 +286,7 @@ export const tools = [
 		seoTitle: "LLM Token Calculator: Claude, GPT & Gemini Cost",
 		guide: "llm-token-cost-calculator",
 		overview: [
-			"Paste a prompt, document or code and see how many tokens it uses and what it costs on ten Claude, GPT and Gemini models side by side. Set the expected output length and the number of requests to budget a whole feature, not one call.",
+			"Paste a prompt, document or code and see how many tokens it uses and what it costs on the newest Claude, GPT and Gemini models side by side. Set the expected output length and the number of requests to budget a whole feature, not one call.",
 			"OpenAI counts use OpenAI's published o200k_base tokenizer. Anthropic and Google don't publish theirs, so those counts are estimates and marked with ≈. Counting happens in your browser, so your prompt is never sent anywhere.",
 		],
 		features: [
@@ -294,7 +294,7 @@ export const tools = [
 			"Cost per request and in total, with separate input and output prices.",
 			"Context window fit for each model, flagged when the prompt is too long.",
 			"Every price is editable, for negotiated rates or price changes.",
-			"Prices are dated, so you know when they were last checked.",
+			"Prices and models update daily, so new models appear on their own.",
 		],
 		steps: [
 			"Paste your prompt, document or code.",
@@ -308,7 +308,7 @@ export const tools = [
 			},
 			{
 				question: "Are the prices up to date?",
-				answer: "They are starting values and can go stale. Every price is editable, and you should check the provider's pricing page before budgeting.",
+				answer: "Prices and the model list are refreshed daily from the models.dev catalogue and checked against OpenRouter. A new model can take a few days to reach the catalogue, so check the provider's pricing page before budgeting. Every price is editable.",
 			},
 			{
 				question: "Is my prompt sent anywhere?",

@@ -9,8 +9,20 @@ import {
 	SignOut,
 } from "@/modules/auth/application/auth-use-cases"
 import { NeonIdentityProvider } from "@/modules/auth/infrastructure/neon-identity-provider"
-import { CreatePost, DeletePost, SavePost } from "@/modules/blog/application/post-commands"
-import { GetPost, GetPublishedPost, ListPosts } from "@/modules/blog/application/post-queries"
+import {
+	CreatePost,
+	DeletePost,
+	PublishPosts,
+	SavePost,
+	SetPostsIndexed,
+} from "@/modules/blog/application/post-commands"
+import {
+	CheckSlug,
+	GetPost,
+	GetPublishedPost,
+	GetSlugFilter,
+	ListPosts,
+} from "@/modules/blog/application/post-queries"
 import { DrizzlePostRepository } from "@/modules/blog/infrastructure/drizzle-post-repository"
 import { UploadMedia } from "@/modules/media/application/upload-media"
 import {
@@ -38,8 +50,12 @@ export const blog = once(() => {
 		createPost: new CreatePost(posts, cryptoIds),
 		savePost: new SavePost(posts, systemClock),
 		deletePost: new DeletePost(posts),
+		publishPosts: new PublishPosts(posts, systemClock),
+		setPostsIndexed: new SetPostsIndexed(posts),
 		listPosts: new ListPosts(posts),
 		getPost: new GetPost(posts),
+		checkSlug: new CheckSlug(posts),
+		getSlugFilter: new GetSlugFilter(posts),
 		getPublishedPost: new GetPublishedPost(posts),
 	}
 })

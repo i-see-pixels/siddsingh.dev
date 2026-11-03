@@ -1,3 +1,5 @@
+import type { PriceList } from "./pricing"
+
 export type ModelSpec = {
 	id: string
 	name: string
@@ -8,19 +10,13 @@ export type ModelSpec = {
 	contextWindow: number
 }
 
-/** When the seed prices below were read from each provider's pricing page. */
-export const pricesCheckedOn = "21 Oct 2026"
-
 /**
- * Seed list prices (USD per 1M tokens, standard tier, short prompts) and context
- * windows, taken from the providers' own pricing and model pages. The tool lets
- * visitors edit every price, so stale numbers are easy to correct.
- *
- * Known changes: Gemini 4 Argon doubles on 1 Dec 2026 ($4 in / $20 out) and
- * Gemini 3.8 Flash on 1 Jan 2027 ($1.50 in / $7.50 out). Claude Haiku 5.5 costs
- * $0.50 in / $2.50 out for prompts over 100k tokens.
+ * Built-in list prices (USD per 1M tokens, standard tier, short prompts) and context
+ * windows, read from the providers' own pricing pages on `checkedOn`. The tool loads
+ * current prices from /api/llm-prices and shows these until they arrive, or if the
+ * price feed fails. Visitors can edit every price.
  */
-export const models: ModelSpec[] = [
+const builtInModels: ModelSpec[] = [
 	{
 		id: "claude-fable-5-1",
 		name: "Claude Fable 5.1",
@@ -102,6 +98,12 @@ export const models: ModelSpec[] = [
 		contextWindow: 1_048_576,
 	},
 ]
+
+export const builtInPrices: PriceList = {
+	models: builtInModels.map((model) => ({ ...model, released: "" })),
+	checkedOn: "2026-10-21",
+	source: "built-in",
+}
 
 /**
  * Only OpenAI publishes its tokenizer, so counts for those models use o200k_base
