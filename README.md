@@ -47,13 +47,18 @@ It is a pnpm + Turborepo monorepo with one Next.js 16 app. Posts live in Postgre
 | `/work`, `/products`, `/about`                              | Case studies, own products, experience          |
 | `/blog`, `/blog/[slug]`                                     | Published posts, rendered from Markdown         |
 | `/tools`, `/tools/[slug]`                                   | Free browser tools (see below)                  |
-| `/admin`                                                    | Sign-in, post list and the post editor          |
+| `/admin`                                                    | Sign-in, posts table and the post editor        |
 | `/blog/rss.xml`, `/sitemap.xml`, `/robots.txt`, `/llms.txt` | Feeds and crawler files                         |
 | `/og/blog/[slug]`                                           | Generated social card for posts without a cover |
+| `/api/llm-prices`                                           | Daily model prices for the LLM cost calculator  |
 
 **Tools:** screenshot mockup, LLM token & cost calculator, prompt template playground, tool schema converter (JSON Schema ↔ Anthropic / OpenAI), diff checker and Mermaid diagram previewer. They all run in the browser.
 
-**Blog editor:** Markdown with a live preview, a formatting toolbar and shortcuts. You can paste or drop images to upload them to Vercel Blob. It also handles cover images, SEO title and description overrides, and drafts and publishing. Posts support GFM, code highlighting, Mermaid diagrams, callouts (`> [!NOTE]`), footnotes, and embeds from YouTube, Vimeo, Loom, CodePen, CodeSandbox and Spotify. To embed, paste the URL on a line of its own.
+**LLM prices:** the token & cost calculator shows the newest model in each Claude, GPT and Gemini family. `/api/llm-prices` builds that list from the [models.dev](https://models.dev) catalogue, checks each price against [OpenRouter](https://openrouter.ai) and notes any model where the two differ by more than 5%. The route is static and refreshed at most once a day, so visitors never call the feeds. If a refresh fails, the last good list stays cached. A build that can't reach the feed ships the built-in prices in `features/tools/llm-token-cost/models.ts`. New models appear without a code change, and visitors can still edit every price. No API key is needed.
+
+**Posts table:** `/admin` lists every post in a sortable, paginated table. You can search titles, slugs, summaries and tags, filter by status, tags and whether a post is indexed, and publish or mark several posts at once. The filters are kept in the URL. The **Indexed** checkbox is set by hand once a search engine has indexed the post.
+
+**Blog editor:** Markdown with a live preview, a formatting toolbar and shortcuts. You can paste or drop images to upload them to Vercel Blob. It also handles cover images, SEO title and description overrides, and drafts and publishing. The slug field checks availability as you type: the editor loads a Bloom filter of existing slugs, so most checks never reach the server, and saving still checks for real. Posts support GFM, code highlighting, Mermaid diagrams, callouts (`> [!NOTE]`), footnotes, and embeds from YouTube, Vimeo, Loom, CodePen, CodeSandbox and Spotify. To embed, paste the URL on a line of its own.
 
 ## Stack
 
@@ -181,6 +186,7 @@ Run these from the repository root.
 | `pnpm dev`                       | Start the dev server                                           |
 | `pnpm build`                     | Production build                                               |
 | `pnpm typecheck`                 | Type-check every package                                       |
+| `pnpm test` / `pnpm test:watch`  | Run the Vitest suite once / in watch mode                      |
 | `pnpm lint` / `pnpm lint-format` | Check with Biome / check and fix                               |
 | `pnpm db:generate`               | Generate a migration after editing `packages/db/src/schema.ts` |
 | `pnpm db:migrate`                | Apply pending migrations                                       |
@@ -200,7 +206,7 @@ import { Button } from "@workspace/ui/components/button"
 
 ## Deployment
 
-The site is built for Vercel. Set the same environment variables in the project settings, and run `pnpm db:migrate` against the production database before deploying schema changes. Published posts are prerendered. Saving a post in the editor refreshes the blog pages, feeds and sitemap, so no redeploy is needed for new content.
+The site is built for Vercel. Set the same environment variables in the project settings, and run `pnpm db:migrate` against the production database before deploying schema changes (for example `0002_post_indexed.sql`, which adds the `indexed` column to `posts`). Published posts are prerendered. Saving a post in the editor refreshes the blog pages, feeds and sitemap, so no redeploy is needed for new content.
 
 ## CI and releases
 
