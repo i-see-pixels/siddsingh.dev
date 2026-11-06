@@ -9,3 +9,23 @@ allowBuilds:
     msw: false
     # Its postinstall only prints a funding message.
     core-js: false
+
+# Security overrides for transitive deps whose parents have no patched release.
+# Remove each one once its parent ships a fixed version.
+overrides:
+    # @neondatabase/auth(-ui) pin better-auth 1.7.6 (critical/high/low advisories, fixed in 1.7.7).
+    # Even the latest 0.7.0-beta still pins 1.7.6. The @better-auth/* pins move with it so versions stay in sync.
+    better-auth: 1.7.7
+    "@better-auth/core": 1.7.7
+    "@better-auth/passkey": 1.7.7
+    "@better-auth/oauth-provider": 1.7.7
+    # zod <4.6.6 (high). @vercel/cli-config 0.3.1 (via @vercel/blob > @vercel/oidc 3.x) and
+    # @neondatabase/auth(-ui) pin old zod 4.x releases.
+    "@vercel/cli-config>zod": ^4.6.6
+    "@neondatabase/auth>zod": ^4.6.6
+    "@neondatabase/auth-ui>zod": ^4.6.6
+    # esbuild <=0.24.2 (moderate). drizzle-kit pulls in the deprecated @esbuild-kit loader, which pins esbuild ~0.18.
+    "@esbuild-kit/core-utils>esbuild": ^0.25.0
+    # minimatch <11.0.1 (moderate). shadcn > ts-morph 26 > @ts-morph/common asks for ^10.
+    # ts-morph only calls minimatch(), which v11 keeps.
+    "@ts-morph/common>minimatch": ^11.0.1
