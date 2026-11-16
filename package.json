@@ -16,9 +16,9 @@
 		"test:watch": "turbo test:watch"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "^2.6.4",
+		"@biomejs/biome": "^2.6.7",
 		"@workspace/typescript-config": "workspace:*",
-		"turbo": "^2.11.10",
+		"turbo": "^2.11.11",
 		"typescript": "^7"
 	},
 	"packageManager": "pnpm@12.14.0",
